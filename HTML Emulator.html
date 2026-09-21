@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyLine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #000000;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Glassmorphism containers */
+        .glass-box {
+            background: rgba(12, 12, 12, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(255, 255, 255, 0.03);
+        }
+
+        .glass-modal {
+            background: rgba(10, 10, 10, 0.94);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+        }
+
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            height: 6px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease-in-out;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+        }
+
+        .glow-title {
+            text-shadow: 0 0 18px rgba(255, 255, 255, 0.7);
+        }
+
+        .dropzone-active {
+            border-color: rgba(255, 255, 255, 0.9) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .modal-enter {
+            animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="text-white h-screen w-screen relative select-none bg-black">
+
+    <!-- Fullscreen Canvas background for stars and falling stars -->
+    <canvas id="starfield" class="absolute inset-0 z-0 pointer-events-none bg-black"></canvas>
+
+    <!-- Main UI Layout -->
+    <div class="relative z-10 flex flex-col h-full w-full justify-between p-6 md:p-10 pointer-events-none">
+        
+        <!-- Header Section: SkyLine top-left, Settings top-right -->
+        <header class="w-full flex justify-between items-center pointer-events-auto">
+            <!-- Top-Left Title -->
+            <h1 class="font-orbitron font-black text-2xl md:text-3xl tracking-widest text-white glow-title uppercase">
+                SkyLine
+            </h1>
+
+            <!-- Top-Right Settings Gear Icon -->
+            <button id="settingsBtn" aria-label="Settings" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/15 border border-white/10 text-white/80 hover:text-white transition-all duration-200 active:scale-90">
+                <i class="fa-solid fa-gear text-lg"></i>
+            </button>
+        </header>
+
+        <!-- Center File Selector Section -->
+        <main class="flex-1 flex items-center justify-center pointer-events-auto my-auto py-4">
+            <div class="glass-box rounded-3xl p-6 md:p-8 max-w-md w-full text-center border border-white/15 shadow-2xl">
+                
+                <!-- File Dropzone -->
+                <div id="dropZoneView" class="space-y-4">
+                    <div id="dropZone" class="border-2 border-dashed border-white/20 rounded-2xl p-8 transition-all duration-300 hover:border-white/40 cursor-pointer group bg-black/40">
+                        <input type="file" id="fileInput" accept=".html, .htm, .txt" class="hidden">
+                        
+                        <div class="flex flex-col items-center justify-center space-y-4">
+                            <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/80 group-hover:scale-110 group-hover:text-white group-hover:bg-white/10 transition-all duration-300 shadow-inner">
+                                <i class="fa-solid fa-file-code text-2xl"></i>
+                            </div>
+
+                            <div class="space-y-1">
+                                <p class="text-sm md:text-base font-semibold text-white">Choose or Drop HTML File</p>
+                                <p class="text-xs text-neutral-400">Supports <span class="text-white font-mono">.html</span>, <span class="text-white font-mono">.htm</span>, or <span class="text-white font-mono">.txt</span></p>
+                            </div>
+
+                            <button class="px-5 py-2 rounded-xl bg-white text-black font-semibold text-xs tracking-wider uppercase hover:bg-neutral-200 active:scale-95 transition-all duration-200 shadow-lg">
+                                Select File
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Launch Status Indicator -->
+                <div id="statusMessage" class="hidden mt-4 p-3 rounded-xl bg-white/10 border border-white/20 text-xs text-neutral-200 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-spinner fa-spin text-white"></i>
+                    <span id="statusText">Injecting Back Button & Generating Blob URL...</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Footer Info -->
+        <footer class="w-full text-center text-xs text-neutral-500 font-mono pointer-events-auto">
+            SkyLine HTML Emulator
+        </footer>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md hidden pointer-events-auto">
+        <div class="glass-modal rounded-3xl p-6 md:p-8 max-w-md w-full modal-enter border border-white/20">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-sliders text-sm"></i>
+                    </div>
+                    <h2 class="font-orbitron font-bold text-lg text-white">Settings</h2>
+                </div>
+                <button id="closeSettingsBtn" class="text-neutral-400 hover:text-white transition-colors w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Slider 1: Amount of Stars -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-xs font-semibold">
+                        <span class="text-neutral-300">Amount of Stars</span>
+                        <span id="starCountValue" class="font-mono bg-white/10 px-2 py-0.5 rounded text-white border border-white/10">800</span>
+                    </div>
+                    <input type="range" id="starCountSlider" min="100" max="3000" step="50" value="800" class="w-full">
+                </div>
+
+                <!-- Slider 2: Shooting Star Rarity -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-xs font-semibold">
+                        <span class="text-neutral-300">Shooting Star Interval</span>
+                        <span id="rarityValue" class="font-mono bg-white/10 px-2 py-0.5 rounded text-white border border-white/10">800 ms</span>
+                    </div>
+                    <input type="range" id="raritySlider" min="100" max="3000" step="50" value="800" class="w-full">
+                    <p class="text-[10px] text-neutral-400">Lower value = more frequent falling stars.</p>
+                </div>
+
+                <!-- Option 3: Star Color Selection -->
+                <div class="space-y-2 pt-2 border-t border-white/10">
+                    <label class="text-xs font-semibold text-neutral-300 block">Star Color Palette</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="colorWhiteBtn" class="py-2.5 px-3 rounded-xl border text-xs font-medium transition-all duration-200 border-white bg-white/20 text-white flex items-center justify-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_#ffffff]"></span>
+                            <span>Pure White</span>
+                        </button>
+                        <button id="colorCosmicBtn" class="py-2.5 px-3 rounded-xl border text-xs font-medium transition-all duration-200 border-white/10 bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 flex items-center justify-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-cyan-300 shadow-[0_0_8px_#67e8f9]"></span>
+                            <span>Cosmic Colors</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="pt-4 border-t border-white/10 flex justify-between items-center">
+                    <button id="resetDefaultsBtn" class="text-xs text-neutral-400 hover:text-white transition-colors underline">
+                        Reset Defaults (800)
+                    </button>
+                    <button id="saveSettingsBtn" class="px-5 py-2 rounded-xl bg-white text-black font-semibold text-xs tracking-wider uppercase hover:bg-neutral-200 transition-all">
+                        Apply & Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Blocker / Fallback Launch Modal -->
+    <div id="fallbackModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden pointer-events-auto">
+        <div class="glass-modal rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-white/20">
+            <div class="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white mx-auto text-xl">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </div>
+            <h3 class="font-orbitron text-lg font-bold">Launch Game</h3>
+            <p class="text-xs text-neutral-300">Your emulated Blob URL with "Back to Home" button is ready! Click below to play.</p>
+            <div class="space-y-2 pt-2">
+                <a id="manualLaunchBtn" target="_blank" class="block w-full py-3 rounded-xl bg-white text-black font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 transition-all shadow-lg">
+                    Open Emulated Game
+                </a>
+                <button id="cancelFallbackBtn" class="block w-full py-2 rounded-xl bg-white/5 text-neutral-400 text-xs hover:text-white hover:bg-white/10">
+                    Cancel & Stay Here
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        // Config variables
+        let config = {
+            starCount: 800,
+            rarityMs: 800,
+            colorMode: 'white' // 'white' or 'cosmic'
+        };
+
+        const cosmicColors = [
+            '#FFFFFF', '#FFFFFF', '#FFFFFF', 
+            '#A5F3FC', '#7DD3FC', '#FDE047', '#F472B6'
+        ];
+
+        let stars = [];
+        let shootingStars = [];
+        let lastShootingStarTime = 0;
+        let animationFrameId;
+
+        // Resize Canvas dynamically
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        // Initialize regular background stars
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < config.starCount; i++) {
+                let color = '#FFFFFF';
+                if (config.colorMode === 'cosmic') {
+                    color = cosmicColors[Math.floor(Math.random() * cosmicColors.length)];
+                }
+
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5 + 0.5,
+                    baseAlpha: Math.random() * 0.7 + 0.3,
+                    alpha: Math.random(),
+                    twinkleSpeed: Math.random() * 0.02 + 0.005,
+                    color: color
+                });
+            }
+        }
+
+        // Create a shooting star instance
+        function spawnShootingStar() {
+            const startX = Math.random() * canvas.width * 1.2 - canvas.width * 0.1;
+            const startY = Math.random() * (canvas.height * 0.5);
+            const length = Math.random() * 120 + 80;
+            const speed = Math.random() * 10 + 12;
+
+            let color = '#FFFFFF';
+            if (config.colorMode === 'cosmic') {
+                color = cosmicColors[Math.floor(Math.random() * cosmicColors.length)];
+            }
+
+            shootingStars.push({
+                x: startX,
+                y: startY,
+                dx: Math.cos(Math.PI / 4) * speed,
+                dy: Math.sin(Math.PI / 4) * speed,
+                length: length,
+                color: color,
+                life: 1.0,
+                decay: Math.random() * 0.015 + 0.015
+            });
+        }
+
+        // Animation Loop
+        function animate(timestamp) {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw twinkling stars
+            for (let i = 0; i < stars.length; i++) {
+                let s = stars[i];
+                s.alpha += s.twinkleSpeed;
+                if (s.alpha > 1 || s.alpha < 0.2) {
+                    s.twinkleSpeed = -s.twinkleSpeed;
+                }
+
+                ctx.fillStyle = s.color;
+                ctx.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Spawn shooting star based on rarity setting
+            if (timestamp - lastShootingStarTime > config.rarityMs) {
+                spawnShootingStar();
+                lastShootingStarTime = timestamp;
+            }
+
+            // Draw shooting stars
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                let ss = shootingStars[i];
+
+                let tailX = ss.x - (ss.dx / Math.hypot(ss.dx, ss.dy)) * ss.length;
+                let tailY = ss.y - (ss.dy / Math.hypot(ss.dx, ss.dy)) * ss.length;
+
+                let gradient = ctx.createLinearGradient(ss.x, ss.y, tailX, tailY);
+                gradient.addColorStop(0, ss.color);
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.beginPath();
+                ctx.moveTo(ss.x, ss.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 1.8;
+                ctx.globalAlpha = ss.life;
+                ctx.stroke();
+
+                // Glow head particle
+                ctx.beginPath();
+                ctx.arc(ss.x, ss.y, 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fill();
+
+                // Move shooting star
+                ss.x += ss.dx;
+                ss.y += ss.dy;
+                ss.life -= ss.decay;
+
+                // Remove expired shooting stars
+                if (ss.life <= 0 || ss.x > canvas.width + 200 || ss.y > canvas.height + 200) {
+                    shootingStars.splice(i, 1);
+                }
+            }
+
+            ctx.globalAlpha = 1.0;
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        requestAnimationFrame(animate);
+
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
+
+        const starCountSlider = document.getElementById('starCountSlider');
+        const raritySlider = document.getElementById('raritySlider');
+        const starCountValue = document.getElementById('starCountValue');
+        const rarityValue = document.getElementById('rarityValue');
+
+        const colorWhiteBtn = document.getElementById('colorWhiteBtn');
+        const colorCosmicBtn = document.getElementById('colorCosmicBtn');
+
+        // Modal Toggles
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+        });
+
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+        });
+
+        // Dynamic Slider Inputs
+        starCountSlider.addEventListener('input', (e) => {
+            starCountValue.textContent = e.target.value;
+        });
+
+        raritySlider.addEventListener('input', (e) => {
+            rarityValue.textContent = `${e.target.value} ms`;
+        });
+
+        // Color Mode Toggle UI Logic
+        colorWhiteBtn.addEventListener('click', () => {
+            config.colorMode = 'white';
+            colorWhiteBtn.className = "py-2.5 px-3 rounded-xl border text-xs font-medium transition-all duration-200 border-white bg-white/20 text-white flex items-center justify-center space-x-2";
+            colorCosmicBtn.className = "py-2.5 px-3 rounded-xl border text-xs font-medium transition-all duration-200 border-white/10 bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 flex items-center justify-center space-x-2";
+        });
+
+        colorCosmicBtn.addEventListener('click', () => {
+            config.colorMode = 'cosmic';
+            colorCosmicBtn.className = "py-2.5 px-3 rounded-xl border text-xs font-medium transition-all duration-200 border-cyan-400 bg-cyan-500/20 text-white flex items-center justify-center space-x-2";
+            colorWhiteBtn.className = "py-2.5 px-3 rounded-xl border text-xs font-medium transition-all duration-200 border-white/10 bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 flex items-center justify-center space-x-2";
+        });
+
+        saveSettingsBtn.addEventListener('click', () => {
+            config.starCount = parseInt(starCountSlider.value);
+            config.rarityMs = parseInt(raritySlider.value);
+            initStars();
+            settingsModal.classList.add('hidden');
+        });
+
+        resetDefaultsBtn.addEventListener('click', () => {
+            starCountSlider.value = 800;
+            raritySlider.value = 800;
+            starCountValue.textContent = "800";
+            rarityValue.textContent = "800 ms";
+            config.starCount = 800;
+            config.rarityMs = 800;
+            config.colorMode = 'white';
+            colorWhiteBtn.click();
+            initStars();
+        });
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const statusMessage = document.getElementById('statusMessage');
+        const statusText = document.getElementById('statusText');
+        const fallbackModal = document.getElementById('fallbackModal');
+        const manualLaunchBtn = document.getElementById('manualLaunchBtn');
+        const cancelFallbackBtn = document.getElementById('cancelFallbackBtn');
+
+        // Click to upload
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop highlights
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dropzone-active');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dropzone-active');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                processFile(e.target.files[0]);
+            }
+        });
+
+        // Core File Processing and Execution Engine
+        function processFile(file) {
+            if (!file) return;
+
+            statusMessage.classList.remove('hidden');
+            statusText.textContent = `Reading ${file.name}...`;
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                let htmlContent = e.target.result;
+
+                // Store current home URL to return back to if opener is unavailable
+                const skylineHomeUrl = window.location.href;
+
+                // Code snippet for the floating "Back to Home" button element & behavior
+                const backButtonSnippet = `
+<!-- SKYLINE INJECTED BACK TO HOME BUTTON -->
+<div id="skyline-back-bar" style="position: fixed; top: 12px; left: 12px; z-index: 2147483647; font-family: system-ui, -apple-system, sans-serif;">
+    <button onclick="skylineReturnHome()" style="display: flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.82); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); padding: 8px 14px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.2s ease;">
+        <span style="font-size: 14px;">&#x2190;</span>
+        <span>Back to Home</span>
+    </button>
+</div>
+<script>
+    function skylineReturnHome() {
+        if (window.opener && !window.opener.closed) {
+            try {
+                window.opener.focus();
+            } catch(e) {}
+        }
+        window.location.href = "${skylineHomeUrl}";
+    }
+<\/script>
+`;
+
+                // Inject button into the HTML document
+                if (htmlContent.includes('<body') || htmlContent.includes('<BODY')) {
+                    // Inject right after opening <body> tag
+                    htmlContent = htmlContent.replace(/(<body[^>]*>)/i, `$1\n${backButtonSnippet}`);
+                } else if (htmlContent.includes('<html') || htmlContent.includes('<HTML')) {
+                    // Inject before closing </html> or create body
+                    htmlContent = htmlContent.replace(/(<\/html>)/i, `<body>\n${backButtonSnippet}\n</body>\n$1`);
+                } else {
+                    // Wrap raw snippet in standard structure
+                    htmlContent = `<!DOCTYPE html>\n<html>\n<head><meta charset="utf-8"><title>SkyLine Emulated App</title></head>\n<body style="margin:0; padding:0;">\n${backButtonSnippet}\n${htmlContent}\n</body>\n</html>`;
+                }
+
+                executeBlobAndRedirect(htmlContent);
+            };
+
+            reader.onerror = function() {
+                statusText.textContent = "Error reading file. Please try again.";
+            };
+
+            reader.readAsText(file);
+        }
+
+        function executeBlobAndRedirect(htmlContent) {
+            try {
+                // Create clean Blob with UTF-8 encoding
+                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+                const blobUrl = URL.createObjectURL(blob);
+
+                statusText.textContent = "Opening emulated game in Blob URL...";
+
+                // Attempt to open Blob URL in new window/tab
+                const newWindow = window.open(blobUrl, '_blank');
+
+                if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                    // Popup was blocked by browser -> Show fallback launch button
+                    statusMessage.classList.add('hidden');
+                    manualLaunchBtn.href = blobUrl;
+                    fallbackModal.classList.remove('hidden');
+                } else {
+                    // Successfully launched! Now redirect current tab to Google
+                    statusText.textContent = "Success! Redirecting page to Google...";
+                    setTimeout(() => {
+                        window.location.href = "https://www.google.com";
+                    }, 500);
+                }
+            } catch (err) {
+                statusText.textContent = "Failed to launch Blob URL: " + err.message;
+            }
+        }
+
+        cancelFallbackBtn.addEventListener('click', () => {
+            fallbackModal.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
