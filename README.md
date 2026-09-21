@@ -1,44 +1,27 @@
-# 🌌 SkyLine Gaming Hub
+# 🌌 SkyLine
 
-> A sleek, high-performance web-based gaming portal featuring a curated collection of HTML5 and WebGL games, built for speed, style, and smooth gameplay.
+> A sleek, web-based gaming hub built for instant play right in your browser.
 
-![Status](https://img.shields.io/badge/status-active-success.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+---
+
+## 🎮 What is SkyLine?
+
+SkyLine is a lightweight, modern gaming portal where you can browse and play web-based games instantly. No installations or downloads required—just open and play!
 
 ---
 
 ## ✨ Features
 
-- **Curated Game Library:** Fast-loading HTML5, WebGL, and retro-style browser games.
-- **Sleek UI/UX:** Modern, minimalist design with dynamic visual backgrounds and responsive layouts.
-- **Real-Time Analytics / Player Counters:** Live tracking of active players and site traffic *(powered by Firebase/Supabase)*.
-- **Zero Installation:** Play instantly right inside your browser with no downloads required.
-- **Mobile & Desktop Friendly:** Fully responsive design optimized for all screen sizes.
+- **Instant Play:** Runs smoothly right inside any modern web browser.
+- **Clean Interface:** Minimalist and responsive design that looks great on any screen size.
+- **Easy to Add Games:** Easily drop in your favorite HTML5, WebGL, or retro browser games.
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Getting Started
 
-- **Frontend:** HTML5, CSS3, Modern JavaScript (ES6+)
-- **Styling & Effects:** Custom CSS variables, Vanta.js / Three.js (for dynamic backgrounds)
-- **Backend / Database:** Firebase Realtime Database / Supabase *(for user stats & live counters)*
-- **Hosting:** GitHub Pages / Vercel / Netlify
+To run SkyLine locally on your machine:
 
----
-
-## 📂 Project Structure
-
-```text
-skyline-gaming-hub/
-│
-├── index.html          # Main landing page & game portal grid
-├── css/
-│   ├── main.css        # Global styles and theme variables
-│   └── animations.css  # UI transitions and visual effects
-├── js/
-│   ├── app.js          # Core portal logic and game loader
-│   └── database.js     # Real-time player stats integration
-├── assets/
-│   ├── icons/          # UI and navigation icons
-│   └── banners/        # Game thumbnails and promotional art
-└── games/              # Individual game subdirectories or embeds
+1. Download or clone the project files.
+2. Open `index.html` in your web browser. 
+   *(Or spin up a quick local server using Python: `python -m http.server 8000`)*
