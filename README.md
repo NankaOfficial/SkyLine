@@ -18,10 +18,3 @@ SkyLine is a lightweight, modern gaming portal where you can browse and play web
 
 ---
 
-## 🚀 Getting Started
-
-To run SkyLine locally on your machine:
-
-1. Download or clone the project files.
-2. Open `index.html` in your web browser. 
-   *(Or spin up a quick local server using Python: `python -m http.server 8000`)*
