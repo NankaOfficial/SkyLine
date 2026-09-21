@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyLine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            background-color: #000000;
+        }
+
+        .glow-title {
+            text-shadow: 0 0 18px rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body class="text-white h-screen w-screen relative select-none bg-black cursor-pointer">
+
+    <canvas id="starfield" class="absolute inset-0 z-0 pointer-events-none bg-black"></canvas>
+
+    <div class="relative z-10 p-6 md:p-10 pointer-events-none">
+        <h1 class="font-black text-2xl md:text-3xl tracking-widest text-white glow-title uppercase">
+            SkyLine
+        </h1>
+    </div>
+
+    <script>
+        // Enter fullscreen on click anywhere on screen
+        document.body.addEventListener('click', () => {
+            const docEl = document.documentElement;
+            if (!document.fullscreenElement) {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen();
+                } else if (docEl.webkitRequestFullscreen) {
+                    docEl.webkitRequestFullscreen();
+                } else if (docEl.msRequestFullscreen) {
+                    docEl.msRequestFullscreen();
+                }
+            }
+        });
+
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        const STAR_COUNT = 800;
+        const RARITY_MS = 800;
+
+        let stars = [];
+        let shootingStars = [];
+        let lastShootingStarTime = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < STAR_COUNT; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random(),
+                    twinkleSpeed: Math.random() * 0.02 + 0.005
+                });
+            }
+        }
+
+        function spawnShootingStar() {
+            const startX = Math.random() * canvas.width * 1.2 - canvas.width * 0.1;
+            const startY = Math.random() * (canvas.height * 0.5);
+            const length = Math.random() * 120 + 80;
+            const speed = Math.random() * 10 + 12;
+
+            shootingStars.push({
+                x: startX,
+                y: startY,
+                dx: Math.cos(Math.PI / 4) * speed,
+                dy: Math.sin(Math.PI / 4) * speed,
+                length: length,
+                life: 1.0,
+                decay: Math.random() * 0.015 + 0.015
+            });
+        }
+
+        function animate(timestamp) {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw white background twinkling stars
+            for (let i = 0; i < stars.length; i++) {
+                let s = stars[i];
+                s.alpha += s.twinkleSpeed;
+                if (s.alpha > 1 || s.alpha < 0.2) {
+                    s.twinkleSpeed = -s.twinkleSpeed;
+                }
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Spawn falling stars
+            if (timestamp - lastShootingStarTime > RARITY_MS) {
+                spawnShootingStar();
+                lastShootingStarTime = timestamp;
+            }
+
+            // Draw diagonal falling stars
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                let ss = shootingStars[i];
+
+                let tailX = ss.x - (ss.dx / Math.hypot(ss.dx, ss.dy)) * ss.length;
+                let tailY = ss.y - (ss.dy / Math.hypot(ss.dx, ss.dy)) * ss.length;
+
+                let gradient = ctx.createLinearGradient(ss.x, ss.y, tailX, tailY);
+                gradient.addColorStop(0, '#FFFFFF');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.beginPath();
+                ctx.moveTo(ss.x, ss.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 1.8;
+                ctx.globalAlpha = ss.life;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(ss.x, ss.y, 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fill();
+
+                ss.x += ss.dx;
+                ss.y += ss.dy;
+                ss.life -= ss.decay;
+
+                if (ss.life <= 0 || ss.x > canvas.width + 200 || ss.y > canvas.height + 200) {
+                    shootingStars.splice(i, 1);
+                }
+            }
+
+            ctx.globalAlpha = 1.0;
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
