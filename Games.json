@@ -1,8 +1,8 @@
-dddd{
+{
   "games": [
     {
       "title": "1 on 1 Soccer",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/1-on-1-Soccor.hml",
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/1-on-1-Soccor.html",
       "picture": ""
     }
   ]
