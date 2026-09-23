@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyLine</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            background-color: #050508;
+            color: #f1f1f3;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #starfield {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-color: #050508;
+        }
+
+        /* Persistent Top Bar (Perfectly Centered Grid Layout) */
+        .navbar {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(5, 5, 8, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        @media (min-width: 768px) {
+            .navbar {
+                padding: 1.5rem 3rem;
+            }
+        }
+
+        .nav-left {
+            justify-self: start;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            justify-self: center;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-right {
+            justify-self: end;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9494a0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem;
+            border-radius: 8px;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .glow-title {
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #9494a0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: color 0.2s ease, background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Content Viewport */
+        .content-viewport {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: calc(100vh - 74px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .page-container {
+            pointer-events: auto;
+            background: rgba(12, 12, 18, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 900px;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(16px);
+            overflow: hidden;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(35px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+            color: #ffffff;
+        }
+
+        .page-desc {
+            color: #9494a0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            color: #ffffff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            stroke: #727280;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.25rem;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+            flex-grow: 1;
+        }
+
+        .games-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .games-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .game-img-container {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background: rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .game-info {
+            padding: 0.85rem;
+            text-align: center;
+        }
+
+        .game-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Game Player Container */
+        .player-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .game-iframe-wrapper {
+            width: 100%;
+            flex-grow: 1;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            min-height: 450px;
+        }
+
+        .game-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .loader-overlay {
+            position: absolute;
+            inset: 0;
+            background: #08080c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #9494a0;
+            font-size: 0.9rem;
+            gap: 0.75rem;
+            z-index: 5;
+        }
+
+        /* Dashboard Home Components */
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hero-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #fff;
+        }
+
+        .hero-info p {
+            font-size: 0.85rem;
+            color: #9494a0;
+        }
+
+        .play-btn {
+            background: #fff;
+            color: #050508;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .play-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .quick-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.25rem;
+            border-radius: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .quick-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .quick-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+
+        .quick-card span {
+            font-size: 0.8rem;
+            color: #727280;
+        }
+
+        /* Settings Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #0c0c12;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+            transform: scale(0.95);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.open .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9494a0;
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .setting-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .setting-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #b0b0bc;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-label span {
+            color: #fff;
+            font-family: monospace;
+        }
+
+        .setting-slider {
+            width: 100%;
+            accent-color: #ffffff;
+            cursor: pointer;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            appearance: none;
+        }
+
+        .setting-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <!-- Persistent Top Bar -->
+    <header class="navbar">
+        <div class="nav-left">
+            <button class="icon-btn" id="settingsToggle" title="Settings">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+            <h1 class="glow-title">SkyLine</h1>
+        </div>
+
+        <nav class="nav-links">
+            <a href="?page=games" class="nav-item" data-page="games">
+                <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4m-2-2v4m10-2h.01M15 11h.01"></path></svg>
+                Games
+            </a>
+            <a href="?page=home" class="nav-item" data-page="home">Home</a>
+            <a href="?page=arcade" class="nav-item" data-page="arcade">Arcade</a>
+        </nav>
+
+        <div class="nav-right"></div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="content-viewport" id="viewport">
+        <!-- Rendered dynamically -->
+    </main>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Starfield Settings</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="setting-group">
+                <div class="setting-label">Star Amount <span id="starCountVal">800</span></div>
+                <input type="range" class="setting-slider" id="starCountRange" min="100" max="2500" step="50" value="800">
+            </div>
+            <div class="setting-group">
+                <div class="setting-label">Starfall Frequency <span id="rarityVal">800ms</span></div>
+                <input type="range" class="setting-slider" id="rarityRange" min="200" max="3000" step="100" value="800">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Settings Modal Management
+        const modal = document.getElementById('settingsModal');
+        document.getElementById('settingsToggle').addEventListener('click', () => modal.classList.add('open'));
+        document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('open');
+        });
+
+        // Config state
+        let config = {
+            starCount: 800,
+            rarityMs: 800
+        };
+
+        const starCountRange = document.getElementById('starCountRange');
+        const starCountVal = document.getElementById('starCountVal');
+        const rarityRange = document.getElementById('rarityRange');
+        const rarityVal = document.getElementById('rarityVal');
+
+        starCountRange.addEventListener('input', (e) => {
+            config.starCount = parseInt(e.target.value);
+            starCountVal.textContent = config.starCount;
+            initStars();
+        });
+
+        rarityRange.addEventListener('input', (e) => {
+            config.rarityMs = parseInt(e.target.value);
+            rarityVal.textContent = config.rarityMs + 'ms';
+        });
+
+        // Global Games Store
+        let allGames = [];
+
+        async function fetchGames() {
+            try {
+                // Cache buster ?t=... forces fresh fetch from GitHub
+                const response = await fetch('https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games.json?t=' + Date.now());
+                const data = await response.json();
+                allGames = data.games || [];
+                renderGamesList(allGames);
+            } catch (err) {
+                const grid = document.getElementById('gamesGrid');
+                if (grid) {
+                    grid.innerHTML = '<p style="color: #ff5555; grid-column: 1/-1; text-align: center; font-size: 0.9rem;">Failed to load games...</p>';
+                }
+            }
+        }
+
+        function renderGamesList(games) {
+            const grid = document.getElementById('gamesGrid');
+            if (!grid) return;
+            
+            if (!games || games.length === 0) {
+                grid.innerHTML = '<p style="color: #9494a0; grid-column: 1/-1; text-align: center; font-size: 0.9rem;">No games found.</p>';
+                return;
+            }
+
+            grid.innerHTML = games.map(game => {
+                const title = game.title || 'Untitled';
+                const picture = game.picture || '';
+                const source = game.source || '#';
+                return `
+                    <div class="game-card" onclick="launchGame('${encodeURIComponent(source)}', '${encodeURIComponent(title)}')">
+                        <div class="game-img-container">
+                            ${picture ? `<img src="${picture}" alt="${title}">` : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#444;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`}
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">${title}</h4>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function launchGame(sourceUrl, title) {
+            window.history.pushState({}, '', `?page=play&src=${sourceUrl}&title=${title}`);
+            renderPage();
+        }
+
+        async function loadAndEmulateGame(sourceUrl) {
+            const iframe = document.getElementById('gameIframe');
+            const loader = document.getElementById('loaderOverlay');
+            
+            try {
+                // Fetch code with cache buster
+                const res = await fetch(decodeURIComponent(sourceUrl) + '?t=' + Date.now());
+                const text = await res.text();
+                
+                let finalHtml = text;
+                const trimmed = text.trim().toLowerCase();
+                
+                // If the file is raw script code rather than a full HTML document, wrap it automatically
+                if (!trimmed.startsWith('<!doctype') && !trimmed.startsWith('<html')) {
+                    finalHtml = `<!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Game Sandbox</title>
+                        <style>
+                            * { box-sizing: border-box; margin: 0; padding: 0; }
+                            body, html { width: 100%; height: 100%; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+                            canvas { display: block; max-width: 100%; max-height: 100%; }
+                        </style>
+                    </head>
+                    <body>
+                        <script>
+                            try {
+                                ${text}
+                            } catch(e) {
+                                console.error(e);
+                                document.body.innerHTML = '<div style="color:#ff5555;font-family:monospace;padding:20px;background:#111;border-radius:8px;"><h3>Runtime Error</h3><p>' + e.message + '</p></div>';
+                            }
+                        </` + `script>
+                    </body>
+                    </html>`;
+                }
+
+                // Create Blob URL and set iframe source
+                const blob = new Blob([finalHtml], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+                
+                if (iframe) {
+                    iframe.src = blobUrl;
+                }
+                if (loader) {
+                    loader.style.display = 'none';
+                }
+            } catch (err) {
+                if (loader) {
+                    loader.innerHTML = `<p style="color: #ff5555; text-align: center; padding: 20px;">Failed to load game source code.<br><small>${err.message}</small></p>`;
+                }
+            }
+        }
+
+        // Router & View Management
+        const pages = {
+            home: {
+                title: "Welcome Back",
+                desc: "Your interstellar hub. Select a quick launch below or navigate through the system channels.",
+                animation: "animate-fade-in",
+                isHome: true
+            },
+            games: {
+                title: "Game Hub",
+                animation: "animate-slide-up",
+                isGames: true
+            },
+            arcade: {
+                title: "Arcade Sector",
+                desc: "Secondary systems online. High-score tracking and custom modules ready.",
+                animation: "animate-fade-in",
+                isArcade: true
+            },
+            play: {
+                animation: "animate-slide-up",
+                isPlay: true
+            }
+        };
+
+        function renderPage() {
+            const params = new URLSearchParams(window.location.search);
+            const pageKey = params.get('page') || 'home';
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const itemPage = new URL(item.href, window.location.origin).searchParams.get('page');
+                if (itemPage === pageKey) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            const current = pages[pageKey] || pages.home;
+            const viewport = document.getElementById('viewport');
+
+            if (current.isPlay) {
+                const src = params.get('src');
+                const title = decodeURIComponent(params.get('title') || 'Game Player');
+                viewport.innerHTML = `
+                    <div class="page-container ${current.animation}" style="max-width: 1000px; height: 85vh;">
+                        <div class="player-header">
+                            <button class="back-btn" onclick="window.history.pushState({}, '', '?page=games'); renderPage();">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                                Back to Hub
+                            </button>
+                            <h2 style="font-size: 1.1rem; font-weight: 600; color: #fff;">${title}</h2>
+                            <div style="width: 90px;"></div>
+                        </div>
+                        <div class="game-iframe-wrapper">
+                            <div class="loader-overlay" id="loaderOverlay">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                                <span>Loading and Emulating Code...</span>
+                            </div>
+                            <iframe class="game-iframe" id="gameIframe" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"></iframe>
+                        </div>
+                    </div>
+                `;
+                if (src) {
+                    loadAndEmulateGame(src);
+                }
+            } else if (current.isGames) {
+                viewport.innerHTML = `
+                    <div class="page-container ${current.animation}">
+                        <h2 class="page-title">Game Hub</h2>
+                        <div class="search-container">
+                            <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" class="search-input" id="gameSearchInput" placeholder="Search games..." oninput="handleSearch(this.value)">
+                        </div>
+                        <div class="games-grid" id="gamesGrid">
+                            <p style="color: #9494a0; grid-column: 1/-1; text-align: center; font-size: 0.9rem;">Loading games...</p>
+                        </div>
+                    </div>
+                `;
+                fetchGames();
+            } else if (current.isHome) {
+                viewport.innerHTML = `
+                    <div class="page-container ${current.animation}">
+                        <h2 class="page-title">${current.title}</h2>
+                        <p class="page-desc">${current.desc}</p>
+                        <div class="hero-banner">
+                            <div class="hero-info">
+                               <h3>Stellar Quest</h3>
+                               <p>Continue your last active session</p>
+                            </div>
+                            <button class="play-btn" onclick="window.history.pushState({}, '', '?page=games'); renderPage();">Browse Games</button>
+                        </div>
+                        <div class="quick-grid">
+                            <div class="quick-card">
+                               <h4>Quick Match</h4>
+                               <span>Jump straight into action</span>
+                            </div>
+                            <div class="quick-card">
+                               <h4>Leaderboards</h4>
+                               <span>Check global standings</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (current.isArcade) {
+                viewport.innerHTML = `
+                    <div class="page-container ${current.animation}">
+                        <h2 class="page-title">${current.title}</h2>
+                        <p class="page-desc">${current.desc}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function handleSearch(query) {
+            const filtered = allGames.filter(g => {
+                const title = (g.title || '').toLowerCase();
+                return title.includes(query.toLowerCase());
+            });
+            renderGamesList(filtered);
+        }
+
+        document.querySelectorAll('.nav-item').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetUrl = link.getAttribute('href');
+                window.history.pushState({}, '', targetUrl);
+                renderPage();
+            });
+        });
+
+        window.addEventListener('popstate', renderPage);
+        renderPage();
+
+        // Starfield Engine
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        let stars = [];
+        let shootingStars = [];
+        let lastShootingStarTime = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < config.starCount; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random(),
+                    twinkleSpeed: Math.random() * 0.02 + 0.005
+                });
+            }
+        }
+
+        function spawnShootingStar() {
+            const startX = Math.random() * canvas.width * 1.2 - canvas.width * 0.1;
+            const startY = Math.random() * (canvas.height * 0.5);
+            const length = Math.random() * 120 + 80;
+            const speed = Math.random() * 10 + 12;
+            const angle = Math.PI / 4;
+            const dx = Math.cos(angle) * speed;
+            const dy = Math.sin(angle) * speed;
+            const hypot = Math.hypot(dx, dy);
+
+            shootingStars.push({
+                x: startX,
+                y: startY,
+                dx: dx,
+                dy: dy,
+                ux: dx / hypot,
+                uy: dy / hypot,
+                length: length,
+                life: 1.0,
+                decay: Math.random() * 0.015 + 0.015
+            });
+        }
+
+        function animate(timestamp) {
+            ctx.fillStyle = '#050508';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Twinkling stars
+            for (let i = 0; i < stars.length; i++) {
+                let s = stars[i];
+                s.alpha += s.twinkleSpeed;
+                if (s.alpha > 1 || s.alpha < 0.2) {
+                    s.twinkleSpeed = -s.twinkleSpeed;
+                }
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Shooting stars based on dynamic rarity
+            if (timestamp - lastShootingStarTime > config.rarityMs) {
+                spawnShootingStar();
+                lastShootingStarTime = timestamp;
+            }
+
+            // Shooting stars rendering
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                let ss = shootingStars[i];
+                let tailX = ss.x - ss.ux * ss.length;
+                let tailY = ss.y - ss.uy * ss.length;
+
+                let gradient = ctx.createLinearGradient(ss.x, ss.y, tailX, tailY);
+                gradient.addColorStop(0, '#FFFFFF');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.beginPath();
+                ctx.moveTo(ss.x, ss.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 1.8;
+                ctx.globalAlpha = ss.life;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(ss.x, ss.y, 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fill();
+
+                ss.x += ss.dx;
+                ss.y += ss.dy;
+                ss.life -= ss.decay;
+
+                if (ss.life <= 0 || ss.x > canvas.width + 200 || ss.y > canvas.height + 200) {
+                    shootingStars.splice(i, 1);
+                }
+            }
+
+            ctx.globalAlpha = 1.0;
+            requestAnimationFrame(animate);
+        }
+
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeCanvas, 100);
+        });
+
+        resizeCanvas();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
