@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyLine</title>
+    
+    <!-- Firebase App & Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -23,15 +28,23 @@
             -webkit-user-select: none;
         }
 
-        #starfield {
+        #starfield, #matrixCanvas {
             position: absolute;
             inset: 0;
             z-index: 0;
             pointer-events: none;
+        }
+
+        #starfield {
             background-color: #050508;
         }
 
-        /* Persistent Top Bar (Perfectly Centered Grid Layout) */
+        #matrixCanvas {
+            display: none;
+            z-index: 2;
+        }
+
+        /* Persistent Top Bar */
         .navbar {
             position: relative;
             z-index: 10;
@@ -55,7 +68,6 @@
             justify-self: start;
             display: flex;
             align-items: center;
-            gap: 1rem;
         }
 
         .nav-links {
@@ -67,6 +79,9 @@
 
         .nav-right {
             justify-self: end;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .icon-btn {
@@ -84,6 +99,11 @@
 
         .icon-btn:hover {
             color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .icon-btn.active {
+            color: #64b5f6;
             background: rgba(255, 255, 255, 0.05);
         }
 
@@ -136,12 +156,118 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
+        /* Glitch-free Announcement Bar (Auto-hides after 5s) */
+        .announcement-bar {
+            position: relative;
+            z-index: 10;
+            height: 36px;
+            background: rgba(12, 12, 18, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: #b0b0bc;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .announcement-bar.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Event Stack Container (Bottom Right Corner) */
+        .event-stack {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .event-card {
+            background: rgba(12, 12, 18, 0.95);
+            border: 1px solid rgba(100, 181, 246, 0.4);
+            border-left: 4px solid #64b5f6;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            color: #fff;
+            font-size: 0.85rem;
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            pointer-events: auto;
+            min-width: 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            position: relative;
+        }
+
+        .event-card .title {
+            font-weight: 600;
+            color: #64b5f6;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Badges Styling */
+        .owner-badge {
+            background: linear-gradient(135deg, #ff79c6, #bd93f9);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: 6px;
+            vertical-align: middle;
+            box-shadow: 0 0 10px rgba(189, 147, 249, 0.4);
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #50fa7b, #8be9fd);
+            color: #050508;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: 6px;
+            vertical-align: middle;
+            box-shadow: 0 0 10px rgba(80, 250, 123, 0.4);
+        }
+
         /* Content Viewport */
         .content-viewport {
             position: relative;
             z-index: 10;
             width: 100%;
-            height: calc(100vh - 74px);
+            height: calc(100vh - 110px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -157,7 +283,7 @@
             border-radius: 16px;
             padding: 2.5rem;
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             max-height: 82vh;
             display: flex;
             flex-direction: column;
@@ -210,7 +336,7 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Search Bar */
+        /* Form Inputs */
         .search-container {
             position: relative;
             margin-bottom: 1.5rem;
@@ -413,8 +539,20 @@
 
         .quick-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
             gap: 1rem;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 4px;
+        }
+
+        .quick-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .quick-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
         }
 
         .quick-card {
@@ -425,10 +563,6 @@
             transition: border-color 0.2s;
         }
 
-        .quick-card:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-
         .quick-card h4 {
             font-size: 0.95rem;
             font-weight: 600;
@@ -436,17 +570,35 @@
             margin-bottom: 0.3rem;
         }
 
-        .quick-card span {
-            font-size: 0.8rem;
-            color: #727280;
+        /* Chat Messages Container */
+        .chat-messages {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 1rem;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
         }
 
         /* Settings Modal Overlay */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
             z-index: 100;
             display: flex;
             align-items: center;
@@ -467,10 +619,12 @@
             border-radius: 16px;
             padding: 2.5rem;
             width: 100%;
-            max-width: 440px;
+            max-width: 460px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.8);
             transform: scale(0.95);
             transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-overlay.open .modal-card {
@@ -545,13 +699,11 @@
 <body>
 
     <canvas id="starfield"></canvas>
+    <canvas id="matrixCanvas"></canvas>
 
     <!-- Persistent Top Bar -->
     <header class="navbar">
         <div class="nav-left">
-            <button class="icon-btn" id="settingsToggle" title="Settings">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            </button>
             <h1 class="glow-title">SkyLine</h1>
         </div>
 
@@ -561,11 +713,27 @@
                 Games
             </a>
             <a href="?page=home" class="nav-item" data-page="home">Home</a>
-            <a href="?page=arcade" class="nav-item" data-page="arcade">Arcade</a>
+            <a href="?page=chat" class="nav-item" data-page="chat">Chat</a>
         </nav>
 
-        <div class="nav-right"></div>
+        <div class="nav-right">
+            <!-- Secret Developer Tab Button -->
+            <button class="icon-btn" id="devNavBtn" title="Admin Menu" style="display: none;" onclick="navigateToDev()">
+                <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            </button>
+            <button class="icon-btn" id="settingsToggle" title="Settings">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+        </div>
     </header>
+
+    <!-- Glitch-free Announcement Text Bar -->
+    <div class="announcement-bar" id="announcementBar">
+        <span id="announcementText"></span>
+    </div>
+
+    <!-- Bottom Right Event Stack Container -->
+    <div class="event-stack" id="eventStack"></div>
 
     <!-- Content Area -->
     <main class="content-viewport" id="viewport">
@@ -576,21 +744,140 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 class="modal-title">Starfield Settings</h3>
+                <h3 class="modal-title">Settings & Profile</h3>
                 <button class="modal-close" id="closeModal">&times;</button>
             </div>
+            
+            <div class="setting-group">
+                <div class="setting-label">Display Nickname <span>(max 15)</span></div>
+                <input type="text" class="search-input" id="settingsNameInput" maxlength="15" style="margin-bottom: 0;" oninput="updateUsername(this.value)" placeholder="Enter custom display name...">
+            </div>
+
+            <div class="setting-group">
+                <div class="setting-label">Code</div>
+                <input type="password" class="search-input" id="ownerKeyInput" style="margin-bottom: 0.5rem;" placeholder="Enter code...">
+                <button class="play-btn" style="width: 100%; text-align: center; background: #64b5f6; color: #050508;" onclick="submitCodeButton()">Enter Code</button>
+            </div>
+
             <div class="setting-group">
                 <div class="setting-label">Star Amount <span id="starCountVal">800</span></div>
                 <input type="range" class="setting-slider" id="starCountRange" min="100" max="2500" step="50" value="800">
             </div>
+
             <div class="setting-group">
-                <div class="setting-label">Starfall Frequency <span id="rarityVal">800ms</span></div>
+                <div class="setting-label">Meteor Fall Chance (Frequency) <span id="rarityVal">800ms</span></div>
                 <input type="range" class="setting-slider" id="rarityRange" min="200" max="3000" step="100" value="800">
+            </div>
+
+            <div class="setting-group" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="setting-label" style="margin-bottom: 0;">Colorful Stars</div>
+                <input type="checkbox" id="colorfulToggle" style="accent-color: #fff; cursor: pointer; width: 18px; height: 18px;" onchange="updateColorfulStars(this.checked)">
             </div>
         </div>
     </div>
 
     <script>
+        // Initialize Firebase Realtime Database
+        const firebaseConfig = {
+            databaseURL: "https://skyline-7330c-default-rtdb.firebaseio.com",
+            projectId: "skyline-7330c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const rtdb = firebase.database();
+
+        // Cookie Helper Functions
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // User Identity state from cookies
+        let currentUser = getCookie('skyline_username') || 'Player';
+        let ownerKeyInputVal = getCookie('skyline_owner_key') || '';
+
+        // Role Resolution: 2 `𒐫` (or u1242b unicode) = owner, 1 `𒐫` (or u1242a) = admin
+        function getUserRole() {
+            const val = ownerKeyInputVal.trim();
+            if (val === '𒐫𒐫' || val.toLowerCase() === 'u1242b unicode') return 'owner';
+            if (val === '𒐫' || val.toLowerCase() === 'u1242a') return 'admin';
+            return 'none';
+        }
+
+        const isOwner = () => getUserRole() === 'owner';
+        const isAdmin = () => getUserRole() === 'admin' || isOwner();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentUser && currentUser !== 'Player') {
+                document.getElementById('settingsNameInput').value = currentUser;
+            }
+            if (ownerKeyInputVal) {
+                document.getElementById('ownerKeyInput').value = ownerKeyInputVal;
+            }
+            checkDeveloperMode();
+            initAnnouncementListener();
+            initCountdownListener();
+        });
+
+        function checkDeveloperMode() {
+            const devBtn = document.getElementById('devNavBtn');
+            if (!devBtn) return;
+            if (isAdmin()) {
+                devBtn.style.display = 'flex';
+            } else {
+                devBtn.style.display = 'none';
+            }
+        }
+
+        function navigateToDev() {
+            window.history.pushState({}, '', '?page=developer');
+            renderPage();
+        }
+
+        function updateUsername(newName) {
+            const trimmed = newName.trim();
+            if (trimmed && trimmed.length <= 15) {
+                currentUser = trimmed;
+                setCookie('skyline_username', currentUser, 365);
+            }
+        }
+
+        function submitCodeButton() {
+            const input = document.getElementById('ownerKeyInput');
+            if (!input) return;
+            ownerKeyInputVal = input.value.trim();
+            setCookie('skyline_owner_key', ownerKeyInputVal, 365);
+            checkDeveloperMode();
+
+            const role = getUserRole();
+            if (role === 'owner') {
+                alert('Owner access granted successfully!');
+                document.getElementById('settingsModal').classList.remove('open');
+                renderPage();
+            } else if (role === 'admin') {
+                alert('Admin access granted successfully!');
+                document.getElementById('settingsModal').classList.remove('open');
+                renderPage();
+            } else {
+                alert('Invalid code!');
+            }
+        }
+
         // Settings Modal Management
         const modal = document.getElementById('settingsModal');
         document.getElementById('settingsToggle').addEventListener('click', () => modal.classList.add('open'));
@@ -599,16 +886,18 @@
             if (e.target === modal) modal.classList.remove('open');
         });
 
-        // Config state
+        // Config state for Starfield
         let config = {
             starCount: 800,
-            rarityMs: 800
+            rarityMs: 800,
+            colorful: false
         };
 
         const starCountRange = document.getElementById('starCountRange');
         const starCountVal = document.getElementById('starCountVal');
         const rarityRange = document.getElementById('rarityRange');
         const rarityVal = document.getElementById('rarityVal');
+        const colorfulToggle = document.getElementById('colorfulToggle');
 
         starCountRange.addEventListener('input', (e) => {
             config.starCount = parseInt(e.target.value);
@@ -621,20 +910,206 @@
             rarityVal.textContent = config.rarityMs + 'ms';
         });
 
+        function updateColorfulStars(isColorful) {
+            config.colorful = isColorful;
+            initStars();
+        }
+
+        // Announcement Synchronization with 5-second auto-dismiss and duplicate check
+        let announcementTimer = null;
+        let currentAnnouncementText = '';
+
+        function initAnnouncementListener() {
+            const bar = document.getElementById('announcementBar');
+            const textEl = document.getElementById('announcementText');
+            if (!bar || !textEl) return;
+
+            rtdb.ref('announcement').on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val && val.text) {
+                    currentAnnouncementText = val.text;
+                    textEl.textContent = val.text;
+                    bar.classList.add('visible');
+
+                    if (announcementTimer) clearTimeout(announcementTimer);
+                    announcementTimer = setTimeout(() => {
+                        bar.classList.remove('visible');
+                    }, 5000);
+                } else {
+                    currentAnnouncementText = '';
+                    textEl.textContent = '';
+                    bar.classList.remove('visible');
+                }
+            });
+        }
+
+        function broadcastAnnouncement() {
+            if (!isAdmin()) return;
+            const input = document.getElementById('announcementInput');
+            if (!input || !input.value.trim()) return;
+            const text = input.value.trim();
+
+            if (text === currentAnnouncementText) {
+                alert('That announcement is already active!');
+                return;
+            }
+
+            rtdb.ref('announcement').set({
+                text: text,
+                timestamp: Date.now()
+            });
+            input.value = '';
+            alert('Announcement broadcasted successfully!');
+        }
+
+        function clearAnnouncement() {
+            if (!isAdmin()) return;
+            rtdb.ref('announcement').remove();
+        }
+
+        // Live Countdown synchronization for Events / Admin Abuse
+        let activeCountdownData = null;
+
+        function initCountdownListener() {
+            rtdb.ref('countdown').on('value', (snapshot) => {
+                const val = snapshot.val();
+                activeCountdownData = val;
+                renderEventStack();
+            });
+        }
+
+        function startGlobalCountdown() {
+            if (!isAdmin()) return;
+            const titleInput = document.getElementById('countdownTitleInput');
+            const minsInput = document.getElementById('countdownMinsInput');
+            if (!titleInput || !minsInput) return;
+
+            const title = titleInput.value.trim() || 'Admin Abuse Event';
+            const minutes = parseFloat(minsInput.value) || 5;
+            const endTime = Date.now() + minutes * 60 * 1000;
+
+            rtdb.ref('countdown').set({
+                title: title,
+                endTime: endTime
+            });
+            titleInput.value = '';
+            minsInput.value = '';
+            alert('Countdown started!');
+        }
+
+        function clearGlobalCountdown() {
+            if (!isAdmin()) return;
+            rtdb.ref('countdown').remove();
+        }
+
+        // 20 Special Events Library
+        const specialEventsList = [
+            { id: 'matrix_rain', name: 'Matrix Rain', desc: 'Digital data cascade' },
+            { id: 'star_storm', name: 'Star Storm', desc: 'Intense cosmic meteor shower' },
+            { id: 'supernova', name: 'Supernova Burst', desc: 'Stellar core explosion simulation' },
+            { id: 'quantum_glitch', name: 'Quantum Glitch', desc: 'Space-time coordinate anomaly' },
+            { id: 'cyber_pulse', name: 'Cyber Pulse', desc: 'Neural network frequency pulse' },
+            { id: 'nebula_shift', name: 'Nebula Shift', desc: 'Dust cloud gravitational ripple' },
+            { id: 'warp_speed', name: 'Warp Speed', desc: 'Faster-than-light hyper-drive' },
+            { id: 'zero_gravity', name: 'Zero Gravity', desc: 'Inertial dampener failure' },
+            { id: 'hyper_drive', name: 'Hyper Drive', desc: 'Subspace corridor traversal' },
+            { id: 'solar_flare', name: 'Solar Flare', desc: 'Electromagnetic plasma eruption' },
+            { id: 'void_echo', name: 'Void Echo', desc: 'Deep space frequency resonance' },
+            { id: 'plasma_surge', name: 'Plasma Surge', desc: 'Core reactor power spike' },
+            { id: 'temporal_rift', name: 'Temporal Rift', desc: 'Chronometric timeline distortion' },
+            { id: 'neon_horizon', name: 'Neon Horizon', desc: 'Cyber grid frequency lock' },
+            { id: 'gravity_well', name: 'Gravity Well', desc: 'Singularity event horizon' },
+            { id: 'echo_chamber', name: 'Echo Chamber', desc: 'Acoustic waveform reflection' },
+            { id: 'astral_flux', name: 'Astral Flux', desc: 'Etheric dimensional current' },
+            { id: 'cosmic_harmony', name: 'Cosmic Harmony', desc: 'Orrery alignment frequency' },
+            { id: 'phantom_echo', name: 'Phantom Echo', desc: 'Sub-harmonic signal trace' },
+            { id: 'eclipse_protocol', name: 'Eclipse Protocol', desc: 'Stellar occultation event' }
+        ];
+
+        let activeEvents = {};
+        let eventCounters = {};
+
+        function triggerSpecialEvent(eventId, eventName) {
+            eventCounters[eventId] = 0;
+            activeEvents[eventId] = { name: eventName, amount: '0 units' };
+            renderEventStack();
+
+            if (window['eventInterval_' + eventId]) clearInterval(window['eventInterval_' + eventId]);
+            window['eventInterval_' + eventId] = setInterval(() => {
+                eventCounters[eventId] = (eventCounters[eventId] || 0) + Math.floor(Math.random() * 7) + 1;
+                if (activeEvents[eventId]) {
+                    activeEvents[eventId].amount = eventCounters[eventId] + ' units';
+                    renderEventStack();
+                }
+            }, 600);
+        }
+
+        function removeSpecialEvent(eventId) {
+            if (window['eventInterval_' + eventId]) clearInterval(window['eventInterval_' + eventId]);
+            delete activeEvents[eventId];
+            renderEventStack();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('page') === 'developer') renderPage();
+        }
+
+        function renderEventStack() {
+            const stack = document.getElementById('eventStack');
+            if (!stack) return;
+
+            stack.innerHTML = '';
+
+            // Render Countdown card if active
+            if (activeCountdownData && activeCountdownData.endTime) {
+                const now = Date.now();
+                const timeLeft = Math.max(0, activeCountdownData.endTime - now);
+                const mins = Math.floor(timeLeft / 60000);
+                const secs = Math.floor((timeLeft % 60000) / 1000);
+                const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                const countdownCard = document.createElement('div');
+                countdownCard.className = 'event-card';
+                countdownCard.style.borderColor = '#ff79c6';
+                countdownCard.style.borderLeftColor = '#ff79c6';
+                countdownCard.innerHTML = `
+                    <div class="title" style="color: #ff79c6;">
+                        <span>⏳ ${escapeHtml(activeCountdownData.title)}</span>
+                        ${isAdmin() ? `<button onclick="clearGlobalCountdown()" style="background:none;border:none;color:#ff5555;cursor:pointer;font-weight:bold;font-size:0.9rem;" title="Clear Countdown">&times;</button>` : ''}
+                    </div>
+                    <div style="font-size: 1.1rem; color: #fff; font-family: monospace; font-weight: 700; margin-top: 2px;">${timeStr} remaining</div>
+                `;
+                stack.appendChild(countdownCard);
+            }
+
+            // Render special events
+            Object.keys(activeEvents).forEach(id => {
+                const ev = activeEvents[id];
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="title">
+                        <span>${escapeHtml(ev.name)}</span>
+                        ${isAdmin() ? `<button onclick="removeSpecialEvent('${id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-weight:bold;font-size:0.9rem;" title="Remove Event">&times;</button>` : ''}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #9494a0; font-family: monospace; margin-top: 2px;">Status: Active (${escapeHtml(ev.amount)})</div>
+                `;
+                stack.appendChild(card);
+            });
+        }
+
         // Global Games Store
         let allGames = [];
 
         async function fetchGames() {
+            const grid = document.getElementById('gamesGrid');
             try {
-                // Cache buster ?t=... forces fresh fetch from GitHub
                 const response = await fetch('https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games.json?t=' + Date.now());
+                if (!response.ok) throw new Error('HTTP ' + response.status);
                 const data = await response.json();
                 allGames = data.games || [];
                 renderGamesList(allGames);
             } catch (err) {
-                const grid = document.getElementById('gamesGrid');
                 if (grid) {
-                    grid.innerHTML = '<p style="color: #ff5555; grid-column: 1/-1; text-align: center; font-size: 0.9rem;">Failed to load games...</p>';
+                    grid.innerHTML = `<p style="color: #ff5555; grid-column: 1/-1; text-align: center; font-size: 0.9rem;">Failed to load games list: ${escapeHtml(err.message)}</p>`;
                 }
             }
         }
@@ -655,7 +1130,7 @@
                 return `
                     <div class="game-card" onclick="launchGame('${encodeURIComponent(source)}', '${encodeURIComponent(title)}')">
                         <div class="game-img-container">
-                            ${picture ? `<img src="${picture}" alt="${title}">` : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#444;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`}
+                            ${picture ? `<img src="${picture}" alt="${title}">` : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`}
                         </div>
                         <div class="game-info">
                             <h4 class="game-name">${title}</h4>
@@ -666,30 +1141,39 @@
         }
 
         function launchGame(sourceUrl, title) {
+            const decodedTitle = decodeURIComponent(title);
+            const safeKey = decodedTitle.replace(/[.#$\/\[\]]/g, '_');
+            
+            rtdb.ref('games/' + safeKey).transaction(current => {
+                if (!current) {
+                    return { title: decodedTitle, plays: 1 };
+                }
+                current.plays = (current.plays || 0) + 1;
+                return current;
+            });
+
             window.history.pushState({}, '', `?page=play&src=${sourceUrl}&title=${title}`);
             renderPage();
         }
 
-        async function loadAndEmulateGame(sourceUrl) {
+        async function loadAndEmulateGame(sourceUrlDecoded) {
             const iframe = document.getElementById('gameIframe');
             const loader = document.getElementById('loaderOverlay');
+            const sourceUrl = decodeURIComponent(sourceUrlDecoded);
             
             try {
-                // Fetch code with cache buster
-                const res = await fetch(decodeURIComponent(sourceUrl) + '?t=' + Date.now());
+                const res = await fetch(sourceUrl + (sourceUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
+                if (!res.ok) throw new Error('Failed to load game file (HTTP ' + res.status + ')');
                 const text = await res.text();
                 
                 let finalHtml = text;
                 const trimmed = text.trim().toLowerCase();
                 
-                // If the file is raw script code rather than a full HTML document, wrap it automatically
+                // Check if it's a raw script (doesn't start with <html> or <!doctype)
                 if (!trimmed.startsWith('<!doctype') && !trimmed.startsWith('<html')) {
                     finalHtml = `<!DOCTYPE html>
-                    <html lang="en">
+                    <html>
                     <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <title>Game Sandbox</title>
                         <style>
                             * { box-sizing: border-box; margin: 0; padding: 0; }
                             body, html { width: 100%; height: 100%; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; }
@@ -702,35 +1186,123 @@
                                 ${text}
                             } catch(e) {
                                 console.error(e);
-                                document.body.innerHTML = '<div style="color:#ff5555;font-family:monospace;padding:20px;background:#111;border-radius:8px;"><h3>Runtime Error</h3><p>' + e.message + '</p></div>';
+                                document.body.innerHTML = '';
+                                const errDiv = document.createElement('div');
+                                errDiv.style.cssText = 'color:#ff5555;font-family:monospace;padding:20px;background:#111;border-radius:8px;max-width:90%;';
+                                const h3 = document.createElement('h3');
+                                h3.textContent = 'Runtime Error';
+                                const p = document.createElement('p');
+                                p.textContent = e.message;
+                                errDiv.appendChild(h3);
+                                errDiv.appendChild(p);
+                                document.body.appendChild(errDiv);
                             }
                         </` + `script>
                     </body>
                     </html>`;
                 }
 
-                // Create Blob URL and set iframe source
                 const blob = new Blob([finalHtml], { type: 'text/html' });
                 const blobUrl = URL.createObjectURL(blob);
                 
-                if (iframe) {
-                    iframe.src = blobUrl;
-                }
-                if (loader) {
-                    loader.style.display = 'none';
-                }
+                if (iframe) iframe.src = blobUrl;
+                if (loader) loader.style.display = 'none';
             } catch (err) {
                 if (loader) {
-                    loader.innerHTML = `<p style="color: #ff5555; text-align: center; padding: 20px;">Failed to load game source code.<br><small>${err.message}</small></p>`;
+                    loader.innerHTML = `<p style="color: #ff5555; text-align: center; padding: 20px;">Error Loading Game<br><small style="color:#9494a0;">${escapeHtml(err.message)}</small></p>`;
                 }
             }
+        }
+
+        // Leaderboard listener for Home page
+        function initLeaderboard() {
+            const listEl = document.getElementById('leaderboardList');
+            if (!listEl) return;
+
+            rtdb.ref('games').orderByChild('plays').limitToLast(5).on('value', (snapshot) => {
+                listEl.innerHTML = '';
+                const val = snapshot.val();
+                if (!val) {
+                    listEl.innerHTML = '<div style="color: #727280; font-size: 0.85rem; padding: 0.25rem 0;">No plays recorded yet. Launch a game!</div>';
+                    return;
+                }
+
+                const sorted = Object.values(val).sort((a, b) => (b.plays || 0) - (a.plays || 0));
+                sorted.forEach((game, index) => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.03);';
+                    item.innerHTML = `<span style="color: #fff; font-weight: 500;">${index + 1}. ${game.title}</span><span style="color: #9494a0; font-family: monospace; font-size: 0.8rem;">${game.plays} plays</span>`;
+                    listEl.appendChild(item);
+                });
+            });
+        }
+
+        // Chat listener for Chat page
+        function initChatListener() {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+
+            rtdb.ref('chat').limitToLast(50).on('value', (snapshot) => {
+                container.innerHTML = '';
+                const val = snapshot.val();
+                if (!val) {
+                    container.innerHTML = '<div style="color: #727280; text-align: center; font-size: 0.85rem; margin: auto;">No messages yet. Say hello!</div>';
+                    return;
+                }
+
+                Object.keys(val).forEach(msgKey => {
+                    const msg = val[msgKey];
+                    const msgDiv = document.createElement('div');
+                    msgDiv.style.cssText = 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.9rem; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;';
+                    
+                    const safeText = escapeHtml(msg.text || '');
+                    const safeUser = escapeHtml(msg.user || 'Anonymous');
+                    
+                    let badgeHtml = '';
+                    if (msg.role === 'owner') {
+                        badgeHtml = `<span class="owner-badge">[u1242a] Owner</span>`;
+                    } else if (msg.role === 'admin') {
+                        badgeHtml = `<span class="admin-badge">Admin</span>`;
+                    }
+
+                    const timeStr = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const deleteBtnHtml = isAdmin() ? `<button onclick="deleteChatMessage('${msgKey}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:0.8rem;margin-left:8px;" title="Delete Message">Delete</button>` : '';
+
+                    msgDiv.innerHTML = `<div><strong style="color: #64b5f6; font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">${safeUser} ${badgeHtml}</strong>${safeText}</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size: 0.7rem; color: #555; white-space: nowrap;">${timeStr}</span>${deleteBtnHtml}</div>`;
+                    container.appendChild(msgDiv);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        function deleteChatMessage(msgKey) {
+            if (!isAdmin()) return;
+            rtdb.ref('chat/' + msgKey).remove();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            if (!input || !input.value.trim()) return;
+            const text = input.value.trim();
+            
+            rtdb.ref('chat').push({
+                user: currentUser || 'Player',
+                text: text,
+                role: getUserRole(),
+                timestamp: Date.now()
+            });
+            input.value = '';
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
         // Router & View Management
         const pages = {
             home: {
                 title: "Welcome Back",
-                desc: "Your interstellar hub. Select a quick launch below or navigate through the system channels.",
+                desc: "Explore the game hub and check out the live activity.",
                 animation: "animate-fade-in",
                 isHome: true
             },
@@ -739,11 +1311,17 @@
                 animation: "animate-slide-up",
                 isGames: true
             },
-            arcade: {
-                title: "Arcade Sector",
-                desc: "Secondary systems online. High-score tracking and custom modules ready.",
+            chat: {
+                title: "Global Chat",
+                desc: "Connect and chat with other players across the network.",
                 animation: "animate-fade-in",
-                isArcade: true
+                isChat: true
+            },
+            developer: {
+                title: "Admin Console",
+                desc: "System diagnostics, event libraries, and live countdowns.",
+                animation: "animate-fade-in",
+                isDev: true
             },
             play: {
                 animation: "animate-slide-up",
@@ -763,6 +1341,15 @@
                     item.classList.remove('active');
                 }
             });
+
+            const devBtn = document.getElementById('devNavBtn');
+            if (devBtn) {
+                if (pageKey === 'developer') {
+                    devBtn.classList.add('active');
+                } else {
+                    devBtn.classList.remove('active');
+                }
+            }
 
             const current = pages[pageKey] || pages.home;
             const viewport = document.getElementById('viewport');
@@ -813,30 +1400,92 @@
                         <p class="page-desc">${current.desc}</p>
                         <div class="hero-banner">
                             <div class="hero-info">
-                               <h3>Stellar Quest</h3>
-                               <p>Continue your last active session</p>
+                               <h3>Games</h3>
+                               <p>Browse and launch games instantly from the hub.</p>
                             </div>
                             <button class="play-btn" onclick="window.history.pushState({}, '', '?page=games'); renderPage();">Browse Games</button>
                         </div>
                         <div class="quick-grid">
                             <div class="quick-card">
-                               <h4>Quick Match</h4>
-                               <span>Jump straight into action</span>
-                            </div>
-                            <div class="quick-card">
-                               <h4>Leaderboards</h4>
-                               <span>Check global standings</span>
+                               <h4>Most Played</h4>
+                               <div id="leaderboardList" style="margin-top: 0.5rem; font-size: 0.85rem; color: #9494a0;">
+                                   Loading leaderboard...
+                               </div>
                             </div>
                         </div>
                     </div>
                 `;
-            } else if (current.isArcade) {
+                initLeaderboard();
+            } else if (current.isDev) {
+                const eventsHtml = specialEventsList.map(ev => {
+                    const isActive = !!activeEvents[ev.id];
+                    return `
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.75rem 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: #fff; font-size: 0.9rem;">${escapeHtml(ev.name)}</div>
+                                <div style="font-size: 0.75rem; color: #9494a0;">${escapeHtml(ev.desc)}</div>
+                            </div>
+                            <div>
+                                ${isActive ? 
+                                    `<button class="play-btn" onclick="removeSpecialEvent('${ev.id}')" style="background: #ff5555; color: #fff; padding: 0.4rem 0.8rem; font-size: 0.75rem;">Stop</button>` :
+                                    `<button class="play-btn" onclick="triggerSpecialEvent('${ev.id}', '${escapeHtml(ev.name)}')" style="background: #50fa7b; color: #050508; padding: 0.4rem 0.8rem; font-size: 0.75rem;">Trigger</button>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const roleBadge = isOwner() ? `<span class="owner-badge">[u1242a] Owner</span>` : `<span class="admin-badge">Admin</span>`;
+
                 viewport.innerHTML = `
                     <div class="page-container ${current.animation}">
-                        <h2 class="page-title">${current.title}</h2>
+                        <h2 class="page-title">${current.title} ${roleBadge}</h2>
                         <p class="page-desc">${current.desc}</p>
+                        <div class="quick-grid">
+                            <div class="quick-card">
+                               <h4>Countdown Timer (Admin Abuse / Event)</h4>
+                               <p style="color: #9494a0; font-size: 0.85rem; margin-bottom: 0.75rem;">Set a live synchronized countdown timer visible in the corner for all connected users.</p>
+                               <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                   <input type="text" class="search-input" id="countdownTitleInput" placeholder="Event Name (e.g. Admin Abuse)" style="flex: 2; margin-bottom: 0;">
+                                   <input type="number" class="search-input" id="countdownMinsInput" placeholder="Minutes" style="flex: 1; margin-bottom: 0;" min="0.1" step="0.5">
+                                   <button class="play-btn" onclick="startGlobalCountdown()" style="white-space: nowrap; background: #ff79c6; color: #050508;">Start Countdown</button>
+                                   <button class="play-btn" onclick="clearGlobalCountdown()" style="white-space: nowrap; background: #ff5555; color: #fff;">Clear</button>
+                               </div>
+                            </div>
+                            <div class="quick-card">
+                               <h4>Broadcast Announcement</h4>
+                               <p style="color: #9494a0; font-size: 0.85rem; margin-bottom: 0.75rem;">Type an announcement to display text across the top bar menu for all users (auto-dismisses in 5s).</p>
+                               <div style="display: flex; gap: 0.75rem;">
+                                   <input type="text" class="search-input" id="announcementInput" placeholder="Enter announcement text..." style="margin-bottom: 0;" onkeydown="if(event.key==='Enter') broadcastAnnouncement()">
+                                   <button class="play-btn" onclick="broadcastAnnouncement()" style="white-space: nowrap;">Publish</button>
+                                   <button class="play-btn" onclick="clearAnnouncement()" style="white-space: nowrap; background: #ff5555; color: #fff;">Clear</button>
+                               </div>
+                            </div>
+                            <div class="quick-card">
+                               <h4>20 Special Event Triggers</h4>
+                               <p style="color: #9494a0; font-size: 0.85rem; margin-bottom: 0.75rem;">Launch or stop any of the 20 special event routines into the live event stack.</p>
+                               <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem; max-height: 280px; overflow-y: auto; padding-right: 4px;">
+                                   ${eventsHtml}
+                               </div>
+                            </div>
+                        </div>
                     </div>
                 `;
+            } else if (current.isChat) {
+                viewport.innerHTML = `
+                    <div class="page-container ${current.animation}" style="height: 75vh;">
+                        <h2 class="page-title">${current.title}</h2>
+                        <p class="page-desc">${current.desc}</p>
+                        <div class="chat-messages" id="chatMessages">
+                            <div style="color: #727280; text-align: center; font-size: 0.85rem; margin: auto;">Connecting to chat network...</div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <input type="text" class="search-input" id="chatInput" placeholder="Type a message..." style="margin-bottom: 0;" onkeydown="if(event.key==='Enter') sendChatMessage()">
+                            <button class="play-btn" onclick="sendChatMessage()" style="white-space: nowrap;">Send</button>
+                        </div>
+                    </div>
+                `;
+                initChatListener();
             }
         }
 
@@ -860,7 +1509,7 @@
         window.addEventListener('popstate', renderPage);
         renderPage();
 
-        // Starfield Engine
+        // Starfield Engine with Color and Meteor Controls
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
 
@@ -876,13 +1525,19 @@
 
         function initStars() {
             stars = [];
+            const colorPalette = ['#ffffff', '#8be9fd', '#ff79c6', '#50fa7b', '#f1fa8c', '#ffb86c'];
             for (let i = 0; i < config.starCount; i++) {
+                let starColor = '#FFFFFF';
+                if (config.colorful) {
+                    starColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                }
                 stars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
                     size: Math.random() * 1.5 + 0.5,
                     alpha: Math.random(),
-                    twinkleSpeed: Math.random() * 0.02 + 0.005
+                    twinkleSpeed: Math.random() * 0.02 + 0.005,
+                    color: starColor
                 });
             }
         }
@@ -914,7 +1569,6 @@
             ctx.fillStyle = '#050508';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Twinkling stars
             for (let i = 0; i < stars.length; i++) {
                 let s = stars[i];
                 s.alpha += s.twinkleSpeed;
@@ -922,20 +1576,18 @@
                     s.twinkleSpeed = -s.twinkleSpeed;
                 }
 
-                ctx.fillStyle = '#FFFFFF';
+                ctx.fillStyle = s.color;
                 ctx.globalAlpha = Math.max(0, Math.min(1, s.alpha));
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            // Shooting stars based on dynamic rarity
             if (timestamp - lastShootingStarTime > config.rarityMs) {
                 spawnShootingStar();
                 lastShootingStarTime = timestamp;
             }
 
-            // Shooting stars rendering
             for (let i = shootingStars.length - 1; i >= 0; i--) {
                 let ss = shootingStars[i];
                 let tailX = ss.x - ss.ux * ss.length;
@@ -965,6 +1617,10 @@
                 if (ss.life <= 0 || ss.x > canvas.width + 200 || ss.y > canvas.height + 200) {
                     shootingStars.splice(i, 1);
                 }
+            }
+
+            if (activeCountdownData && activeCountdownData.endTime) {
+                renderEventStack();
             }
 
             ctx.globalAlpha = 1.0;
