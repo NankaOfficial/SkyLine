@@ -39,6 +39,11 @@
       "title": "2048",
       "source": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/raw/refs/heads/master/offline/2048.html",
       "picture": ""
+    }, 
+    {
+      "title": "Minecraft 1.8",
+      "source": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/refs/heads/master/offline/1.8.html",
+      "picture": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/Minecraft.jpeg"
     }
   ]
 }
