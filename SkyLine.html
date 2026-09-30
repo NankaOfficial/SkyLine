@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyLine</title>
@@ -377,10 +375,13 @@
         .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-auto-rows: max-content;   /* rows keep their natural height */
+            align-content: start;          /* don't stretch/squish rows to fill the box */
             gap: 1.25rem;
             overflow-y: auto;
             padding-right: 0.25rem;
-            flex-grow: 1;
+            flex: 1 1 auto;                /* auto basis so the grid isn't collapsed to 0 height */
+            min-height: 0;                 /* lets the flex child shrink and scroll */
         }
 
         .games-grid::-webkit-scrollbar {
@@ -393,6 +394,7 @@
         }
 
         .game-card {
+            flex-shrink: 0;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px;
@@ -698,7 +700,7 @@
 </head>
 <body>
 
-    <canvas id="starfield"></canvas>
+    <canvas id="starfield" width="1310" height="957"></canvas>
     <canvas id="matrixCanvas"></canvas>
 
     <!-- Persistent Top Bar -->
@@ -708,7 +710,7 @@
         </div>
 
         <nav class="nav-links">
-            <a href="?page=games" class="nav-item" data-page="games">
+            <a href="?page=games" class="nav-item active" data-page="games">
                 <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4m-2-2v4m10-2h.01M15 11h.01"></path></svg>
                 Games
             </a>
@@ -733,19 +735,275 @@
     </div>
 
     <!-- Bottom Right Event Stack Container -->
-    <div class="event-stack" id="eventStack"></div>
+    <div class="event-stack" id="eventStack"><div class="event-card" style="border-color: rgb(255, 121, 198);">
+                    <div class="title" style="color: #ff79c6;">
+                        <span>⏳ F</span>
+                        
+                    </div>
+                    <div style="font-size: 1.1rem; color: #fff; font-family: monospace; font-weight: 700; margin-top: 2px;">00:00 remaining</div>
+                </div></div>
 
     <!-- Content Area -->
     <main class="content-viewport" id="viewport">
-        <!-- Rendered dynamically -->
-    </main>
+                    <div class="page-container animate-slide-up">
+                        <h2 class="page-title">Game Hub</h2>
+                        <div class="search-container">
+                            <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" class="search-input" id="gameSearchInput" placeholder="Search games..." oninput="handleSearch(this.value)">
+                        </div>
+                        <div class="games-grid" id="gamesGrid">
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FNankaOfficial%2FSkyLine%2Frefs%2Fheads%2Fmain%2FGames%2F1-on-1-Soccor.html', '1%20on%201%20Soccer')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/1-on-1-Soccor.jpg" alt="1 on 1 Soccer">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">1 on 1 Soccer</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FNankaOfficial%2FSkyLine%2Frefs%2Fheads%2Fmain%2FGames%2F1-on-1-Tennis.html', '1%20on%201%20Tennis')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/1-on-1-Tennis.jpg" alt="1 on 1 Tennis">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">1 on 1 Tennis</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2F1.12.html', 'Minecraft%201.12')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/Minecraft.jpeg" alt="Minecraft 1.12">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Minecraft 1.12</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2F1.5.html', 'Minecraft%201.5')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/Minecraft.jpeg" alt="Minecraft 1.5">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Minecraft 1.5</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fgithub.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Fraw%2Frefs%2Fheads%2Fmaster%2Foffline%2Fretro-bowl.html', 'Retro%20Bowl')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Retro Bowl</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fescape-road-2.html', 'Escape%20Road%202')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Escape Road 2</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fgithub.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Fraw%2Frefs%2Fheads%2Fmaster%2Foffline%2Fbitlife.html', 'Bitlife')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Bitlife</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fgithub.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Fraw%2Frefs%2Fheads%2Fmaster%2Foffline%2F2048.html', '2048')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">2048</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2F1.8.html', 'Minecraft%201.8')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/Minecraft.jpeg" alt="Minecraft 1.8">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Minecraft 1.8</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2F10-minutes-till-dawn.html', '10%20minutes%20till%20Dawn')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/10-min-till-dawn.png" alt="10 minutes till Dawn">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">10 minutes till Dawn</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2F12-mini-battles.html', '12%20Mini%20Battles')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">12 Mini Battles</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fbloxorz.html', 'Bloxorz')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Bloxorz</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2FAlpha_1.2.6.html', 'Minecraft%20Alpha%201.2.6')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/Minecraft.jpeg" alt="Minecraft Alpha 1.2.6">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Minecraft Alpha 1.2.6</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2FBeta_1.3.html', 'Minecraft%20Beta%201.3')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/Minecraft.jpeg" alt="Minecraft Beta 1.3">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Minecraft Beta 1.3</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2FIndev.html', 'Minecraft%20Indev')">
+                        <div class="game-img-container">
+                            <img src="https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/Minecraft.jpeg" alt="Minecraft Indev">
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Minecraft Indev</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Ftemple-of-boom.html', 'Temple%20Of%20Doom')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Temple Of Doom</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fdrive-mad.htm', 'Drive%20Mad')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Drive Mad</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fwe-become-what-we-behold.html', 'We%20Become%20What%20We%20Behold')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">We Become What We Behold</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Famong-us.html', 'Amoung%20Us')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Amoung Us</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fdrift-boss.htm', 'Drift%20Boss')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Drift Boss</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fmoto-x3m-2.html', 'Moto%20X3m%202')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Moto X3m 2</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fmoto-x3m-3.html', 'Moto%20X3m%203')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Moto X3m 3</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fmoto-x3m-pool-party.html', 'Moto%20X3m%20Pool%20Party')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Moto X3m Pool Party</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fmoto-x3m-spooky-land.html', 'Moto%20X3m%20Spooky%20Land')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Moto X3m Spooky Land</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fmoto-x3m-winter.html', 'Moto%20X3m%20Winter')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Moto X3m Winter</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('https%3A%2F%2Fraw.githubusercontent.com%2FCoolDude2349%2FOffline-HTML-Games-Pack%2Frefs%2Fheads%2Fmaster%2Foffline%2Fmoto-x3m.htm', 'Moto%20X3m')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Moto X3m</h4>
+                        </div>
+                    </div>
+                
+                    <div class="game-card" onclick="launchGame('%23', 'Untitled')">
+                        <div class="game-img-container">
+                            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+                        </div>
+                        <div class="game-info">
+                            <h4 class="game-name">Untitled</h4>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </main>
 
     <!-- Settings Modal -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 class="modal-title">Settings & Profile</h3>
-                <button class="modal-close" id="closeModal">&times;</button>
+                <h3 class="modal-title">Settings &amp; Profile</h3>
+                <button class="modal-close" id="closeModal">×</button>
             </div>
             
             <div class="setting-group">
@@ -1636,5 +1894,6 @@
         resizeCanvas();
         requestAnimationFrame(animate);
     </script>
-</body>
-</html>
+
+
+</body></html>
