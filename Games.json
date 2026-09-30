@@ -1789,6 +1789,11 @@
    "title": "123 Player Game",
    "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/123playergame.html",
    "picture": ""
+  },
+  {
+   "title": "99 Balls",
+   "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/99ball.html",
+   "picture": ""
   }
  ]
 }
