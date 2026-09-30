@@ -486,6 +486,32 @@
             border: none;
         }
 
+        /* Fullscreen: the wrapper goes fullscreen and the iframe fills it */
+        .game-iframe-wrapper:fullscreen,
+        .game-iframe-wrapper:-webkit-full-screen {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            border-radius: 0;
+            background: #000;
+        }
+
+        .game-iframe-wrapper:fullscreen .game-iframe,
+        .game-iframe-wrapper:-webkit-full-screen .game-iframe {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Fallback for iPhone/iPad Safari, which can't fullscreen elements */
+        .game-iframe-wrapper.pseudo-fs {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            border-radius: 0;
+            border: none;
+            min-height: 0;
+        }
+
         .loader-overlay {
             position: absolute;
             inset: 0;
@@ -1186,6 +1212,22 @@
             pageListeners = [];
         }
 
+        // Sort order: symbols (# ! @ ...) first, then numbers, then letters A-Z
+        function sortRank(title) {
+            const c = title.trim().charAt(0);
+            if (/\p{L}/u.test(c)) return 2;   // letters last
+            if (/\d/.test(c)) return 1;       // then numbers
+            return 0;                         // symbols first
+        }
+
+        function sortGames(list) {
+            return list.sort((a, b) => {
+                const ra = sortRank(a.title), rb = sortRank(b.title);
+                if (ra !== rb) return ra - rb;
+                return a.title.trim().localeCompare(b.title.trim(), undefined, { numeric: true, sensitivity: 'base' });
+            });
+        }
+
         // Fetches the games list once per visit (title, picture and source all come from the JSON)
         function getGames() {
             if (!gamesPromise) {
@@ -1194,7 +1236,7 @@
                         if (!res.ok) throw new Error('HTTP ' + res.status);
                         return res.json();
                     })
-                    .then(data => (data.games || []).filter(g => g && g.title && g.source))
+                    .then(data => sortGames((data.games || []).filter(g => g && g.title && g.source)))
                     .catch(err => { gamesPromise = null; throw err; });
             }
             return gamesPromise;
@@ -1269,16 +1311,34 @@
             }
         }
 
+        // Fullscreen the wrapper (not the iframe) so the game fits the whole screen
         function toggleGameFullscreen() {
-            const frame = document.getElementById('gameIframe');
-            if (!frame) return;
+            const wrap = document.querySelector('.game-iframe-wrapper');
+            if (!wrap) return;
+
             if (document.fullscreenElement || document.webkitFullscreenElement) {
                 (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            } else if (wrap.classList.contains('pseudo-fs')) {
+                wrap.classList.remove('pseudo-fs');
+                nudgeGameResize();
             } else {
-                const req = frame.requestFullscreen || frame.webkitRequestFullscreen;
-                if (req) req.call(frame);
+                const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+                if (req) req.call(wrap);
+                else { wrap.classList.add('pseudo-fs'); nudgeGameResize(); }
             }
         }
+
+        // Tells the game its size changed so canvases/emulators rescale to fit
+        function nudgeGameResize() {
+            const f = document.getElementById('gameIframe');
+            if (!f) return;
+            setTimeout(() => {
+                try { f.contentWindow.dispatchEvent(new Event('resize')); } catch (e) {}
+            }, 100);
+        }
+
+        document.addEventListener('fullscreenchange', nudgeGameResize);
+        document.addEventListener('webkitfullscreenchange', nudgeGameResize);
 
         // Leaderboard listener for Home page
         function initLeaderboard() {
