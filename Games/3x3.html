@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<!-- saved from url=(0084)https://www.timestables.com/gf/3x3-speed/20261002-0928/index.html?timestables=12&t=1 -->
+<html lang="en" class="is-diamond-system-disabled is-release-version is-windows-pc is-account-login-visible is-account-session-visible" data-admin-event-time-zone="Pacific/Auckland" data-admin-event-schedule-source="fallback" data-admin-event-active="false" data-admin-event-x100-free="false" data-admin-event-x100-quiz-remaining="0" data-background-music-track="" style="--game-ui-scale: 1.000; --game-popup-scale: 1.000; --game-popup-max-width: 1286px; --game-popup-max-height: 933px;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <base href="timestables.html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Number Speed Escape</title>
+    <link rel="icon" href="data:,">
+    <script>
+      {
+        window.NUMBER_SPEED_BUILD_VERSION = "20260721-server-progress";
+        const ua = navigator.userAgent;
+        const isSafari = /safari/i.test(ua) && !/(chrome|chromium|crios|fxios|edg|opr|android)/i.test(ua);
+        document.documentElement.classList.toggle("is-safari", isSafari);
+        const platform = `${navigator.userAgentData?.platform || ""} ${navigator.platform || ""}`;
+        const screenShortSide = Math.min(screen.width || 0, screen.height || 0);
+        const viewportShortSide = Math.min(window.innerWidth || 0, window.innerHeight || 0);
+        const hasTabletViewport = Math.max(screenShortSide, viewportShortSide) >= 600;
+        const isAndroid = /android/i.test(`${ua} ${platform}`);
+        const isAndroidTablet = isAndroid && (
+          /\bSM-(?:T|X|P)\w+|tablet/i.test(ua)
+          || navigator.userAgentData?.mobile === false
+          || !/mobile/i.test(ua)
+          || hasTabletViewport
+        );
+        const isIpad = /ipad/i.test(ua)
+          || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1 && hasTabletViewport);
+        document.documentElement.classList.toggle("is-tablet-device", isAndroidTablet || isIpad);
+      }
+    </script>
+    <script>
+      {
+        const params = new URLSearchParams(location.search);
+        const localPreview = ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)
+          && params.get("release") !== "1";
+        window.NUMBER_SPEED_PREVIEW_FEATURES_ENABLED = localPreview;
+        document.documentElement.classList.toggle("has-preview-features", localPreview);
+        const adsDisabled = params.get("ads") === "0";
+        window.NUMBER_SPEED_ADS_ENABLED = !adsDisabled;
+        window.NUMBER_SPEED_ADS_LOAD_FAILED = false;
+        if (!adsDisabled) {
+          window.adsbygoogle = window.adsbygoogle || [];
+          window.adBreak = window.adConfig = (options) => window.adsbygoogle.push(options);
+          const adScript = document.createElement("script");
+          adScript.async = true;
+          adScript.dataset.adFrequencyHint = "240s";
+          // ?adtest=1 (test links only): Google serves test ads that always fill.
+          if (params.get("adtest") === "1") adScript.dataset.adbreakTest = "on";
+          adScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7769276089683868";
+          adScript.crossOrigin = "anonymous";
+          adScript.addEventListener("error", () => {
+            window.NUMBER_SPEED_ADS_LOAD_FAILED = true;
+            window.dispatchEvent(new Event("number-speed-ad-api-error"));
+          });
+          document.head.append(adScript);
+        }
+      }
+    </script>
+
+    <link rel="stylesheet" href="./Number Speed Escape_files/index.css">
+    <link rel="stylesheet" href="./Number Speed Escape_files/styles.css">
+    <link id="mobileLayoutStyles" rel="stylesheet" href="./Number Speed Escape_files/mobile.css" media="not all">
+    <script>
+      {
+        const params = new URLSearchParams(location.search);
+        const ua = navigator.userAgent;
+        const platform = `${navigator.userAgentData?.platform || ""} ${navigator.platform || ""}`;
+        const isChromebookLayout = /CrOS|Chrome OS/i.test(`${ua} ${platform}`);
+        const isIpadLayout = /ipad/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        const useMobileLayout = params.get("mobilePreview") === "1"
+          || (!isChromebookLayout && (/android|iphone|ipod|mobile/i.test(ua) || isIpadLayout));
+        document.querySelector("#mobileLayoutStyles").media = useMobileLayout ? "all" : "not all";
+      }
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "timestables.com/vendor/three.module.js?v=bc8ec0a09b61b",
+          "gameanalytics": "timestables.com/vendor/gameanalytics/GameAnalytics.esm.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="is-loading">
+    <div class="loading-screen" id="loadingScreen" aria-live="polite">
+      <div class="loading-screen-art">
+        <img class="loading-screen-image" src="./Number Speed Escape_files/loading-screen-title.png" alt="" aria-hidden="true">
+      </div>
+      <div class="loading-progress">
+        <div class="loading-progress-copy">
+          <strong>Loading</strong>
+          <span id="loadingPercent">41%</span>
+        </div>
+        <div class="loading-progress-bar">
+          <div class="loading-progress-fill-layer">
+            <div class="loading-progress-fill is-complete" id="loadingProgressFill" style="transform: translateZ(0px) scaleX(0.405542);"></div>
+          </div>
+          <div class="loading-progress-track"></div>
+        </div>
+      </div>
+    </div>
+    <div id="game"><canvas data-engine="three.js r164" width="1310" height="957" style="display: block;"></canvas></div>
+    <div class="ad-overlay _056x18134q404a1w54h" id="ad-overlay" popover="manual" role="status" aria-live="assertive" aria-label="Advertisement">
+      <div class="ad-overlay-card">
+        <span class="ad-chip">Ad</span>
+        <strong>Advertisement playing</strong>
+        <span class="ad-sub">— the game will resume right after</span>
+      </div>
+    </div>
+    <div class="speed-popups" id="speedPopups"></div>
+    <section class="leaderboard" id="leaderboard" aria-label="Leaderboard">
+      <div class="leaderboard-header">
+        <strong>Leaderboard <span class="leaderboard-room-code">code: <b id="roomCodeValue">...</b></span></strong>
+        <span class="multiplayer-status" id="multiplayerStatus">Offline</span>
+      </div>
+      <div class="leaderboard-grid leaderboard-grid-head" aria-hidden="true">
+        <span>Players</span>
+        <span>Speed</span>
+        <span>Wins</span>
+      </div>
+      <div class="leaderboard-body" id="leaderboardBody"></div>
+      <button class="room-code-toggle" id="roomCodeToggle" type="button" aria-expanded="false" aria-controls="roomCodePanel">Join room</button>
+      <div class="room-code-panel" id="roomCodePanel">
+        <form class="room-code-form" id="roomCodeForm" autocomplete="off">
+          <input id="roomCodeInput" type="text" inputmode="text" maxlength="12" placeholder="friend code" aria-label="Friend room code">
+          <button id="roomCodeJoin" type="submit" translate="no">Join</button>
+          <button class="private-server-button" id="privateServerButton" type="button">Private Server</button>
+        </form>
+        <div class="room-code-status" id="roomCodeStatus" aria-live="polite"></div>
+      </div>
+    </section>
+    <button class="sound-toggle settings-toggle" id="settingsToggle" type="button" aria-label="Open settings" aria-haspopup="dialog" aria-controls="settingsOverlay">
+      <img src="./Number Speed Escape_files/settings-cog-game.png" alt="" aria-hidden="true">
+    </button>
+    <div class="loading-player-card" id="loadingPlayerCard" aria-label="Player profile">
+      <canvas class="loading-player-avatar" id="loadingPlayerAvatar" width="256" height="256" aria-hidden="true" data-portrait-source="live-character"></canvas>
+      <div class="loading-player-identity">
+        <div class="loading-player-name-row">
+          <strong id="loadingPlayerName" title="MagicPoppy87">MagicPoppy87</strong>
+          <span class="loading-player-online" role="img" aria-label="Online" title="Online"></span>
+        </div>
+        <span class="loading-player-stats">
+          <span id="loadingPlayerLevel">Level 3</span>
+          <span class="loading-player-diamonds" aria-label="Diamond balance"><img src="./Number Speed Escape_files/diamond-currency-roblox-v2.png" alt="" aria-hidden="true"><span id="loadingPlayerDiamonds">0</span></span>
+        </span>
+      </div>
+      <button class="loading-player-edit" id="loadingPlayerEdit" type="button" aria-label="Edit player name" title="Edit player name">
+        <img src="./Number Speed Escape_files/player-card-pencil.png" alt="" aria-hidden="true">
+      </button>
+    </div>
+    <div class="account-session" aria-live="polite">
+      <button class="account-login-button" id="accountLoginButton" type="button" aria-label="Login to Save Progress">
+        <img class="account-login-logo" src="./Number Speed Escape_files/timestables-t-logo-v1.png" alt="" aria-hidden="true">
+        <span class="account-login-label"><span class="account-login-label-full">Login to Save Progress</span><span class="account-login-label-short">Login</span></span>
+      </button>
+      <div class="account-greeting hidden" id="accountGreeting">Hi, <strong id="accountGreetingName">player</strong>!</div>
+      <div class="account-login-waiting" aria-hidden="true"><span class="account-login-waiting-card"><span class="account-login-spinner"></span>Opening login…</span></div>
+    </div>
+    <div class="hud hud-top">
+      <div class="top-hud">
+        <div class="multiplier-stack left"></div>
+        <div class="speed-title" id="topSpeed">
+          <span class="speed-title-icon" aria-hidden="true">⚡</span>
+          <span class="speed-title-copy">
+            <strong id="topSpeedValue" data-text="158">158</strong>
+            <span>Speed</span>
+          </span>
+        </div>
+        <div class="hearts-title is-low" id="topHearts">
+          <span class="hearts-title-icon" aria-hidden="true"><img src="./Number Speed Escape_files/heart-icon.png" alt=""></span>
+          <span class="speed-title-copy">
+            <strong id="topHeartsValue" data-text="1/5">1/5</strong>
+            <span>Hearts</span>
+          </span>
+        </div>
+        <div class="multiplier-stack right">
+          <span id="trailMultiplierTop">Multiplier x1 (Trail &amp; Aura)</span>
+          <span id="rebirthMultiplierTop">Multiplier x1 (Rebirth)</span>
+        </div>
+      </div>
+      <div class="stage-question hidden" id="stageElevenQuestionPrompt" data-rendered-text=""></div>
+    </div>
+
+    <div class="hud hud-left">
+      <div class="currency-badges">
+      <div class="wins-badge"><span><img class="trophy-icon-image" src="./Number Speed Escape_files/trophy-icon-cropped.png" alt="" aria-hidden="true"></span><strong id="wins">0</strong></div>
+      </div>
+      <div class="menu-grid">
+        <button class="icon-button blue" id="restartButton" title="Restart run"><span class="rebirth-icon-slot"><img class="menu-icon-image rebirth-icon-image" src="./Number Speed Escape_files/rebirth-icon.png" alt="" aria-hidden="true"></span><strong translate="no">Rebirth</strong><i class="menu-alert" aria-hidden="true"></i></button>
+        <button class="icon-button cyan" id="trailsButton" type="button"><span class="trail-icon-slot"><img class="menu-icon-image trail-icon-image" src="./Number Speed Escape_files/trails-runner-button.png" alt="" aria-hidden="true"></span><strong translate="no">Trails</strong><i class="menu-alert" aria-hidden="true"></i></button>
+        <button class="icon-button skin" id="skinsButton" type="button"><span class="skin-icon-slot"><img class="menu-icon-image skin-icon-image" src="./Number Speed Escape_files/skin-shop-button-cutout.png" alt="" aria-hidden="true"></span><strong translate="no">Skins</strong><i class="menu-alert" aria-hidden="true"></i></button>
+        <button class="icon-button gift has-alert" id="giftButton" type="button"><span class="gift-icon-slot"><img class="menu-icon-image gift-icon-image" src="./Number Speed Escape_files/gift-box-reward.png" alt="" aria-hidden="true"></span><strong translate="no">Rewards</strong><i class="menu-alert" aria-hidden="true"></i></button>
+        <button class="icon-button sounds" id="soundsButton" type="button" aria-label="Keyboard sounds" aria-haspopup="dialog" aria-controls="soundsOverlay" aria-expanded="false"><span class="sounds-icon-slot"><img class="menu-icon-image sounds-icon-image" src="./Number Speed Escape_files/sound-mechanical-button-pink.png" alt="" aria-hidden="true"></span><strong translate="no">Sounds</strong></button>
+        <button class="icon-button diamond-shop" id="diamondShopButton" type="button" aria-haspopup="dialog" aria-controls="diamondShopOverlay"><span class="diamond-shop-icon-slot"><img class="menu-icon-image diamond-shop-icon-image" src="./Number Speed Escape_files/diamond-shop-button.png" alt="" aria-hidden="true"></span><strong>Diamonds</strong></button>
+      </div>
+    </div>
+
+    <div class="hud hud-right">
+      <button class="custom-speed-button is-locked" id="customSpeedButton" type="button" aria-label="Custom Speed locked until level 25" aria-disabled="true">
+        <span class="custom-speed-icon" aria-hidden="true">
+          <img src="./Number Speed Escape_files/custom-speed-icon.png" alt="">
+        </span>
+        <strong>Speed</strong>
+      </button>
+      <button class="emoji-hud-button" id="emojiButton" type="button" aria-haspopup="true" aria-expanded="false">
+        <span class="emoji-hud-icon" aria-hidden="true">
+          <img src="./Number Speed Escape_files/emoji-button-hd.png" alt="">
+        </span>
+        <strong>Emojis</strong>
+      </button>
+      <button class="emoji-hud-button character-hud-button has-alert" id="characterButton" type="button" style="">
+        <span class="emoji-hud-icon character-hud-icon" aria-hidden="true">
+          <img src="./Number Speed Escape_files/character-menu-avatar-v3.png" alt="">
+        </span>
+        <strong>Character</strong>
+        <i class="menu-alert character-hud-alert" aria-hidden="true"></i>
+      </button>
+      <div class="panel panel-compact-stat">
+        <span class="multiplier-label" data-label="Multiplier" data-mobile-label="Boost" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;">Multiplier</span>
+        <strong id="boost">x1</strong>
+      </div>
+    </div>
+
+    <div class="emoji-menu hidden" id="emojiMenu" role="menu" aria-label="Choose emoji"></div>
+
+    <div class="hud hud-bottom">
+      <div class="progress-wrap">
+        <div class="stage-title-row">
+          <div class="stage-strip" id="stageName" data-mask-stud="0" style="--stage-label-top: #ffb0e8; --stage-label-bottom: #b66a78; --stage-label-glow: rgba(255, 126, 216, 0.32);">Lobby</div>
+          <div class="potion-multiplier-hud is-speed hidden" id="speedPotionMultiplierHud" aria-label="Speed multiplier" aria-hidden="true">
+            <span>Speed Multiplier:</span>
+            <strong id="speedPotionMultiplierHudValue">2.00x</strong>
+            <img src="./Number Speed Escape_files/multiplier-electricity.png" alt="" aria-hidden="true">
+          </div>
+          <div class="potion-multiplier-hud is-trophy hidden" id="trophyPotionMultiplierHud" aria-label="Trophy multiplier" aria-hidden="true">
+            <span>Trophy Multiplier:</span>
+            <strong id="trophyPotionMultiplierHudValue">2.00x</strong>
+            <img src="./Number Speed Escape_files/trophy-icon-cropped.png" alt="" aria-hidden="true">
+          </div>
+          <div class="streak-multiplier-hud" id="streakMultiplierHud" aria-label="Streak multiplier">
+            <span>Streak Multiplier:</span>
+            <strong id="streakMultiplierHudValue">1.00x</strong>
+            <img src="./Number Speed Escape_files/daily-streak-fire.png" alt="" aria-hidden="true">
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width: 79.7647%;"></div>
+          <div class="progress-label">
+            <span id="level" data-rendered-text="Level 3|31.44|1|260|125|31.00" aria-label="Level 3" data-hud-text-align="left"><canvas class="hud-outlined-text-canvas is-current" width="125" height="40" style="width: 125px; height: 40px;"></canvas></span>
+            <span id="speed" class="hud-smooth-readout" data-hud-slot-width="408" data-rendered-text="68 / 85 Speed|31.44|1|430|408|31.00" aria-label="68 / 85 Speed" data-hud-text-align="right" style="min-height: 40px;"><canvas class="hud-outlined-text-canvas is-current" width="408" height="40" style="width: 408px; height: 40px;"></canvas></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-controls" id="mobileControls">
+      <div class="mobile-stick" id="mobileStick" aria-label="Move">
+        <span id="mobileStickKnob"></span>
+      </div>
+      <button class="mobile-jump" id="mobileJumpButton" type="button" aria-label="Jump">
+        <img class="mobile-jump-icon" src="./Number Speed Escape_files/mobile-jump-icon.png" alt="" aria-hidden="true">
+      </button>
+      <div class="mobile-camera-zone" id="mobileCameraZone" aria-label="Drag to rotate camera"></div>
+    </div>
+
+    <div class="center-message hidden" id="centerMessage"></div>
+
+    <button class="revive-offer hidden" id="reviveOfferButton" type="button">
+      <span class="revive-offer-wing" aria-hidden="true"></span>
+      <strong id="reviveOfferText">Revive to stage 3?</strong>
+      <span class="revive-offer-wing right" aria-hidden="true"></span>
+    </button>
+
+    <div class="modal-overlay hidden" id="rebirthOverlay">
+      <div class="rebirth-modal">
+        <button class="rebirth-close" id="rebirthClose" type="button" aria-label="Close">X</button>
+        <h2 translate="no"><span>Rebirth</span><img class="rebirth-title-icon" src="./Number Speed Escape_files/rebirth-icon.png" alt="" aria-hidden="true"></h2>
+        <div class="rebirth-level" id="rebirthRequired">Level 10</div>
+        <div class="rebirth-multiplier-row">
+          <div class="rebirth-multiplier-card"><img class="rebirth-speed-icon" src="./Number Speed Escape_files/running-shoe.png" alt="" aria-hidden="true"><span id="rebirthCurrentMultiplier">Speed x1</span></div>
+          <div class="rebirth-arrow">▶</div>
+          <div class="rebirth-multiplier-card"><img class="rebirth-speed-icon" src="./Number Speed Escape_files/running-shoe.png" alt="" aria-hidden="true"><span id="rebirthNextMultiplier">Speed x1.5</span></div>
+        </div>
+        <p>Rebirth resets your speed level!</p>
+        <div class="rebirth-progress"><div class="rebirth-progress-fill" aria-hidden="true"></div><span id="rebirthProgressText">Level 1 / 10</span></div>
+        <div class="rebirth-actions">
+          <button class="rebirth-button" id="rebirthConfirm" type="button">Rebirth</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="trailOverlay">
+      <div class="trail-modal">
+        <button class="trail-close" id="trailClose" type="button" aria-label="Close">X</button>
+        <div class="trail-shop-header">
+          <div class="trail-balance"><span><img class="trophy-inline-icon" src="./Number Speed Escape_files/trophy-icon-cropped.png" alt="" aria-hidden="true"></span><strong id="trailBalance">0</strong></div>
+          <h2 translate="no">Trails</h2>
+        </div>
+        <div class="trail-scroll-wrap">
+          <div class="trail-list" id="trailList"></div>
+          <div class="trail-scrollbar" id="trailScrollbar" aria-hidden="true"><span id="trailScrollbarThumb"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="skinOverlay">
+      <div class="skin-modal">
+        <button class="skin-close" id="skinClose" type="button" aria-label="Close">X</button>
+        <div class="skin-shop-header">
+          <h2 translate="no">Skins</h2>
+          <div class="skin-balance"><span><img class="trophy-inline-icon" src="./Number Speed Escape_files/trophy-icon-cropped.png" alt="" aria-hidden="true"></span><strong id="skinBalance">0</strong></div>
+        </div>
+        <div class="skin-list" id="skinList"></div>
+      </div>
+    </div>
+
+    <div class="diamond-shop-overlay modal-overlay hidden" id="diamondShopOverlay">
+      <div class="diamond-shop-modal" role="dialog" aria-modal="true" aria-labelledby="diamondShopTitle">
+        <button class="diamond-shop-close" id="diamondShopClose" type="button" aria-label="Close">X</button>
+        <div class="diamond-shop-header">
+          <div class="diamond-shop-title-lockup">
+            <h2 id="diamondShopTitle">Diamond Shop</h2>
+            <img src="./Number Speed Escape_files/diamond-currency-roblox-v2.png" alt="" aria-hidden="true">
+          </div>
+          <div class="diamond-shop-balance" aria-label="Diamond balance">
+            <img src="./Number Speed Escape_files/diamond-currency-roblox-v2.png" alt="" aria-hidden="true">
+            <strong id="diamondShopBalance">0</strong>
+          </div>
+        </div>
+        <div class="diamond-shop-panels" id="diamondShopPanels">
+          <section class="diamond-shop-panel diamond-shop-product-panel" aria-label="Speed Potion, 3 hours, 2 times speed multiplier, 100 diamonds">
+            <strong class="diamond-shop-product-title">Speed Potion</strong>
+            <span class="diamond-shop-duration" aria-label="3 hour duration"><span>3H</span><img src="./Number Speed Escape_files/clock.png" alt="" aria-hidden="true"></span>
+            <img class="diamond-shop-product-image" src="./Number Speed Escape_files/potion-spiral-roblox-vector-ai.png" alt="" aria-hidden="true">
+            <span class="diamond-shop-effect" data-i18n-composite="">Gives 2.0<span class="diamond-shop-multiplier-x">×</span> Speed Multiplier</span>
+            <button class="diamond-shop-buy" id="speedPotionBuy" type="button"><span>Buy</span><span class="diamond-shop-button-price" aria-label="100 diamonds"><img src="./Number Speed Escape_files/diamond-currency-roblox-v2.png" alt="" aria-hidden="true"><b>100</b></span></button>
+          </section>
+<section class="diamond-shop-panel diamond-shop-product-panel diamond-shop-trophy-panel" aria-label="Trophy Potion, 3 hours, 2 times trophy reward, 100 diamonds">
+            <strong class="diamond-shop-product-title">Trophy Potion</strong>
+            <span class="diamond-shop-duration" aria-label="3 hour duration"><span>3H</span><img src="./Number Speed Escape_files/clock.png" alt="" aria-hidden="true"></span>
+            <img class="diamond-shop-product-image" src="./Number Speed Escape_files/trophy-potion-roblox-vector-ai.png" alt="" aria-hidden="true">
+            <span class="diamond-shop-effect" data-i18n-composite="">Gives 2.0<span class="diamond-shop-multiplier-x">×</span> Trophy Reward</span>
+            <button class="diamond-shop-buy" id="trophyPotionBuy" type="button"><span>Buy</span><span class="diamond-shop-button-price" aria-label="100 diamonds"><img src="./Number Speed Escape_files/diamond-currency-roblox-v2.png" alt="" aria-hidden="true"><b>100</b></span></button>
+          </section>
+<section class="diamond-shop-panel diamond-shop-product-panel diamond-shop-heart-panel" aria-label="Heart Potion, permanent plus 1 maximum heart, 500 diamonds">
+            <strong class="diamond-shop-product-title">Heart Potion</strong>
+            <img class="diamond-shop-product-image" src="./Number Speed Escape_files/heart-potion-roblox-vector-ai-v2.png" alt="" aria-hidden="true">
+            <span class="diamond-shop-effect">Gives +1 Maximum Heart</span>
+            <button class="diamond-shop-buy" id="heartPotionBuy" type="button"><span>Buy</span><span class="diamond-shop-button-price" aria-label="500 diamonds"><img src="./Number Speed Escape_files/diamond-currency-roblox-v2.png" alt="" aria-hidden="true"><b>500</b></span></button>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="characterOverlay">
+      <div class="character-modal" role="dialog" aria-modal="true" aria-label="Character">
+        <button class="character-close" id="characterClose" type="button" aria-label="Close">X</button>
+        <h2 class="character-title-box"><span class="character-title-icon" aria-hidden="true"><img src="./Number Speed Escape_files/character-menu-avatar.png" alt=""></span><span>Character</span></h2>
+        <div class="character-preview-shell">
+          <canvas class="character-preview-canvas" id="characterPreviewCanvas" width="2" height="2" data-engine="three.js r164" style="background-position: center center; background-repeat: no-repeat; background-size: contain; background-image: none;"></canvas>
+          <div class="character-part-controls" id="characterPartControls">
+            <button class="character-arrow is-left row-face" type="button" data-character-part="face" data-character-direction="-1" aria-label="Previous face"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-right row-face" type="button" data-character-part="face" data-character-direction="1" aria-label="Next face"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-left row-hair" type="button" data-character-part="hair" data-character-direction="-1" aria-label="Previous hairstyle"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-right row-hair" type="button" data-character-part="hair" data-character-direction="1" aria-label="Next hairstyle"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-left row-shirt" type="button" data-character-part="shirt" data-character-direction="-1" aria-label="Previous shirt"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-right row-shirt" type="button" data-character-part="shirt" data-character-direction="1" aria-label="Next shirt"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-left row-pants" type="button" data-character-part="pants" data-character-direction="-1" aria-label="Previous pants"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-right row-pants" type="button" data-character-part="pants" data-character-direction="1" aria-label="Next pants"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-left row-shoes" type="button" data-character-part="shoes" data-character-direction="-1" aria-label="Previous shoes"><span aria-hidden="true"></span></button>
+            <button class="character-arrow is-right row-shoes" type="button" data-character-part="shoes" data-character-direction="1" aria-label="Next shoes"><span aria-hidden="true"></span></button>
+          </div>
+        </div>
+        <div class="character-palette-panel" id="characterPaletteList" aria-label="Color palettes"></div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="dailyOverlay">
+      <div class="daily-modal">
+        <button class="daily-close" id="dailyClose" type="button" aria-label="Close">X</button>
+        <h2 class="daily-title-box" translate="no"><span class="daily-calendar" aria-hidden="true"><img src="./Number Speed Escape_files/daily-calendar-icon.png" alt=""></span><span>Daily Rewards</span></h2>
+        <div class="daily-streak-box" id="dailyStreakBox" aria-label="Daily reward streak multiplier">
+          <span>Daily Streak:</span>
+          <strong id="dailyStreakValue" aria-live="polite">0</strong>
+          <img src="./Number Speed Escape_files/daily-streak-fire.png" alt="" aria-hidden="true">
+        </div>
+        <div class="daily-rewards-browser">
+          <button class="daily-page-arrow is-left" id="dailyPagePrev" type="button" aria-label="Previous daily rewards" hidden=""><span aria-hidden="true">‹</span></button>
+          <div class="daily-reward-list" id="dailyRewardList"></div>
+          <button class="daily-page-arrow is-right" id="dailyPageNext" type="button" aria-label="Next daily rewards"><span aria-hidden="true">›</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="soundsOverlay" role="dialog" aria-modal="true" aria-labelledby="soundsTitle">
+      <div class="sounds-modal">
+        <button class="sounds-close" id="soundsClose" type="button" aria-label="Close">X</button>
+        <h2 class="sounds-title-box" id="soundsTitle" translate="no">
+          <span>Sounds</span>
+        </h2>
+        <p class="sounds-status" id="soundsStatus" aria-live="polite">Pick your keyboard sound</p>
+        <div class="sounds-grid" id="soundsGrid">
+          <button class="sound-theme-card is-casual" type="button" data-sound-theme="classic" aria-pressed="false">
+            <span class="sound-theme-icon"><img src="./Number Speed Escape_files/sound-mechanical-button-pink.png" alt="" aria-hidden="true"></span>
+            <strong>CASUAL</strong>
+          </button>
+          <button class="sound-theme-card is-water" type="button" data-sound-theme="water" aria-pressed="false">
+            <span class="sound-theme-icon"><img src="./Number Speed Escape_files/sound-theme-water.png" alt="" aria-hidden="true"></span>
+            <strong>WATER</strong>
+          </button>
+          <button class="sound-theme-card is-candy" type="button" data-sound-theme="candy" aria-pressed="false">
+            <span class="sound-theme-icon"><img src="./Number Speed Escape_files/sound-theme-candy.png" alt="" aria-hidden="true"></span>
+            <strong>CANDY</strong>
+          </button>
+          <button class="sound-theme-card is-soap is-daily-reward" type="button" data-sound-theme="soap" aria-pressed="false">
+            <span class="sound-theme-lock" aria-hidden="true"><img src="./Number Speed Escape_files/treadmill-lock.png" alt=""></span>
+            <span class="sound-theme-daily-tag" aria-hidden="true">DAILY REWARD</span>
+            <span class="sound-theme-icon"><img src="./Number Speed Escape_files/sound-theme-soap-cutting.png" alt="" aria-hidden="true"></span>
+            <strong>SOAP</strong>
+          </button>
+          <button class="sound-theme-card is-asmr" type="button" data-sound-theme="asmr" aria-pressed="false">
+            <span class="sound-theme-icon"><img src="./Number Speed Escape_files/sound-theme-asmr.png" alt="" aria-hidden="true"></span>
+            <strong>ASMR</strong>
+          </button>
+          <button class="sound-theme-card is-slime" type="button" data-sound-theme="slime" aria-pressed="false">
+            <span class="sound-theme-icon"><img src="./Number Speed Escape_files/sound-theme-slime.png" alt="" aria-hidden="true"></span>
+            <strong>SLIME</strong>
+          </button>
+          <button class="sound-theme-card is-bubble-wrap" type="button" data-sound-theme="bubble-wrap" aria-pressed="false">
+            <span class="sound-theme-icon"><img src="./Number Speed Escape_files/sound-theme-bubble-wrap.png" alt="" aria-hidden="true"></span>
+            <strong>BUBBLE WRAP</strong>
+          </button>
+          <button class="sound-theme-card is-wax is-daily-reward" type="button" data-sound-theme="wax" aria-pressed="false">
+            <span class="sound-theme-lock" aria-hidden="true"><img src="./Number Speed Escape_files/treadmill-lock-blue.png" alt=""></span>
+            <span class="sound-theme-daily-tag" aria-hidden="true">DAILY REWARD</span>
+            <span class="sound-theme-icon"><img src="./Number Speed Escape_files/sound-theme-wax-cracking.png" alt="" aria-hidden="true"></span>
+            <strong>WAX</strong>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="settings-modal">
+        <button class="settings-close" id="settingsClose" type="button" aria-label="Close">X</button>
+        <section class="settings-panel" id="settingsPanel">
+          <h2 class="settings-title-box" id="settingsTitle"><img src="./Number Speed Escape_files/settings-cog-game.png" alt="" aria-hidden="true"><span>Settings</span></h2>
+
+          <div class="settings-controls">
+            <button class="settings-option is-sound" id="settingsSoundButton" type="button" aria-pressed="false"><span class="settings-option-icon"><img id="settingsSoundOnIcon" src="./Number Speed Escape_files/sound-on-game.png" alt="" aria-hidden="true"><img id="settingsSoundOffIcon" src="./Number Speed Escape_files/sound-off-game.png" alt="" aria-hidden="true" hidden=""></span><span class="settings-option-copy"><strong id="settingsSoundLabel">Sound On</strong><small>Game sound effects</small></span></button>
+            <button class="settings-option is-music" id="settingsMusicButton" type="button" aria-pressed="false"><span class="settings-option-icon"><img id="settingsMusicOnIcon" src="./Number Speed Escape_files/music-on-game.png" alt="" aria-hidden="true"><img id="settingsMusicOffIcon" src="./Number Speed Escape_files/music-off-game.png" alt="" aria-hidden="true" hidden=""></span><span class="settings-option-copy"><strong id="settingsMusicLabel">Music On</strong><small>Background music</small></span></button>
+          </div>
+          <div class="settings-actions">
+            <button class="settings-feedback-button" id="settingsFeedbackButton" type="button"><img src="./Number Speed Escape_files/feedback-game.png" alt="" aria-hidden="true"><span><strong>Feedback</strong><small>Tell us what you think</small></span></button>
+            <button class="settings-respawn-button" id="settingsRespawnButton" type="button"><img src="./Number Speed Escape_files/settings-respawn-game.png" alt="" aria-hidden="true"><span><strong>Respawn</strong><small>Return to the lobby</small></span></button>
+          </div>
+        </section>
+        <section class="feedback-panel hidden" id="feedbackPanel" aria-labelledby="feedbackTitle"><button class="feedback-back" id="feedbackBack" type="button">Back</button><h2 class="settings-title-box" id="feedbackTitle"><img src="./Number Speed Escape_files/feedback-game.png" alt="" aria-hidden="true"><span>Feedback</span></h2><p class="feedback-intro">Share a suggestion or report a bug.</p><form class="feedback-form" id="feedbackForm"><label for="feedbackMessage">Your message</label><textarea id="feedbackMessage" minlength="3" maxlength="500" rows="6" placeholder="Type your feedback here..." required=""></textarea><div class="feedback-meta"><strong id="feedbackCounter">0 / 500</strong></div><button class="feedback-send" id="feedbackSend" type="submit">Send Feedback</button><p class="feedback-status" id="feedbackStatus" aria-live="polite"></p></form></section>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="playerNameOverlay" role="dialog" aria-modal="true" aria-label="Edit name">
+      <div class="player-name-modal">
+        <button class="player-name-close" id="playerNameClose" type="button" aria-label="Close">X</button>
+        <div class="player-name-preview">
+          <span>Your name</span>
+          <strong id="playerNameChoice">Player</strong>
+        </div>
+        <button class="player-name-generate" id="playerNameGenerate" type="button"><span class="player-name-button-label">Generate Name</span><img src="./Number Speed Escape_files/player-name-regenerate.png" alt="" aria-hidden="true"></button>
+        <div class="player-name-actions">
+          <button class="player-name-cancel" id="playerNameCancel" type="button"><span class="player-name-button-label">Revert Changes</span><img src="./Number Speed Escape_files/player-name-revert-ai.png" alt="" aria-hidden="true"></button>
+          <button class="player-name-save" id="playerNameSave" type="button"><span class="player-name-button-label">Save Name</span><img src="./Number Speed Escape_files/player-name-save-ai.png" alt="" aria-hidden="true"></button>
+        </div>
+        <p class="player-name-status" id="playerNameStatus" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="customSpeedOverlay">
+      <div class="custom-speed-modal">
+        <button class="custom-speed-close" id="customSpeedClose" type="button" aria-label="Close">X</button>
+        <h2>Custom Speed</h2>
+        <div class="custom-speed-readout">
+          <span>Current</span>
+          <strong id="customSpeedValue">Locked</strong>
+        </div>
+        <input id="customSpeedSlider" class="custom-speed-slider" type="range" min="25" max="100" step="1" value="100" aria-label="Custom speed percentage" disabled="" style="--custom-speed-fill: 100%;">
+        <div class="custom-speed-scale">
+          <span>Slower</span>
+          <span id="customSpeedMaxLabel">Max</span>
+        </div>
+        <button class="custom-speed-max-mini" id="customSpeedReset" type="button"><span class="custom-speed-max-text">Max Speed</span></button>
+        <button class="custom-speed-apply" id="customSpeedApply" type="button">Apply Speed</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="worldPortalOverlay" role="dialog" aria-modal="true" aria-labelledby="worldPortalTitle">
+      <div class="world-portal-modal">
+        <button class="world-portal-close" id="worldPortalClose" type="button" aria-label="Close">X</button>
+        <div class="world-portal-kicker">World Portal</div>
+        <h2 id="worldPortalTitle">Teleport to World 2?</h2>
+        <button class="world-portal-confirm" id="worldPortalConfirm" type="button">Teleport</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="mathQuizOverlay">
+      <div class="math-quiz-modal">
+        <button class="math-quiz-close" id="mathQuizClose" type="button" aria-label="Close">X</button>
+        <div class="math-quiz-kicker" id="mathQuizKicker"><span class="kicker-time">1:15 UNLOCK</span></div>
+        <h2 id="mathQuizTitle">Speed Quiz</h2>
+        <div class="math-quiz-progress" id="mathQuizProgress">Question 1 / 3</div>
+        <div class="math-quiz-question" id="mathQuizQuestion">2 x 3 = ?</div>
+        <form class="math-quiz-form" id="mathQuizForm">
+          <span class="math-quiz-answer-field" data-value="">
+            <input id="mathQuizAnswer" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+          </span>
+          <button id="mathQuizSubmit" type="submit">Answer</button>
+        </form>
+        <div class="math-quiz-keypad" id="mathQuizKeypad" aria-label="Number keypad">
+          <button type="button" data-quiz-key="1">1</button>
+          <button type="button" data-quiz-key="2">2</button>
+          <button type="button" data-quiz-key="3">3</button>
+          <button type="button" data-quiz-key="4">4</button>
+          <button type="button" data-quiz-key="5">5</button>
+          <button type="button" data-quiz-key="6">6</button>
+          <button type="button" data-quiz-key="7">7</button>
+          <button type="button" data-quiz-key="8">8</button>
+          <button type="button" data-quiz-key="9">9</button>
+          <button type="button" data-quiz-key="0">0</button>
+          <button type="button" data-quiz-key="back">DEL</button>
+        </div>
+        <div class="math-quiz-feedback" id="mathQuizFeedback"></div>
+        <div class="math-quiz-dots" id="mathQuizDots"></div>
+      </div>
+    </div>
+
+    <script>/* injected by build-client.sh */(function(){var h=location.hostname;if((h==="timestables.com"||h.endsWith(".timestables.com"))&&h!=="sp1.timestables.com"){var p=location.pathname;var b=null;["/world-2/","/world-3/","/world-4/"].forEach(function(s){var i=p.indexOf(s);if(b===null&&i>=0)b=p.slice(0,i+1);});if(b===null)b=p.replace(/[^/]*$/,"");window.NUMBER_SPEED_MULTIPLAYER_URL="wss://sp2.timestables.com/multiplayer";window.NUMBER_SPEED_WORLD_1_URL=b;window.NUMBER_SPEED_WORLD_2_URL=b+"world-2/";window.NUMBER_SPEED_WORLD_3_URL=b+"world-3/";window.NUMBER_SPEED_WORLD_4_URL=b+"world-4/";}})();</script>
+    <script src="./Number Speed Escape_files/colyseus.js.download"></script>
+    <script type="module" src="./Number Speed Escape_files/rewarded-ad-preview.js.download"></script>
+    <script type="module" src="./Number Speed Escape_files/main.js.download"></script>
+  <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;c40f8a7fd99f4720a88f5b58bed72eb2&quot;}" crossorigin="anonymous"></script>
+
+
+<div id="cpw-palette-core--x2v5" style="position: fixed; bottom: 16px; right: 16px; z-index: 999998; display: none; pointer-events: none;"><template shadowrootmode="open"><style>*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
+  --tw-contain-size:  ;
+  --tw-contain-layout:  ;
+  --tw-contain-paint:  ;
+  --tw-contain-style:  ;
+}
+
+::backdrop {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
+  --tw-contain-size:  ;
+  --tw-contain-layout:  ;
+  --tw-contain-paint:  ;
+  --tw-contain-style:  ;
+}/*
+! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com
+*//*
+1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
+2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)
+*/
+
+*,
+::before,
+::after {
+  box-sizing: border-box; /* 1 */
+  border-width: 0; /* 2 */
+  border-style: solid; /* 2 */
+  border-color: #e5e7eb; /* 2 */
+}
+
+::before,
+::after {
+  --tw-content: '';
+}
+
+/*
+1. Use a consistent sensible line-height in all browsers.
+2. Prevent adjustments of font size after orientation changes in iOS.
+3. Use a more readable tab size.
+4. Use the user's configured `sans` font-family by default.
+5. Use the user's configured `sans` font-feature-settings by default.
+6. Use the user's configured `sans` font-variation-settings by default.
+7. Disable tap highlights on iOS
+*/
+
+html,
+:host {
+  line-height: 1.5; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+  -moz-tab-size: 4; /* 3 */
+  -o-tab-size: 4;
+     tab-size: 4; /* 3 */
+  font-family: Inter, sans-serif; /* 4 */
+  font-feature-settings: normal; /* 5 */
+  font-variation-settings: normal; /* 6 */
+  -webkit-tap-highlight-color: transparent; /* 7 */
+}
+
+/*
+1. Remove the margin in all browsers.
+2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.
+*/
+
+body {
+  margin: 0; /* 1 */
+  line-height: inherit; /* 2 */
+}
+
+/*
+1. Add the correct height in Firefox.
+2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)
+3. Ensure horizontal rules are visible by default.
+*/
+
+hr {
+  height: 0; /* 1 */
+  color: inherit; /* 2 */
+  border-top-width: 1px; /* 3 */
+}
+
+/*
+Add the correct text decoration in Chrome, Edge, and Safari.
+*/
+
+abbr:where([title]) {
+  -webkit-text-decoration: underline dotted;
+          text-decoration: underline dotted;
+}
+
+/*
+Remove the default font size and weight for headings.
+*/
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/*
+Reset links to optimize for opt-in styling instead of opt-out.
+*/
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+/*
+Add the correct font weight in Edge and Safari.
+*/
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+/*
+1. Use the user's configured `mono` font-family by default.
+2. Use the user's configured `mono` font-feature-settings by default.
+3. Use the user's configured `mono` font-variation-settings by default.
+4. Correct the odd `em` font sizing in all browsers.
+*/
+
+code,
+kbd,
+samp,
+pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* 1 */
+  font-feature-settings: normal; /* 2 */
+  font-variation-settings: normal; /* 3 */
+  font-size: 1em; /* 4 */
+}
+
+/*
+Add the correct font size in all browsers.
+*/
+
+small {
+  font-size: 80%;
+}
+
+/*
+Prevent `sub` and `sup` elements from affecting the line height in all browsers.
+*/
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/*
+1. Remove text indentation from table contents in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=999088, https://bugs.webkit.org/show_bug.cgi?id=201297)
+2. Correct table border color inheritance in all Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=935729, https://bugs.webkit.org/show_bug.cgi?id=195016)
+3. Remove gaps between table borders by default.
+*/
+
+table {
+  text-indent: 0; /* 1 */
+  border-color: inherit; /* 2 */
+  border-collapse: collapse; /* 3 */
+}
+
+/*
+1. Change the font styles in all browsers.
+2. Remove the margin in Firefox and Safari.
+3. Remove default padding in all browsers.
+*/
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit; /* 1 */
+  font-feature-settings: inherit; /* 1 */
+  font-variation-settings: inherit; /* 1 */
+  font-size: 100%; /* 1 */
+  font-weight: inherit; /* 1 */
+  line-height: inherit; /* 1 */
+  letter-spacing: inherit; /* 1 */
+  color: inherit; /* 1 */
+  margin: 0; /* 2 */
+  padding: 0; /* 3 */
+}
+
+/*
+Remove the inheritance of text transform in Edge and Firefox.
+*/
+
+button,
+select {
+  text-transform: none;
+}
+
+/*
+1. Correct the inability to style clickable types in iOS and Safari.
+2. Remove default button styles.
+*/
+
+button,
+input:where([type='button']),
+input:where([type='reset']),
+input:where([type='submit']) {
+  -webkit-appearance: button; /* 1 */
+  background-color: transparent; /* 2 */
+  background-image: none; /* 2 */
+}
+
+/*
+Use the modern Firefox focus style for all focusable elements.
+*/
+
+:-moz-focusring {
+  outline: auto;
+}
+
+/*
+Remove the additional `:invalid` styles in Firefox. (https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737)
+*/
+
+:-moz-ui-invalid {
+  box-shadow: none;
+}
+
+/*
+Add the correct vertical alignment in Chrome and Firefox.
+*/
+
+progress {
+  vertical-align: baseline;
+}
+
+/*
+Correct the cursor style of increment and decrement buttons in Safari.
+*/
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/*
+1. Correct the odd appearance in Chrome and Safari.
+2. Correct the outline style in Safari.
+*/
+
+[type='search'] {
+  -webkit-appearance: textfield; /* 1 */
+  outline-offset: -2px; /* 2 */
+}
+
+/*
+Remove the inner padding in Chrome and Safari on macOS.
+*/
+
+::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+/*
+1. Correct the inability to style clickable types in iOS and Safari.
+2. Change font properties to `inherit` in Safari.
+*/
+
+::-webkit-file-upload-button {
+  -webkit-appearance: button; /* 1 */
+  font: inherit; /* 2 */
+}
+
+/*
+Add the correct display in Chrome and Safari.
+*/
+
+summary {
+  display: list-item;
+}
+
+/*
+Removes the default spacing and border for appropriate elements.
+*/
+
+blockquote,
+dl,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+figure,
+p,
+pre {
+  margin: 0;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+ol,
+ul,
+menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+Reset default styling for dialogs.
+*/
+dialog {
+  padding: 0;
+}
+
+/*
+Prevent resizing textareas horizontally by default.
+*/
+
+textarea {
+  resize: vertical;
+}
+
+/*
+1. Reset the default placeholder opacity in Firefox. (https://github.com/tailwindlabs/tailwindcss/issues/3300)
+2. Set the default placeholder color to the user's configured gray 400 color.
+*/
+
+input::-moz-placeholder, textarea::-moz-placeholder {
+  opacity: 1; /* 1 */
+  color: #9ca3af; /* 2 */
+}
+
+input::placeholder,
+textarea::placeholder {
+  opacity: 1; /* 1 */
+  color: #9ca3af; /* 2 */
+}
+
+/*
+Set the default cursor for buttons.
+*/
+
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+/*
+Make sure disabled buttons don't get the pointer cursor.
+*/
+:disabled {
+  cursor: default;
+}
+
+/*
+1. Make replaced elements `display: block` by default. (https://github.com/mozdevs/cssremedy/issues/14)
+2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)
+   This can trigger a poorly considered lint error in some tools but is included by design.
+*/
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block; /* 1 */
+  vertical-align: middle; /* 2 */
+}
+
+/*
+Constrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)
+*/
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Make elements with the HTML hidden attribute stay hidden by default */
+[hidden]:where(:not([hidden="until-found"])) {
+  display: none;
+}
+.container {
+  width: 100%;
+}
+@media (min-width: 640px) {
+
+  .container {
+    max-width: 640px;
+  }
+}
+@media (min-width: 768px) {
+
+  .container {
+    max-width: 768px;
+  }
+}
+@media (min-width: 1024px) {
+
+  .container {
+    max-width: 1024px;
+  }
+}
+@media (min-width: 1280px) {
+
+  .container {
+    max-width: 1280px;
+  }
+}
+@media (min-width: 1536px) {
+
+  .container {
+    max-width: 1536px;
+  }
+}
+.fixed {
+  position: fixed;
+}
+.absolute {
+  position: absolute;
+}
+.relative {
+  position: relative;
+}
+.bottom-\[8px\] {
+  bottom: 8px;
+}
+.left-1\/2 {
+  left: 50%;
+}
+.left-\[8px\] {
+  left: 8px;
+}
+.right-2 {
+  right: 0.5rem;
+}
+.right-\[-100px\] {
+  right: -100px;
+}
+.right-\[8px\] {
+  right: 8px;
+}
+.top-1\/2 {
+  top: 50%;
+}
+.top-\[40px\] {
+  top: 40px;
+}
+.z-50 {
+  z-index: 50;
+}
+.mt-1 {
+  margin-top: 0.25rem;
+}
+.block {
+  display: block;
+}
+.flex {
+  display: flex;
+}
+.hidden {
+  display: none;
+}
+.h-5 {
+  height: 1.25rem;
+}
+.h-8 {
+  height: 2rem;
+}
+.h-\[20px\] {
+  height: 20px;
+}
+.h-\[24px\] {
+  height: 24px;
+}
+.w-5 {
+  width: 1.25rem;
+}
+.w-8 {
+  width: 2rem;
+}
+.w-\[20px\] {
+  width: 20px;
+}
+.w-\[24px\] {
+  width: 24px;
+}
+.w-\[250px\] {
+  width: 250px;
+}
+.w-\[300px\] {
+  width: 300px;
+}
+.w-\[320px\] {
+  width: 320px;
+}
+.w-full {
+  width: 100%;
+}
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+.-translate-x-1\/2 {
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.-translate-y-1\/2 {
+  --tw-translate-y: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.rotate-180 {
+  --tw-rotate: 180deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.cursor-grab {
+  cursor: grab;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+.select-none {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+.resize {
+  resize: both;
+}
+.flex-col {
+  flex-direction: column;
+}
+.items-center {
+  align-items: center;
+}
+.justify-start {
+  justify-content: flex-start;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.gap-2 {
+  gap: 0.5rem;
+}
+.gap-4 {
+  gap: 1rem;
+}
+.rounded-full {
+  border-radius: 9999px;
+}
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+.rounded-md {
+  border-radius: 0.375rem;
+}
+.rounded-sm {
+  border-radius: 0.125rem;
+}
+.border {
+  border-width: 1px;
+}
+.border-b {
+  border-bottom-width: 1px;
+}
+.border-b-\[2px\] {
+  border-bottom-width: 2px;
+}
+.border-\[\#61656C\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(97 101 108 / var(--tw-border-opacity, 1));
+}
+.border-\[\#61656c\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(97 101 108 / var(--tw-border-opacity, 1));
+}
+.border-\[\#94979C\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(148 151 156 / var(--tw-border-opacity, 1));
+}
+.border-\[\#d5d7da\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(213 215 218 / var(--tw-border-opacity, 1));
+}
+.border-transparent {
+  border-color: transparent;
+}
+.border-white\/30 {
+  border-color: rgb(255 255 255 / 0.3);
+}
+.bg-\[\#0C0E12\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(12 14 18 / var(--tw-bg-opacity, 1));
+}
+.bg-\[\#4CA30D\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(76 163 13 / var(--tw-bg-opacity, 1));
+}
+.bg-black\/70 {
+  background-color: rgb(0 0 0 / 0.7);
+}
+.bg-transparent {
+  background-color: transparent;
+}
+.bg-contain {
+  background-size: contain;
+}
+.bg-center {
+  background-position: center;
+}
+.bg-no-repeat {
+  background-repeat: no-repeat;
+}
+.p-\[6px\] {
+  padding: 6px;
+}
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.px-\[10px\] {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.px-\[12px\] {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.py-1\.5 {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.py-\[6px\] {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.pb-4 {
+  padding-bottom: 1rem;
+}
+.pb-8 {
+  padding-bottom: 2rem;
+}
+.pl-2 {
+  padding-left: 0.5rem;
+}
+.pr-4 {
+  padding-right: 1rem;
+}
+.pt-\[8px\] {
+  padding-top: 8px;
+}
+.text-center {
+  text-align: center;
+}
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+.font-\[400\] {
+  font-weight: 400;
+}
+.font-bold {
+  font-weight: 700;
+}
+.font-medium {
+  font-weight: 500;
+}
+.font-normal {
+  font-weight: 400;
+}
+.font-semibold {
+  font-weight: 600;
+}
+.leading-\[19\.5px\] {
+  line-height: 19.5px;
+}
+.text-\[\#F7F7F7\] {
+  --tw-text-opacity: 1;
+  color: rgb(247 247 247 / var(--tw-text-opacity, 1));
+}
+.text-red-500 {
+  --tw-text-opacity: 1;
+  color: rgb(239 68 68 / var(--tw-text-opacity, 1));
+}
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+.opacity-0 {
+  opacity: 0;
+}
+.opacity-90 {
+  opacity: 0.9;
+}
+.shadow-lg {
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+.outline-none {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+.backdrop-blur-sm {
+  --tw-backdrop-blur: blur(4px);
+  backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+}
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+:host {
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  font-family: "Inter", sans-serif !important;
+}
+
+#cpw-react-root--x2v5,
+#cpw-palette-react-root--x2v5 {
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  font-family: "Inter", sans-serif !important;
+}
+
+.gap-2 { gap: 8px !important; }
+.gap-4 { gap: 16px !important; }
+.px-4 { padding-left: 16px !important; padding-right: 16px !important; }
+.py-1\.5 { padding-top: 6px !important; padding-bottom: 6px !important; }
+.pb-4 { padding-bottom: 16px !important; }
+.pb-8 { padding-bottom: 32px !important; }
+.pl-2 { padding-left: 8px !important; }
+.pr-4 { padding-right: 16px !important; }
+.pt-\[8px\] { padding-top: 8px !important; }
+.px-\[12px\] { padding-left: 12px !important; padding-right: 12px !important; }
+.px-\[10px\] { padding-left: 10px !important; padding-right: 10px !important; }
+.py-\[6px\] { padding-top: 6px !important; padding-bottom: 6px !important; }
+
+.w-5 { width: 20px !important; }
+.h-5 { height: 20px !important; }
+.w-8 { width: 32px !important; }
+.h-8 { height: 32px !important; }
+.w-full { width: 100% !important; }
+.w-\[300px\] { width: 300px !important; }
+.w-\[250px\] { width: 250px !important; }
+.w-\[24px\] { width: 24px !important; }
+.w-\[20px\] { width: 20px !important; }
+.h-\[24px\] { height: 24px !important; }
+.h-\[20px\] { height: 20px !important; }
+
+.text-sm { font-size: 14px !important; line-height: 1.25rem !important; }
+.text-xs { font-size: 12px !important; line-height: 1rem !important; }
+.leading-\[19\.5px\] { line-height: 19.5px !important; }
+
+.rounded-lg { border-radius: 8px !important; }
+.rounded-md { border-radius: 6px !important; }
+.rounded-sm { border-radius: 2px !important; }
+
+.right-2 { right: 8px !important; }
+.top-\[40px\] { top: 40px !important; }
+.right-\[-100px\] { right: -100px !important; }
+.bottom-\[8px\] { bottom: 8px !important; }
+.left-\[8px\] { left: 8px !important; }
+.right-\[8px\] { right: 8px !important; }
+.left-1\/2 { left: 50% !important; }
+
+.-translate-y-1\/2 { transform: translateY(-50%) !important; }
+.translate-x-1\/2 { transform: translateX(50%) !important; }
+.-translate-x-1\/2 { transform: translateX(-50%) !important; }
+
+.rotate-180 { transform: rotate(180deg) !important; }
+
+.z-50 { z-index: 50 !important; }
+
+html, body {
+  line-height: 1.5;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: "Inter", sans-serif;
+  box-sizing: border-box;
+  background-color: #0C0E12;
+}
+
+:root {
+  font-family: "Inter", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.flex.items-center img[alt*="arrow"] {
+  align-self: center;
+  flex-shrink: 0;
+  display: block;
+}
+
+.lite-filter:hover {
+  filter: brightness(0) saturate(100%) invert(88%) sepia(94%) saturate(23%) hue-rotate(225deg) brightness(116%) contrast(94%);
+}
+
+.flash-msg {
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.flash-msg.animate-fade-in {
+  animation: fadeIn 0.2s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.select-color-format option{
+  background-color: #181D27;
+}
+
+.select-color-format option:focus{
+  background-color: #181D27;
+}
+
+.rcp-interactive {
+  width: 100%;
+  height: 100%;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  touch-action: none;
+  position: relative;
+}
+
+.rcp-saturation {
+  cursor: crosshair;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-image: 
+    linear-gradient(to bottom, transparent, black),
+    linear-gradient(to right, white, transparent);
+  border-radius: 4px;
+}
+
+.rcp-saturation-cursor {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 0 4px rgba(0, 0, 0, 0.4);
+  transform: translate(-8px, -8px);
+  pointer-events: none;
+}
+
+.rcp-hue {
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+    to right,
+    #ff0000,
+    #ff8000,
+    #ffff00,
+    #80ff00,
+    #00ff00,
+    #00ff80,
+    #00ffff,
+    #0080ff,
+    #0000ff,
+    #8000ff,
+    #ff00ff,
+    #ff0080,
+    #ff0000
+  );
+  border-radius: 4px;
+}
+
+.rcp-hue-cursor {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 0 4px rgba(0, 0, 0, 0.4);
+  transform: translate(-8px, -4px);
+  pointer-events: none;
+}
+
+.hover\:border-\[\#94979C\]:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(148 151 156 / var(--tw-border-opacity, 1));
+}
+
+.hover\:\!opacity-100:hover {
+  opacity: 1 !important;
+}
+
+.focus\:border-\[\#F7F7F7\]:focus {
+  --tw-border-opacity: 1;
+  border-color: rgb(247 247 247 / var(--tw-border-opacity, 1));
+}
+
+.group:hover .group-hover\:opacity-50 {
+  opacity: 0.5;
+}</style><style>
+            :host {
+                font-size: 16px !important;
+                line-height: 1.5 !important;
+                font-family: "Inter", sans-serif !important;
+                all: initial;
+                display: block;
+            }
+        </style><div id="cpw-palette-react-root--x2v5" style="width: 100%; height: 100%; pointer-events: auto;"><div class="w-[300px] bg-[#0C0E12] rounded-lg flex flex-col gap-2"><header class="flex justify-between items-center border-b border-[#61656c] p-[6px]"><div class="flex items-center gap-2"><img alt="logo" class="logo-icon w-[24px] h-[24px]" src="chrome-extension://ncnnhapjfmfgljblcgpeojgbhcihhece/assets/cplg.svg"><h1 class="text-md font-medium text-white">ColorPickster</h1></div><img alt="close" class="close-icon cursor-pointer lite-filter" src="chrome-extension://ncnnhapjfmfgljblcgpeojgbhcihhece/assets/close-icon.svg"></header><main class="flex flex-col gap-2 pb-8 px-[10px] relative"><div class="flex items-center justify-center gap-2 w-full"><img alt="trending" class="w-[24px] h-[24px]" src="chrome-extension://ncnnhapjfmfgljblcgpeojgbhcihhece/assets/trend-up.svg"><p class="text-bold font-medium text-[#F7F7F7]">Popular colors</p></div><div class="flex justify-center items-center gap-2 group"><div class="border rounded-md cursor-pointer group-hover:opacity-50 hover:!opacity-100 transition-opacity " style="background-color: rgb(255, 255, 0); width: 32px; height: 32px; border-color: rgb(206, 207, 210);"></div><div class="border rounded-md cursor-pointer group-hover:opacity-50 hover:!opacity-100 transition-opacity " style="background-color: rgb(255, 0, 255); width: 32px; height: 32px; border-color: rgb(206, 207, 210);"></div><div class="border rounded-md cursor-pointer group-hover:opacity-50 hover:!opacity-100 transition-opacity " style="background-color: rgb(255, 255, 255); width: 32px; height: 32px; border-color: rgb(206, 207, 210);"></div><div class="border rounded-md cursor-pointer group-hover:opacity-50 hover:!opacity-100 transition-opacity " style="background-color: rgb(255, 0, 0); width: 32px; height: 32px; border-color: rgb(206, 207, 210);"></div><div class="border rounded-md cursor-pointer group-hover:opacity-50 hover:!opacity-100 transition-opacity " style="background-color: rgb(0, 255, 0); width: 32px; height: 32px; border-color: rgb(206, 207, 210);"></div><div class="border rounded-md cursor-pointer group-hover:opacity-50 hover:!opacity-100 transition-opacity " style="background-color: rgb(0, 0, 255); width: 32px; height: 32px; border-color: rgb(206, 207, 210);"></div></div><div class="undefined hidden"><p class="text-xs font-normal text-[#F7F7F7] w-full">Yellow - #FFFF00</p></div><div class="undefined hidden"><p class="text-xs font-normal text-[#F7F7F7] w-full">Purple - #FF00FF</p></div><div class="undefined hidden"><p class="text-xs font-normal text-[#F7F7F7] w-full">White - #FFFFFF</p></div><div class="undefined hidden"><p class="text-xs font-normal text-[#F7F7F7] w-full">Red - #FF0000</p></div><div class="undefined hidden"><p class="text-xs font-normal text-[#F7F7F7] w-full">Green - #00FF00</p></div><div class="undefined hidden"><p class="text-xs font-normal text-[#F7F7F7] w-full">Blue - #0000FF</p></div><div class="absolute bottom-[8px] left-1/2 -translate-x-1/2 w-full"><p class="text-xs font-[400] text-[#F7F7F7] text-center">*The top colors our users picked in the last 24h!</p></div></main></div></div></template></div><div id="adminEventDiscoOverlay" aria-hidden="true" style="position: fixed; inset: 0px; z-index: 1; pointer-events: none; opacity: 0; mix-blend-mode: screen; background: radial-gradient(circle at 18% 75%, rgba(255, 20, 170, 0.34), transparent 42%), radial-gradient(circle at 82% 68%, rgba(30, 220, 255, 0.32), transparent 40%), linear-gradient(115deg, rgba(115, 45, 255, 0.18), transparent 42%, rgba(255, 210, 40, 0.14)); transition: opacity 0.2s;"></div></body></html>
