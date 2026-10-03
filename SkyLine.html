@@ -30,9 +30,9 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sa
 .event-card .title{font-weight:600;color:#64b5f6;text-transform:uppercase;font-size:.75rem;letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center}
 @keyframes slideInRight{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.owner-badge{background:linear-gradient(135deg,#ff5555,#c62828);color:#fff;padding:2px 6px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;vertical-align:middle;box-shadow:0 0 10px rgba(255,85,85,.5)}
+.owner-badge{background:linear-gradient(135deg,#c8ffd9,#7dffb0);color:#050508;padding:2px 6px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;vertical-align:middle;box-shadow:0 0 10px rgba(125,255,176,.5)}
 .admin-badge{background:linear-gradient(135deg,#9be3ff,#64b5f6);color:#050508;padding:2px 6px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;vertical-align:middle;box-shadow:0 0 10px rgba(130,210,255,.5)}
-.name-owner{color:#ff6b6b !important}
+.name-owner{color:#9dffc2 !important}
 .name-admin{color:#9be3ff !important}
 .content-viewport{position:relative;z-index:10;width:100%;height:calc(100vh - 110px);display:flex;align-items:center;justify-content:center;padding:2rem;pointer-events:none;overflow-y:auto}
 .page-container{pointer-events:auto;background:rgba(12,12,18,.85);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:2.5rem;width:100%;max-width:950px;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,.6);backdrop-filter:blur(16px);overflow:hidden}
@@ -379,7 +379,7 @@ function validateName(name) {
     if (n.length < 2) return 'Name must be at least 2 characters.';
     if (n.length > 15) return 'Name must be 15 characters or less.';
     if (n.toLowerCase() === 'player') return 'Please choose your own name.';
-    if (containsBadWord(n)) return 'That name is not allowed. Pick something else.';
+    if (!isOwner() && containsBadWord(n)) return 'That name is not allowed. Pick something else.';
     return null;
 }
 function hasValidName() { return validateName(currentUser) === null; }
@@ -835,8 +835,9 @@ function initChatListener() {
             const msgDiv = document.createElement('div');
             msgDiv.style.cssText = 'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:.6rem .8rem;border-radius:8px;font-size:.9rem;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;';
 
-            const safeText = containsBadWord(msg.text) ? '<em style="color:#727280;">[message removed]</em>' : escapeHtml(msg.text || '');
-            const safeUser = containsBadWord(msg.user) ? 'User' : escapeHtml(msg.user || 'Anonymous');
+            const fromOwner = msg.role === 'owner';
+            const safeText = (!fromOwner && containsBadWord(msg.text)) ? '<em style="color:#727280;">[message removed]</em>' : escapeHtml(msg.text || '');
+            const safeUser = (!fromOwner && containsBadWord(msg.user)) ? 'User' : escapeHtml(msg.user || 'Anonymous');
             const nameClass = msg.role === 'owner' ? 'name-owner' : (msg.role === 'admin' ? 'name-admin' : '');
             const badgeHtml = roleBadgeHtml(msg.role);
             const timeStr = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -860,7 +861,7 @@ function sendChatMessage() {
     if (isChatBanned()) { renderPage(); return; }
 
     const text = input.value.trim();
-    if (containsBadWord(text)) {
+    if (!isOwner() && containsBadWord(text)) {
         input.value = '';
         kickFromChat(text);
         return;
