@@ -1,76 +1,103 @@
-<!DOCTYPE html><html lang="en-us"><head>
-<script src="https://cdn.jsdelivr.net/gh/laparda14/Ragdoll-archers@62504c9570ea720c6367e7debe1e110c68f77c2d/vs/gameloader-helper.js"></script>
-<meta charset="utf-8">
-<script src=""></script>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Ragdoll Archers</title>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#000000">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bubbls/ruffle@04dd5345a30d6ebf4b0e2cc385568750cd56ed5a/styyyle.css">
-<body>
-  
-</div>
-<div id="unity-container" class="unity-desktop">
-<canvas id="unity-canvas"></canvas>
-</div>
-<div id="loading-cover">
-<div id="unity-loading-bar">
-<div id="unity-logo"><img src="logo.jpeg"></div>
-<div class="progress-spinner-container">
-<div class="spinner-left"><img src="spinner.png"></div>
-<div id="unity-progress-bar-empty">
-<div id="unity-progress-bar-full"></div>
-</div>
-<div class="spinner-right"><img src="spinner.png"></div>
-</div>
-</div>
-</div>
-<script>
-    const buildUrl = "Build";
-    const loaderUrl = "https://cdn.jsdelivr.net/gh/bubbls/ruffle@7117cc5006472d782b65d96abd375597d6273242/v11121212.js";
-const config = {
-  dataUrl: "https://cdn.jsdelivr.net/gh/bubbls/ruffle@04dd5345a30d6ebf4b0e2cc385568750cd56ed5a/6697b6deba8b617c67b69c55dcd07cb1.data.unityweb",
-  frameworkUrl: "https://cdn.jsdelivr.net/gh/bubbls/ruffle@04dd5345a30d6ebf4b0e2cc385568750cd56ed5a/0be3c3ee7115b26e1ae28e643afdf1f2.js.unityweb",
-  codeUrl: "https://cdn.jsdelivr.net/gh/bubbls/ruffle@04dd5345a30d6ebf4b0e2cc385568750cd56ed5a/b3397c29f6878557c1c614cbf9e196ea.wasm.unityweb",
-  streamingAssetsUrl: "StreamingAssets",
-  companyName: "Ericetto",
-  productName: "Ragdoll Archers",
-  productVersion: "0.1",
-};
+  <title>Ragdoll Archers Season 5 Unblocked Game | StaticQuasar931</title>
+  <meta name="description" content="Play Ragdoll Archers Season 5 unblocked in a fullscreen school-safe embed that works at school on Chromebooks. Aim, shoot arrows, and defeat enemies in this physics-based archery game with ragdoll mechanics and upgrades. More unblocked games by StaticQuasar931.">
+  <meta name="keywords" content="ragdoll archers season 5, ragdoll archers season 5 unblocked, ragdoll archers season 5 game, ragdoll archers online, archery game unblocked, bow and arrow game unblocked, physics archery game, staticquasar931">
 
+  <link rel="canonical" href="https://sites.google.com/view/staticquasar931/gm3z/ragdoll-archers">
+  <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/StaticQuasar931/Images@main/icon.png">
 
-    const container = document.querySelector("#unity-container");
-    const canvas = document.querySelector("#unity-canvas");
-    const loadingCover = document.querySelector("#loading-cover");
-    const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
-    const progressBarFull = document.querySelector("#unity-progress-bar-full");
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="StaticQuasar931 Unblocked Games">
+  <meta property="og:title" content="Ragdoll Archers Season 5 Unblocked Game | StaticQuasar931">
+  <meta property="og:description" content="Play Ragdoll Archers Season 5 unblocked in a fullscreen embed that works at school on Chromebooks.">
+  <meta property="og:url" content="https://sites.google.com/view/staticquasar931/gm3z/ragdoll-archers-season-5">
+  <meta property="og:image" content="https://cdn.jsdelivr.net/gh/StaticQuasar931/Images@main/icon.png">
 
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      container.className = "unity-mobile";
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ragdoll Archers Season 5 Unblocked Game | StaticQuasar931">
+  <meta name="twitter:description" content="Play Ragdoll Archers Season 5 unblocked. Physics archery gameplay working at school on Chromebooks.">
+  <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/StaticQuasar931/Images@main/icon.png">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-    
-    loadingCover.style.display = "";
 
-    const unityLoader = document.createElement("script");
-    unityLoader.src = loaderUrl;
-    unityLoader.onload = () => {
-      createUnityInstance(canvas, config, (progress) => {
-        progressBarEmpty.style.display = "";
-        progressBarFull.style.width = `${100 * progress}%`;
-      }).then((unityInstance) => {
-        window.unityInstance = unityInstance;
-        loadingCover.style.display = "none";
-      }).catch((message) => {
-        alert(message);
-      });
-    };
-    document.body.appendChild(unityLoader);
+    #gameFrame {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      border: 0;
+      display: block;
+      background: #000;
+    }
 
-    document.addEventListener("pointerdown", () => {
-      container.focus();
-      window.focus();
-      canvas.focus();
-    });
+    .seo-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(1px, 1px, 1px, 1px);
+      white-space: nowrap;
+    }
+  </style>
+</head>
 
+<body>
+
+  <iframe id="gameFrame" src="https://script.google.com/macros/s/AKfycbyYN-d1jYSkbufcQpwF8XRn87VHK5ch9mnm_PWOGak_x1jDIo1BfZ-16aJeWBoRjQliEw/exec" title="Ragdoll Archers Season 5 Unblocked Game" allow="fullscreen; autoplay; clipboard-read; clipboard-write" allowfullscreen="" referrerpolicy="no-referrer-when-downgrade" loading="eager">
+  </iframe>
+
+  <noscript>
+    Ragdoll Archers Season 5 needs JavaScript enabled to play.
+  </noscript>
+
+  <script>
+    (function () {
+      var leaveMessage = "Are you sure you want to leave? Your session may be interrupted.";
+
+      function beforeUnloadHandler(event) {
+        event = event || window.event;
+        if (event) {
+          if (typeof event.preventDefault === "function") event.preventDefault();
+          event.returnValue = leaveMessage;
+        }
+        return leaveMessage;
+      }
+
+      window.onbeforeunload = beforeUnloadHandler;
+      window.addEventListener("beforeunload", beforeUnloadHandler);
+
+      try {
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "hidden") {
+            window.onbeforeunload = beforeUnloadHandler;
+          }
+        });
+      } catch (e) {}
+    })();
   </script>
+
+  <div class="seo-hidden" aria-hidden="true">
+    <h1>Ragdoll Archers Season 5 Unblocked</h1>
+    <p>
+      Ragdoll Archers Season 5 is a physics-based archery game where players control ragdoll characters, aim bows, and defeat enemies using arrows.
+    </p>
+  </div>
+
+
 </body></html>
