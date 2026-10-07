@@ -1819,6 +1819,26 @@
    "title": "GunSpin",
    "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/gunspin.html",
    "picture": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/gunspin.jpg"
+  },  
+  {
+   "title": "Solar Smash",
+   "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/clsolarsmash.html",
+   "picture": ""
+  },
+  {
+   "title": "Spade Wars",
+   "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/clspacewarsbattleground.html",
+   "picture": ""
+  },
+  {
+   "title": "Survivor Io",
+   "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/clsurvivorio.html",
+   "picture": ""
+  },
+  {
+   "title": "Steal A Brainrot",
+   "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/clsupitdept.html",
+   "picture": ""
   }
  ]
 }
