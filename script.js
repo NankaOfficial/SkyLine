@@ -16,6 +16,13 @@ function showNotice(message, type, title) {
 firebase.initializeApp({ databaseURL: "https://skyline-7330c-default-rtdb.firebaseio.com", projectId: "skyline-7330c" });
 const rtdb = firebase.database();
 
+// ================= LISTENER TRACKER =================
+const activeListeners = [];
+function trackListener(ref, cb) {
+    ref.on('value', cb);
+    activeListeners.push({ ref, cb });
+}
+
 // ================= SAVING =================
 function setCookie(n, v, days) {
     let e = "";
@@ -87,7 +94,7 @@ function roleBadgeHtml(r) {
     return '';
 }
 
-// ================= PROFANITY FILTER (words.json) =================
+// ================= PROFANITY FILTER =================
 const WORDS_URL = 'https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/words.json';
 const FALLBACK_WORDS = { severe: ['fuck', 'fuk', 'fck', 'nigga', 'nigger', 'cunt', 'bitch'], whole: ['shit', 'ass'], emoji: ['🖕'] };
 const LEET_MAP = { '@': 'a', '$': 's', '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '+': 't' };
@@ -134,47 +141,47 @@ function containsBadWord(str) {
 buildFilters(FALLBACK_WORDS);
 loadWordLists();
 
-// ================= DEVICE IDENTITY + BANS =================
-const BAN_URL = 'https://game.fyi.jp/ban';
-const LADDER_MIN = [1, 2, 3, 5, 10, 30, 50, 100, 120, 1440];
-let offenderState = null, deviceBan = null, identReady = null;
-const myIdent = { ip: '', fp: '' };
-
-async function sha(str) {
-    const s = 'skyline-v1|' + str;
-    try {
-        const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-        return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32);
-    } catch (e) { let h = 5381; for (const c of s) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return 'x' + (h >>> 0).toString(16); }
-}
-async function getIpHash() {
-    for (const u of ['https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json']) {
-        try { const r = await fetch(u, { cache: 'no-store' }); const j = await r.json(); if (j && j.ip) return await sha('ip:' + j.ip); } catch (e) {}
-    }
-    return '';
-}
-async function getFingerprint() {
-    let gl = '';
-    try {
-        const c = document.createElement('canvas'), g = c.getContext('webgl') || c.getContext('experimental-webgl');
-        const e = g && g.getExtension('WEBGL_debug_renderer_info');
-        if (e) gl = g.getParameter(e.UNMASKED_RENDERER_WEBGL) + '|' + g.getParameter(e.UNMASKED_VENDOR_WEBGL);
-    } catch (e) {}
-    const parts = [Math.max(screen.width, screen.height), Math.min(screen.width, screen.height), screen.colorDepth, window.devicePixelRatio || 1, navigator.hardwareConcurrency || 0, navigator.deviceMemory || 0, navigator.platform || '', (Intl.DateTimeFormat().resolvedOptions().timeZone) || '', (navigator.languages || [navigator.language]).join(','), navigator.maxTouchPoints || 0, gl];
-    return sha('fp:' + parts.join('|'));
-}
-
-function getBanUntil() { return parseInt(loadSetting('skyline_chat_ban', '0')) || 0; }
-function isBlocked() { return !!((offenderState && offenderState.blocked) || (deviceBan && deviceBan.blocked) || loadSetting('skyline_blocked', '0') === '1'); }
-function isChatBanned() { return isBlocked() || getBanUntil() > Date.now() || (deviceBan && (deviceBan.bannedUntil || 0) > Date.now()); }
-function enforceBlock() { if (isBlocked() && !isAdmin()) location.href = BAN_URL; }
-function deviceInfo() {
-    return { ua: navigator.userAgent, platform: navigator.platform || '', lang: navigator.language || '', tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || '', screen: screen.width + 'x' + screen.height + ' @' + (window.devicePixelRatio || 1), cores: navigator.hardwareConcurrency || null, mem: navigator.deviceMemory || null, touch: navigator.maxTouchPoints || 0 };
-}
-
-// ================= CHAT & PROTECTION FUNCTIONS =================
+// ================= CHAT & MESSAGES =================
 let lastMessageTime = 0;
 const COOLDOWN_MS = 3000; // 3 seconds rate limit
+
+function initChat() {
+    const chatContainer = document.getElementById('chatMessages');
+    if (!chatContainer) return;
+
+    rtdb.ref('chats').limitToLast(50).on('value', snapshot => {
+        chatContainer.innerHTML = '';
+        if (!snapshot.exists()) {
+            chatContainer.innerHTML = '<div style="color: #666; text-align: center; padding: 1rem;">No messages yet. Say hello!</div>';
+            return;
+        }
+
+        snapshot.forEach(childSnap => {
+            const msgId = childSnap.key;
+            const data = childSnap.val();
+            if (!data) return;
+
+            const timeStr = data.timestamp ? new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            const roleBadge = data.role === 'owner' ? '<span class="badge owner-badge">Owner</span>' : (data.role === 'admin' ? '<span class="badge admin-badge">Admin</span>' : '');
+
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = "background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.5rem;";
+            
+            msgDiv.innerHTML = `
+                <div>
+                    <strong class="name-owner" style="color:#64b5f6;font-size:.8rem;display:block;margin-bottom:.2rem;">${escapeHtml(data.name || 'Guest')} ${roleBadge}</strong>
+                    ${escapeHtml(data.text || '')}
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:.7rem;color:#666;white-space:nowrap;">${timeStr}</span>
+                    ${isAdmin() ? `<button onclick="deleteChatMessage('${msgId}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:.8rem;">Delete</button>` : ''}
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+}
 
 function sendChatMessage() {
     const input = document.getElementById('chatInput');
@@ -203,7 +210,57 @@ function sendChatMessage() {
     }
 
     rtdb.ref('chats').push({
-        text: escapeHtml(text),
+        text: text,
         name: currentUser || "Guest",
         role: getUserRole(),
-        timestamp
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+
+    input.value = "";
+}
+
+function deleteChatMessage(messageId) {
+    if (!isAdmin()) {
+        showNotice("You must be logged in as owner/admin to delete messages.", "error", "Unauthorized");
+        return;
+    }
+    rtdb.ref('chats/' + messageId).remove().catch(() => {
+        showNotice("Failed to delete message.", "error", "Error");
+    });
+}
+
+function updateUsername(newName) {
+    currentUser = newName.trim().slice(0, 15);
+    saveSetting('skyline_username', currentUser);
+}
+
+function submitCodeButton() {
+    const inputEl = document.getElementById('ownerKeyInput');
+    if (!inputEl) return;
+    ownerKeyInputVal = inputEl.value;
+    saveSetting('skyline_owner_key', ownerKeyInputVal);
+
+    if (isOwner() || isAdmin()) {
+        showNotice("Owner code accepted!", "success", "Success");
+        inputEl.value = "";
+        initChat(); // Refresh chat to show admin/owner badges
+    } else {
+        showNotice("Invalid code.", "error", "Access Denied");
+    }
+}
+
+function logoutRole() {
+    ownerKeyInputVal = "";
+    removeSetting('skyline_owner_key');
+    showNotice("Code removed.", "info", "Logged Out");
+    initChat();
+}
+
+// Initialize on load
+window.addEventListener('DOMContentLoaded', () => {
+    initPresence();
+    initHomeStats();
+    initChat();
+    const nameInput = document.getElementById('settingsNameInput');
+    if (nameInput && currentUser) nameInput.value = currentUser;
+});
