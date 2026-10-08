@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +6,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
+:root{--bg:#050508;--panel:rgba(12,12,18,.85);--line:rgba(255,255,255,.08);--text:#f1f1f3;--mute:#9494a0;--a:#64b5f6;--good:#50fa7b;--bad:#ff5555;--grad:#fff}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:hidden;background:#050508;color:#f1f1f3;height:100vh;width:100vw;position:relative;user-select:none;-webkit-user-select:none}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:hidden;background:#050508;color:var(--text);height:100vh;width:100vw;position:relative;user-select:none;-webkit-user-select:none}
 #starfield{position:absolute;inset:0;z-index:0;pointer-events:none;background:#050508}
 .navbar{position:relative;z-index:10;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:1.25rem 2rem;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(5,5,8,.65);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 @media(min-width:768px){.navbar{padding:1.5rem 3rem}}
@@ -25,262 +25,238 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sa
 .nav-item:hover,.nav-item.active{color:#fff;background:rgba(255,255,255,.05)}
 .announcement-bar{position:relative;z-index:10;height:36px;background:rgba(12,12,18,.8);border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#b0b0bc;visibility:hidden;opacity:0;transition:opacity .3s,visibility .3s}
 .announcement-bar.visible{visibility:visible;opacity:1}
-.event-stack{position:fixed;bottom:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-height:70vh;overflow-y:auto}
-.event-card{background:rgba(12,12,18,.95);border:1px solid rgba(100,181,246,.4);border-left:4px solid #64b5f6;padding:.75rem 1.25rem;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,.5);backdrop-filter:blur(12px);color:#fff;font-size:.85rem;animation:slideInRight .3s cubic-bezier(.16,1,.3,1) forwards;pointer-events:auto;min-width:240px;display:flex;flex-direction:column;gap:.2rem;position:relative}
-.event-card .title{font-weight:600;color:#64b5f6;text-transform:uppercase;font-size:.75rem;letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center}
-@keyframes slideInRight{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-.owner-badge{background:linear-gradient(135deg,#c8ffd9,#7dffb0);color:#050508;padding:2px 6px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;vertical-align:middle;box-shadow:0 0 10px rgba(125,255,176,.5)}
-.admin-badge{background:linear-gradient(135deg,#9be3ff,#64b5f6);color:#050508;padding:2px 6px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;vertical-align:middle;box-shadow:0 0 10px rgba(130,210,255,.5)}
-.name-owner{color:#9dffc2 !important}
-.name-admin{color:#9be3ff !important}
+.countdown{position:fixed;bottom:20px;right:20px;z-index:1000;background:rgba(12,12,18,.95);border:1px solid #ff79c6;border-left:4px solid #ff79c6;border-radius:10px;padding:.75rem 1.25rem;backdrop-filter:blur(12px);display:none;box-shadow:0 10px 25px rgba(0,0,0,.5)}
+.countdown .t{font-size:.75rem;color:#ff79c6;font-weight:600;text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;gap:1rem}
+.countdown .n{font-size:1.1rem;font-family:monospace;font-weight:700}
+.badge{padding:2px 6px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;vertical-align:middle;color:#050508}
+.owner-badge{background:linear-gradient(135deg,#c8ffd9,#7dffb0);box-shadow:0 0 10px rgba(125,255,176,.5)}
+.admin-badge{background:linear-gradient(135deg,#9be3ff,#64b5f6);box-shadow:0 0 10px rgba(130,210,255,.5)}
+.name-owner{color:#9dffc2 !important}.name-admin{color:#9be3ff !important}
 .content-viewport{position:relative;z-index:10;width:100%;height:calc(100vh - 110px);display:flex;align-items:center;justify-content:center;padding:2rem;pointer-events:none;overflow-y:auto}
 .page-container{pointer-events:auto;background:rgba(12,12,18,.85);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:2.5rem;width:100%;max-width:950px;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,.6);backdrop-filter:blur(16px);overflow:hidden}
 @keyframes slideUp{from{opacity:0;transform:translateY(35px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.animate-slide-up{animation:slideUp .5s cubic-bezier(.16,1,.3,1) forwards}
-.animate-fade-in{animation:fadeIn .4s ease-in-out forwards}
+@keyframes spin{to{transform:rotate(360deg)}}
+.animate-slide-up{animation:slideUp .5s cubic-bezier(.16,1,.3,1) forwards}.animate-fade-in{animation:fadeIn .4s ease-in-out forwards}
 .page-title{font-size:1.8rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-.01em;color:#fff}
 .page-desc{color:#9494a0;font-size:.95rem;line-height:1.6;margin-bottom:1.5rem}
 .search-container{position:relative;margin-bottom:1.5rem}
-.search-input{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.75rem 1rem .75rem 2.5rem;color:#fff;font-size:.9rem;outline:none;transition:border-color .2s,background .2s;user-select:text;-webkit-user-select:text}
+.search-input{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.75rem 1rem .75rem 2.5rem;color:#fff;font-size:.9rem;font-family:inherit;outline:none;transition:border-color .2s,background .2s;user-select:text;-webkit-user-select:text}
 .search-input:focus{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.05)}
 .search-icon{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:#727280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));grid-auto-rows:max-content;align-content:start;gap:1.25rem;overflow-y:auto;padding-right:.25rem;flex:1 1 auto;min-height:0}
-.games-grid::-webkit-scrollbar,.quick-grid::-webkit-scrollbar,#leaderboardList::-webkit-scrollbar,.chat-messages::-webkit-scrollbar{width:6px}
-.games-grid::-webkit-scrollbar-thumb,.quick-grid::-webkit-scrollbar-thumb,#leaderboardList::-webkit-scrollbar-thumb,.chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
-.game-card{flex-shrink:0;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,background .2s;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.game-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,background .2s;display:flex;flex-direction:column}
 .game-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04)}
 .game-img-container{width:100%;aspect-ratio:16/10;background:rgba(0,0,0,.4);overflow:hidden;display:flex;align-items:center;justify-content:center}
 .game-img-container img{width:100%;height:100%;object-fit:cover}
 .game-info{padding:.85rem;text-align:center}
 .game-name{font-size:.9rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .player-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.back-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;gap:.5rem;transition:background .2s}
+.back-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;font-family:inherit;display:flex;align-items:center;gap:.5rem;transition:background .2s}
 .back-btn:hover{background:rgba(255,255,255,.1)}
 .game-iframe-wrapper{width:100%;flex-grow:1;background:#000;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.08);position:relative;min-height:450px}
 .game-iframe{width:100%;height:100%;border:none}
-.game-iframe-wrapper:fullscreen,.game-iframe-wrapper:-webkit-full-screen{width:100vw;height:100vh;border:none;border-radius:0;background:#000}
-.game-iframe-wrapper:fullscreen .game-iframe,.game-iframe-wrapper:-webkit-full-screen .game-iframe{width:100%;height:100%}
+.game-iframe-wrapper:fullscreen,.game-iframe-wrapper:-webkit-full-screen{width:100vw;height:100vh;border:none;border-radius:0}
 .game-iframe-wrapper.pseudo-fs{position:fixed;inset:0;z-index:9999;border-radius:0;border:none;min-height:0}
 .loader-overlay{position:absolute;inset:0;background:#08080c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9494a0;font-size:.9rem;gap:.75rem;z-index:5}
-.hero-banner{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center}
-.hero-info h3{font-size:1.1rem;font-weight:600;margin-bottom:.25rem;color:#fff}
-.hero-info p{font-size:.85rem;color:#9494a0}
-.play-btn{background:#fff;color:#050508;border:none;padding:.6rem 1.25rem;font-weight:600;font-size:.85rem;border-radius:8px;cursor:pointer;transition:opacity .2s,transform .2s}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:1rem;text-align:center}
+.stat b{display:block;font-size:1.6rem;font-weight:700;font-family:monospace}.stat span{font-size:.75rem;color:#9494a0}
+.card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);padding:1.25rem;border-radius:10px}
+.card h4{font-size:.95rem;font-weight:600;color:#fff;margin-bottom:.3rem}
+.hero-banner{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.hero-banner h3{font-size:1.1rem;font-weight:600;margin-bottom:.25rem}.hero-banner p{font-size:.85rem;color:#9494a0}
+.play-btn{background:#fff;color:#050508;border:none;padding:.6rem 1.25rem;font-weight:600;font-size:.85rem;font-family:inherit;border-radius:8px;cursor:pointer;transition:opacity .2s,transform .2s;text-decoration:none;display:inline-block;text-align:center}
 .play-btn:hover{opacity:.9;transform:translateY(-1px)}
-.quick-grid{display:grid;grid-template-columns:1fr;gap:1rem;overflow-y:auto;flex-grow:1;padding-right:4px}
-.quick-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);padding:1.25rem;border-radius:10px;transition:border-color .2s}
-.quick-card h4{font-size:.95rem;font-weight:600;color:#fff;margin-bottom:.3rem}
+.play-btn.ghost{background:rgba(255,255,255,.08);color:#fff}.play-btn.red{background:#ff5555;color:#fff}
+.home-scroll{overflow-y:auto;flex:1;min-height:0;padding-right:4px}
+.tabs{display:flex;gap:.4rem;margin:.6rem 0 .8rem;flex-wrap:wrap}
+.tab{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:#9494a0;font-family:inherit;font-size:.8rem;font-weight:600;padding:.4rem .9rem;border-radius:8px;cursor:pointer;transition:color .2s,background .2s,border-color .2s}
+.tab:hover{color:#fff;border-color:rgba(255,255,255,.25)}.tab.on{background:#fff;color:#050508;border-color:#fff}
+#leaderboardList{max-height:38vh;overflow-y:auto;padding-right:6px}
+.lb-row{display:flex;align-items:center;gap:.8rem;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.88rem}
+.lb-rank{width:26px;color:#9494a0;font-family:monospace}
+.lb-row:nth-child(1) .lb-rank{color:#ffd76a}.lb-row:nth-child(2) .lb-rank{color:#d5dbe6}.lb-row:nth-child(3) .lb-rank{color:#e3a36b}
+.lb-name{flex:1;color:#fff;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-plays{color:#9494a0;font-family:monospace;font-size:.8rem}
+.lb-empty{color:#727280;font-size:.88rem;padding:.8rem 0;text-align:center}
+.reset-note{font-size:.75rem;color:#727280;margin-top:.6rem}
 .chat-messages{flex-grow:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:1rem;overflow-y:auto;margin-bottom:1rem;display:flex;flex-direction:column;gap:.75rem}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.open{opacity:1;pointer-events:auto}
-.modal-card{background:#0c0c12;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2.5rem;width:100%;max-width:460px;box-shadow:0 25px 50px rgba(0,0,0,.8);transform:scale(.95);transition:transform .25s cubic-bezier(.16,1,.3,1);max-height:90vh;overflow-y:auto}
+.modal-card{background:#0c0c12;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2.5rem;width:calc(100% - 2rem);max-width:460px;box-shadow:0 25px 50px rgba(0,0,0,.8);transform:scale(.95);transition:transform .25s cubic-bezier(.16,1,.3,1);max-height:90vh;overflow-y:auto}
 .modal-overlay.open .modal-card{transform:scale(1)}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.75rem}
 .modal-title{font-size:1.25rem;font-weight:600;letter-spacing:.02em}
-.modal-close{background:none;border:none;color:#9494a0;cursor:pointer;font-size:1.25rem;padding:.25rem;transition:color .2s}
-.modal-close:hover{color:#fff}
+.modal-close{background:none;border:none;color:#9494a0;cursor:pointer;font-size:1.25rem}.modal-close:hover{color:#fff}
 .setting-group{margin-bottom:1.5rem}
 .setting-label{display:flex;justify-content:space-between;font-size:.85rem;font-weight:500;color:#b0b0bc;margin-bottom:.5rem}
 .setting-label span{color:#fff;font-family:monospace}
-.setting-slider{width:100%;accent-color:#fff;cursor:pointer;height:6px;background:rgba(255,255,255,.1);border-radius:3px;appearance:none}
-.setting-slider::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;cursor:pointer}
+.setting-slider{width:100%;accent-color:#fff;cursor:pointer}
 .toast-stack{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:10px;pointer-events:none;align-items:center;width:calc(100% - 2rem);max-width:420px}
-.toast{background:rgba(12,12,18,.95);border:1px solid rgba(100,181,246,.4);border-left:4px solid #64b5f6;padding:.85rem 1.25rem;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,.5);backdrop-filter:blur(12px);color:#fff;font-size:.85rem;line-height:1.5;width:100%;animation:toastIn .3s cubic-bezier(.16,1,.3,1) forwards;pointer-events:auto}
+.toast{background:rgba(12,12,18,.95);border:1px solid rgba(100,181,246,.4);border-left:4px solid #64b5f6;padding:.85rem 1.25rem;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,.5);backdrop-filter:blur(12px);font-size:.85rem;line-height:1.5;width:100%;animation:slideUp .3s ease forwards;pointer-events:auto}
 .toast .t-title{font-weight:600;text-transform:uppercase;font-size:.72rem;letter-spacing:.06em;margin-bottom:.15rem;color:#64b5f6}
 .toast.error{border-color:rgba(255,85,85,.45);border-left-color:#ff5555}.toast.error .t-title{color:#ff5555}
 .toast.success{border-color:rgba(80,250,123,.4);border-left-color:#50fa7b}.toast.success .t-title{color:#50fa7b}
 .toast.out{opacity:0;transform:translateY(-10px);transition:opacity .3s,transform .3s}
-@keyframes toastIn{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.choice-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.5rem;cursor:pointer;transition:transform .2s,border-color .2s,background .2s;text-align:left;color:#fff;font-family:inherit}
+.choice-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.05)}
+.choice-card h4{font-size:1rem;margin-bottom:.35rem}.choice-card p{font-size:.85rem;color:#9494a0;line-height:1.5}
+.site-opt{flex:1;min-width:150px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.75rem 1rem;color:#fff;cursor:pointer;font-family:inherit;font-size:.9rem}
+.site-opt.selected{border-color:#64b5f6;background:rgba(100,181,246,.1)}
+.req-textarea{resize:vertical;min-height:120px;padding-left:1rem}
+.sound-toolbar{display:flex;gap:.75rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap}
+.sound-toolbar .search-container{flex:1;min-width:180px;margin-bottom:0}
+.sound-vol{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#9494a0;min-width:140px}
+.sound-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));grid-auto-rows:max-content;align-content:start;gap:.85rem;overflow-y:auto;flex:1 1 auto;min-height:0}
+.sound-btn{--c:#64b5f6;background:color-mix(in srgb,var(--c) 16%,transparent);border:1px solid var(--c);color:#fff;border-radius:12px;padding:1rem .6rem;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;min-height:68px;display:flex;align-items:center;justify-content:center;text-align:center;word-break:break-word;transition:transform .15s,background .15s,box-shadow .15s}
+.sound-btn:hover{transform:translateY(-2px);background:color-mix(in srgb,var(--c) 30%,transparent);box-shadow:0 0 16px color-mix(in srgb,var(--c) 45%,transparent)}
+.sound-btn:active{transform:scale(.97)}
+.sound-btn.playing{background:var(--c);color:#050508;box-shadow:0 0 22px color-mix(in srgb,var(--c) 70%,transparent)}
+@media(max-width:760px){.navbar{grid-template-columns:1fr auto;padding:.8rem 1rem}.nav-links{grid-column:1/-1;grid-row:2;margin-top:.6rem;justify-self:stretch;overflow-x:auto}.content-viewport{height:calc(100vh - 110px);padding:.75rem}.page-container{padding:1.25rem}}
 </style>
 </head>
 <body>
-
-<canvas id="starfield"></canvas>
+<canvas id="starfield" width="1180" height="734"></canvas>
 
 <header class="navbar">
     <div class="nav-left"><h1 class="glow-title">SkyLine</h1></div>
     <nav class="nav-links">
-        <a href="?page=games" class="nav-item" data-page="games">
-            <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4m-2-2v4m10-2h.01M15 11h.01"></path></svg>
-            Games
-        </a>
+        <a href="?page=games" class="nav-item" data-page="games"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4m-2-2v4m10-2h.01M15 11h.01"></path></svg>Games</a>
+        <a href="?page=soundboard" class="nav-item" data-page="soundboard">Soundboard</a>
         <a href="?page=home" class="nav-item active" data-page="home">Home</a>
         <a href="?page=chat" class="nav-item" data-page="chat">Chat</a>
+        <a href="?page=requests" class="nav-item" id="navRequests" data-page="requests" style="display: flex;">Requests</a>
     </nav>
     <div class="nav-right">
-        <button class="icon-btn" id="devNavBtn" title="Admin Menu" style="display:none;" onclick="navigateToDev()">
-            <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-        </button>
-        <button class="icon-btn" id="settingsToggle" title="Settings">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        </button>
+        <button class="icon-btn" id="devNavBtn" title="Admin Menu" style="display: flex;" onclick="navigateToDev()"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></button>
+        <button class="icon-btn" id="settingsToggle" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
     </div>
 </header>
 
-<div class="announcement-bar" id="announcementBar"><span id="announcementText"></span></div>
-<div class="event-stack" id="eventStack"></div>
+<div class="announcement-bar" id="announcementBar"><span id="announcementText">Whoever swears gets banned</span></div>
+<div class="countdown" id="countdownBox" style="display: none;"></div>
 <div class="toast-stack" id="toastStack"></div>
-<main class="content-viewport" id="viewport"></main>
+<main class="content-viewport" id="viewport"><div class="page-container animate-fade-in"><h2 class="page-title">Welcome Back</h2><p class="page-desc">Explore the game hub and check out the live activity.</p><div class="home-scroll"><div class="stats"><div class="stat"><b id="statOnline" style="color:var(--good)">3</b><span>Online Now</span></div><div class="stat"><b id="statPlaying" style="color:var(--a)">1</b><span>Playing Now</span></div><div class="stat"><b id="statVisitors" style="color:#ff79c6">303</b><span>Unique Visitors</span></div></div><div class="hero-banner"><div><h3>Games</h3><p>Browse and launch games instantly from the hub.</p></div><button class="play-btn" onclick="history.pushState({}, '', '?page=games'); renderPage();">Browse Games</button></div><div class="card"><h4>Leaderboard</h4><div class="tabs"><button class="tab" onclick="setLbPeriod('day')">Today</button><button class="tab" onclick="setLbPeriod('week')">This Week</button><button class="tab" onclick="setLbPeriod('month')">This Month</button><button class="tab on" onclick="setLbPeriod('all')">All Time</button></div><div id="leaderboardList"><div class="lb-empty">Loading leaderboard...</div></div><div class="reset-note">Today resets every day at midnight, This Week every Monday, This Month on the 1st.</div></div></div></div></main>
 
-<!-- Settings Modal -->
 <div class="modal-overlay" id="settingsModal">
     <div class="modal-card">
-        <div class="modal-header">
-            <h3 class="modal-title">Settings &amp; Profile</h3>
-            <button class="modal-close" id="closeModal">×</button>
-        </div>
+        <div class="modal-header"><h3 class="modal-title">Settings &amp; Profile</h3><button class="modal-close" id="closeModal">×</button></div>
         <div class="setting-group">
             <div class="setting-label">Display Nickname <span>(max 15)</span></div>
-            <input type="text" class="search-input" id="settingsNameInput" maxlength="15" style="margin-bottom:0;padding-left:1rem;" oninput="updateUsername(this.value)" placeholder="Enter custom display name...">
+            <input type="text" class="search-input" id="settingsNameInput" maxlength="15" style="padding-left:1rem;" oninput="updateUsername(this.value)" placeholder="Enter custom display name...">
         </div>
         <div class="setting-group">
             <div class="setting-label">Code</div>
             <input type="password" class="search-input" id="ownerKeyInput" style="margin-bottom:.5rem;padding-left:1rem;" placeholder="Enter code...">
-            <button class="play-btn" style="width:100%;text-align:center;background:#64b5f6;color:#050508;" onclick="submitCodeButton()">Enter Code</button>
-            <button class="play-btn" style="width:100%;text-align:center;background:rgba(255,255,255,.08);color:#fff;margin-top:.5rem;" onclick="logoutRole()">Remove Code</button>
+            <button class="play-btn" style="width:100%;" onclick="submitCodeButton()">Enter Code</button>
+            <button class="play-btn ghost" style="width:100%;margin-top:.5rem;" onclick="logoutRole()">Remove Code</button>
         </div>
-        <div class="setting-group">
-            <div class="setting-label">Star Amount <span id="starCountVal">800</span></div>
-            <input type="range" class="setting-slider" id="starCountRange" min="100" max="2500" step="50" value="800">
-        </div>
-        <div class="setting-group">
-            <div class="setting-label">Meteor Fall Chance (Frequency) <span id="rarityVal">800ms</span></div>
-            <input type="range" class="setting-slider" id="rarityRange" min="200" max="3000" step="100" value="800">
-        </div>
-        <div class="setting-group" style="display:flex;justify-content:space-between;align-items:center;">
-            <div class="setting-label" style="margin-bottom:0;">Colorful Stars</div>
-            <input type="checkbox" id="colorfulToggle" style="accent-color:#fff;cursor:pointer;width:18px;height:18px;" onchange="updateColorfulStars(this.checked)">
-        </div>
+        <div class="setting-group"><div class="setting-label">Star Amount <span id="starCountVal">800</span></div><input type="range" class="setting-slider" id="starCountRange" min="100" max="2500" step="50" value="800"></div>
+        <div class="setting-group"><div class="setting-label">Meteor Frequency <span id="rarityVal">800ms</span></div><input type="range" class="setting-slider" id="rarityRange" min="200" max="3000" step="100" value="800"></div>
+        <div class="setting-group" style="display:flex;justify-content:space-between;align-items:center;"><div class="setting-label" style="margin-bottom:0;">Colorful Stars</div><input type="checkbox" id="colorfulToggle" style="accent-color:#7cc4ff;width:18px;height:18px;" onchange="updateColorfulStars(this.checked)"></div>
     </div>
 </div>
 
 <script>
-// ================= IN-SITE NOTIFICATIONS =================
+function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+
+// ================= NOTICES =================
 function showNotice(message, type, title) {
-    const stack = document.getElementById('toastStack');
-    if (!stack) return;
+    const stack = document.getElementById('toastStack'); if (!stack) return;
     type = type || 'info';
     const labels = { info: 'Notice', error: 'Error', success: 'Success' };
     const t = document.createElement('div');
     t.className = 'toast ' + type;
-    t.innerHTML = '<div class="t-title">' + escapeHtml(title || labels[type] || 'Notice') + '</div><div>' + escapeHtml(message) + '</div>';
+    t.innerHTML = '<div class="t-title">' + escapeHtml(title || labels[type]) + '</div><div>' + escapeHtml(message) + '</div>';
     stack.appendChild(t);
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, type === 'error' ? 6000 : 3500);
 }
 
 // ================= FIREBASE =================
-const firebaseConfig = {
-    databaseURL: "https://skyline-7330c-default-rtdb.firebaseio.com",
-    projectId: "skyline-7330c"
-};
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp({ databaseURL: "https://skyline-7330c-default-rtdb.firebaseio.com", projectId: "skyline-7330c" });
 const rtdb = firebase.database();
 
-// ================= SAVING (cookie + localStorage) =================
-function setCookie(name, value, days) {
-    let expires = "";
-    if (days) {
-        const date = new Date();
-        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + encodeURIComponent(value || "") + expires + "; path=/; SameSite=Lax";
+// ================= SAVING =================
+function setCookie(n, v, days) {
+    let e = "";
+    if (days) { const d = new Date(); d.setTime(d.getTime() + days * 864e5); e = "; expires=" + d.toUTCString(); }
+    document.cookie = n + "=" + encodeURIComponent(v || "") + e + "; path=/; SameSite=Lax";
 }
-function getCookie(name) {
-    const nameEQ = name + "=";
+function getCookie(n) {
     for (let c of document.cookie.split(';')) {
         c = c.trim();
-        if (c.indexOf(nameEQ) === 0) {
-            try { return decodeURIComponent(c.substring(nameEQ.length)); } catch (e) { return c.substring(nameEQ.length); }
-        }
+        if (c.indexOf(n + "=") === 0) { try { return decodeURIComponent(c.substring(n.length + 1)); } catch (e) { return c.substring(n.length + 1); } }
     }
     return null;
 }
-function saveSetting(key, value) {
-    setCookie(key, String(value), 365);
-    try { localStorage.setItem(key, String(value)); } catch (e) {}
-}
-function loadSetting(key, fallback) {
+function saveSetting(k, v) { setCookie(k, String(v), 365); try { localStorage.setItem(k, String(v)); } catch (e) {} }
+function loadSetting(k, fb) {
     let v = null;
-    try { v = localStorage.getItem(key); } catch (e) {}
-    if (v === null || v === undefined) v = getCookie(key);
-    return (v === null || v === undefined || v === '') ? fallback : v;
+    try { v = localStorage.getItem(k); } catch (e) {}
+    if (v === null || v === undefined) v = getCookie(k);
+    return (v === null || v === undefined || v === '') ? fb : v;
 }
-function removeSetting(key) {
-    setCookie(key, '', -1);
-    try { localStorage.removeItem(key); } catch (e) {}
-}
+function removeSetting(k) { setCookie(k, '', -1); try { localStorage.removeItem(k); } catch (e) {} }
 
 let currentUser = loadSetting('skyline_username', '');
 let ownerKeyInputVal = loadSetting('skyline_owner_key', '');
 
-// ================= LIVE PLAYERS + UNIQUE VISITORS =================
+// ================= PRESENCE + VISITORS =================
 const visitorId = (() => {
     let id = loadSetting('skyline_vid', '');
     if (!id) { id = Math.random().toString(36).slice(2) + Date.now().toString(36); saveSetting('skyline_vid', id); }
     return id;
 })();
 const presenceRef = rtdb.ref('presence/' + visitorId);
-
 function updatePresence() {
-    const playing = new URLSearchParams(window.location.search).get('page') === 'play';
-    presenceRef.set({ playing: playing, ts: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
+    const playing = new URLSearchParams(location.search).get('page') === 'play';
+    presenceRef.set({ playing, ts: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
 }
 function initPresence() {
     presenceRef.onDisconnect().remove().catch(() => {});
-    rtdb.ref('.info/connected').on('value', (snap) => {
-        if (snap.val() === true) { presenceRef.onDisconnect().remove().catch(() => {}); updatePresence(); }
-    });
+    rtdb.ref('.info/connected').on('value', s => { if (s.val() === true) { presenceRef.onDisconnect().remove().catch(() => {}); updatePresence(); } });
     if (loadSetting('skyline_counted', '') !== '1') {
-        rtdb.ref('stats/visitors').transaction(v => (v || 0) + 1, (err, committed) => {
-            if (!err && committed) saveSetting('skyline_counted', '1');
-        });
+        rtdb.ref('stats/visitors').transaction(v => (v || 0) + 1, (err, ok) => { if (!err && ok) saveSetting('skyline_counted', '1'); });
     }
 }
 function initHomeStats() {
-    trackListener(rtdb.ref('presence'), (snap) => {
+    trackListener(rtdb.ref('presence'), snap => {
         let online = 0, playing = 0;
         snap.forEach(c => { online++; if (c.val() && c.val().playing) playing++; });
         const o = document.getElementById('statOnline'), p = document.getElementById('statPlaying');
-        if (o) o.textContent = online;
-        if (p) p.textContent = playing;
+        if (o) o.textContent = online; if (p) p.textContent = playing;
     });
-    trackListener(rtdb.ref('stats/visitors'), (snap) => {
+    trackListener(rtdb.ref('stats/visitors'), snap => {
         const v = document.getElementById('statVisitors');
         if (v) v.textContent = (snap.val() || 0).toLocaleString();
     });
 }
 
-// Roles: 2x `𒐫` (or "u1242b unicode") = owner, 1x `𒐫` (or "u1242a") = admin
+// ================= ROLES =================
 function getUserRole() {
-    const val = ownerKeyInputVal.trim();
-    if (val === '𒐫𒐫' || val.toLowerCase() === 'u1242b unicode') return 'owner';
-    if (val === '𒐫' || val.toLowerCase() === 'u1242a') return 'admin';
+    const v = ownerKeyInputVal.trim();
+    if (v === '𒐫𒐫' || v.toLowerCase() === 'u1242b unicode') return 'owner';
+    if (v === '𒐫' || v.toLowerCase() === 'u1242a') return 'admin';
     return 'none';
 }
 const isOwner = () => getUserRole() === 'owner';
 const isAdmin = () => getUserRole() === 'admin' || isOwner();
-
-function roleBadgeHtml(role) {
-    if (role === 'owner') return '<span class="owner-badge">Owner</span>';
-    if (role === 'admin') return '<span class="admin-badge">Admin</span>';
+function roleBadgeHtml(r) {
+    if (r === 'owner') return '<span class="badge owner-badge">Owner</span>';
+    if (r === 'admin') return '<span class="badge admin-badge">Admin</span>';
     return '';
 }
 
-// ================= PROFANITY FILTER (words come from profanity.json) =================
+// ================= PROFANITY FILTER (words.json) =================
 const WORDS_URL = 'https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/words.json';
-const FALLBACK_WORDS = { severe: ['fuck', 'fuk', 'fck', 'nigg', 'cunt', 'bitch'], whole: ['shit', 'ass'], emoji: ['🖕'] };
+const FALLBACK_WORDS = { severe: ['fuck', 'fuk', 'fck', 'nigga', 'nigger', 'cunt', 'bitch'], whole: ['shit', 'ass'], emoji: ['🖕'] };
 const LEET_MAP = { '@': 'a', '$': 's', '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '+': 't' };
-const VOWELS = 'aeiou';
 let SEVERE_REGEXES = [], WHOLE_REGEXES = [], BAD_EMOJI = [];
-
-// A vowel may be the real letter OR any symbol (f*ck, f#ck, sh!t, a$$); letters may be stretched/separated (f u c k, f.u.c.k)
 function wildPattern(word) {
-    return word.toLowerCase().replace(/[^a-z]/g, '').split('').map(c =>
-        VOWELS.includes(c) ? '(?:' + c + '+|[^a-z\\s])' : c + '+'
-    ).join('[^a-z]*');
+    return word.toLowerCase().replace(/[^a-z]/g, '').split('').map(c => 'aeiou'.includes(c) ? '(?:' + c + '+|[^a-z\\s])' : c + '+').join('[^a-z]*');
 }
 function buildFilters(d) {
     SEVERE_REGEXES = (d.severe || []).map(w => new RegExp(wildPattern(w)));
@@ -288,111 +264,203 @@ function buildFilters(d) {
     BAD_EMOJI = d.emoji || [];
 }
 async function loadWordLists() {
-    try {
-        const r = await fetch(WORDS_URL + '?t=' + Date.now());
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        buildFilters(await r.json());
-    } catch (e) { /* keep fallback list */ }
+    try { const r = await fetch(WORDS_URL + '?t=' + Date.now()); if (!r.ok) throw 0; buildFilters(await r.json()); } catch (e) {}
 }
-function leetNormalize(str) {
-    return str
-        .toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/(?<=[a-z])!(?=[a-z])/g, 'i')
-        .replace(/[@$013457+]/g, ch => LEET_MAP[ch] || ch);
+const HOMOGLYPHS = {'а':'a','е':'e','о':'o','р':'p','с':'c','х':'x','у':'y','і':'i','ј':'j','ѕ':'s','һ':'h','ɡ':'g','ν':'v','ο':'o','ι':'i','κ':'k','α':'a','ε':'e','ρ':'p','τ':'t','υ':'u','ß':'ss'};
+// Lowercase, fold lookalike letters (Cyrillic/Greek/fullwidth), strip accents + invisible chars, undo leetspeak
+function leetNormalize(s) {
+    s = String(s).normalize('NFKC').toLowerCase().replace(/[\u200B-\u200D\u2060\uFEFF\u00AD]/g, '');
+    s = s.replace(/[^\u0000-\u007f]/g, ch => HOMOGLYPHS[ch] || ch);
+    s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return s.replace(/(?<=[a-z])!(?=[a-z])/g, 'i').replace(/[@$013457+]/g, ch => LEET_MAP[ch] || ch);
+}
+// Joins spaced-out letters so "f u c k", "f.u.c.k" and "f-u-c-k" become "fuck"
+function collapseSpaced(norm) {
+    const out = []; let run = [];
+    const flush = () => { if (run.length >= 3) out.push(run.join('')); else out.push(...run); run = []; };
+    for (let w of norm.split(/\s+/).filter(Boolean)) {
+        w = w.replace(/^((?:[a-z][.\-_]){2,}[a-z])$/, m => m.replace(/[.\-_]/g, ''));
+        if (/^[a-z]$/.test(w.replace(/[^a-z]/g, '')) && w.length <= 2) run.push(w.replace(/[^a-z]/g, ''));
+        else { flush(); out.push(w); }
+    }
+    flush();
+    return out;
 }
 function containsBadWord(str) {
     if (!str) return false;
     const clean = String(str).replace(/[\u200B-\u200D\u2060\uFEFF]/g, '');
     if (BAD_EMOJI.some(e => clean.includes(e))) return true;
     const norm = leetNormalize(clean);
-    if (SEVERE_REGEXES.some(r => r.test(norm))) return true;
-    return norm.split(/[\s,;:\/|]+/)
-        .map(t => t.replace(/^[.,;:"'()\[\]]+|[.,;:"'()\[\]]+$/g, ''))
-        .filter(Boolean)
-        .some(t => WHOLE_REGEXES.some(r => r.test(t)));
+    const tokens = collapseSpaced(norm);
+    if (SEVERE_REGEXES.some(r => r.test(norm) || r.test(tokens.join(' ')))) return true;
+    const words = norm.split(/[\s,;:\/|]+/).concat(tokens);
+    return words.map(t => t.replace(/^[.,;:"'()\[\]]+|[.,;:"'()\[\]]+$/g, '')).filter(Boolean).some(t => WHOLE_REGEXES.some(r => r.test(t)));
 }
 buildFilters(FALLBACK_WORDS);
 loadWordLists();
 
-// ================= ESCALATING CHAT TIMEOUTS + DEVICE RECORD =================
-// 1, 2, 3, 5, 10, 30, 50, 100 min, then 2 hours, then 1 day for every offense after
+// ================= DEVICE IDENTITY + BANS =================
+const BAN_URL = 'https://game.fyi.jp/ban';
 const LADDER_MIN = [1, 2, 3, 5, 10, 30, 50, 100, 120, 1440];
-let offenderState = null;
+let offenderState = null, deviceBan = null, identReady = null;
+const myIdent = { ip: '', fp: '' };
 
-function getBanUntil() { return parseInt(loadSetting('skyline_chat_ban', '0')) || 0; }
-function isBlocked() { return !!(offenderState && offenderState.blocked); }
-function isChatBanned() { return isBlocked() || getBanUntil() > Date.now(); }
-function fmtMins(m) { return m >= 60 ? (Math.round(m / 6) / 10) + ' hour(s)' : m + ' minute(s)'; }
-
-function deviceInfo() {
-    return {
-        ua: navigator.userAgent,
-        platform: navigator.platform || '',
-        lang: navigator.language || '',
-        tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || '',
-        screen: screen.width + 'x' + screen.height + ' @' + (window.devicePixelRatio || 1),
-        cores: navigator.hardwareConcurrency || null,
-        mem: navigator.deviceMemory || null,
-        touch: navigator.maxTouchPoints || 0
-    };
+async function sha(str) {
+    const s = 'skyline-v1|' + str;
+    try {
+        const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+        return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32);
+    } catch (e) { let h = 5381; for (const c of s) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return 'x' + (h >>> 0).toString(16); }
+}
+// Hashed public IP: same on every browser / private tab on the same network, and not readable as a real IP
+async function getIpHash() {
+    for (const u of ['https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json']) {
+        try { const r = await fetch(u, { cache: 'no-store' }); const j = await r.json(); if (j && j.ip) return await sha('ip:' + j.ip); } catch (e) {}
+    }
+    return '';
+}
+// Hardware/system traits only (no canvas or storage), so Safari private mode gives the same result
+async function getFingerprint() {
+    let gl = '';
+    try {
+        const c = document.createElement('canvas'), g = c.getContext('webgl') || c.getContext('experimental-webgl');
+        const e = g && g.getExtension('WEBGL_debug_renderer_info');
+        if (e) gl = g.getParameter(e.UNMASKED_RENDERER_WEBGL) + '|' + g.getParameter(e.UNMASKED_VENDOR_WEBGL);
+    } catch (e) {}
+    const parts = [Math.max(screen.width, screen.height), Math.min(screen.width, screen.height), screen.colorDepth, window.devicePixelRatio || 1, navigator.hardwareConcurrency || 0, navigator.deviceMemory || 0, navigator.platform || '', (Intl.DateTimeFormat().resolvedOptions().timeZone) || '', (navigator.languages || [navigator.language]).join(','), navigator.maxTouchPoints || 0, gl];
+    return sha('fp:' + parts.join('|'));
 }
 
-// Keeps the local ban in sync with the database (so the moderation page can reset/block)
+function getBanUntil() { return parseInt(loadSetting('skyline_chat_ban', '0')) || 0; }
+function isBlocked() { return !!((offenderState && offenderState.blocked) || (deviceBan && deviceBan.blocked) || loadSetting('skyline_blocked', '0') === '1'); }
+function isChatBanned() { return isBlocked() || getBanUntil() > Date.now() || (deviceBan && (deviceBan.bannedUntil || 0) > Date.now()); }
+function enforceBlock() { if (isBlocked() && !isAdmin()) location.href = BAN_URL; }
+function deviceInfo() {
+    return { ua: navigator.userAgent, platform: navigator.platform || '', lang: navigator.language || '', tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || '', screen: screen.width + 'x' + screen.height + ' @' + (window.devicePixelRatio || 1), cores: navigator.hardwareConcurrency || null, mem: navigator.deviceMemory || null, touch: navigator.maxTouchPoints || 0 };
+}
+function initIdentity() {
+    identReady = (async () => {
+        myIdent.fp = await getFingerprint();
+        myIdent.ip = await getIpHash();
+        rtdb.ref('identities/' + visitorId).set({ ip: myIdent.ip, fp: myIdent.fp, name: currentUser || '', ts: Date.now(), device: deviceInfo() }).catch(() => {});
+        // Live check: is any banned record the same device (same fingerprint + same network)?
+        rtdb.ref('offenders').orderByChild('fp').equalTo(myIdent.fp).on('value', snap => {
+            let found = null;
+            snap.forEach(c => {
+                const v = c.val();
+                if (!v || c.key === visitorId) return;
+                if (myIdent.ip && v.ipHash && v.ipHash !== myIdent.ip) return;
+                if (v.blocked || (v.bannedUntil || 0) > Date.now()) { if (!found || v.blocked) found = v; }
+            });
+            deviceBan = found;
+            enforceBlock();
+            if (new URLSearchParams(location.search).get('page') === 'chat') renderPage();
+        });
+    })();
+    return identReady;
+}
+// Keeps this browser's own ban in sync with the database (moderation page can reset/block)
 function watchOffenderState() {
     rtdb.ref('offenders/' + visitorId).on('value', snap => {
         offenderState = snap.val();
         saveSetting('skyline_chat_ban', offenderState ? (offenderState.bannedUntil || 0) : 0);
-        if (new URLSearchParams(window.location.search).get('page') === 'chat') renderPage();
+        saveSetting('skyline_blocked', offenderState && offenderState.blocked ? '1' : '0');
+        enforceBlock();
+        if (new URLSearchParams(location.search).get('page') === 'chat') renderPage();
     });
 }
-
 async function kickFromChat(badText) {
     let mins = LADDER_MIN[0];
+    try { await identReady; } catch (e) {}
     try {
         await rtdb.ref('offenders/' + visitorId).transaction(cur => {
             cur = cur || { firstAt: Date.now() };
             cur.count = (cur.count || 0) + 1;
             mins = LADDER_MIN[Math.min(cur.count, LADDER_MIN.length) - 1];
-            Object.assign(cur, {
-                vid: visitorId,
-                name: currentUser || '(none)',
-                lastAt: Date.now(),
-                lastMinutes: mins,
-                bannedUntil: Date.now() + mins * 60000,
-                lastMessage: String(badText || '').slice(0, 200),
-                device: deviceInfo()
-            });
+            Object.assign(cur, { vid: visitorId, name: currentUser || '(none)', lastAt: Date.now(), lastMinutes: mins, bannedUntil: Date.now() + mins * 60000, lastMessage: String(badText || '').slice(0, 200), device: deviceInfo(), ipHash: myIdent.ip, fp: myIdent.fp });
             return cur;
         });
-    } catch (e) {
-        saveSetting('skyline_chat_ban', Date.now() + mins * 60000);
-    }
-    showNotice('Inappropriate language is not allowed. You have been removed from chat for ' + fmtMins(mins) + '.', 'error', 'Removed from chat');
-    window.history.pushState({}, '', '?page=home');
-    renderPage();
+    } catch (e) { saveSetting('skyline_chat_ban', Date.now() + mins * 60000); }
+    location.href = BAN_URL;
+}
+// Admin / owner: ban a chat user's device (works across browsers and private mode on the same device + network)
+async function banUser(vid) {
+    if (!isAdmin()) return;
+    if (!confirm('Ban this device? They will be sent to the ban page on every visit, including private mode.')) return;
+    try {
+        const id = (await rtdb.ref('identities/' + vid).once('value')).val() || {};
+        await rtdb.ref('offenders/' + vid).update({ vid, name: id.name || '(unknown)', blocked: true, lastAt: Date.now(), lastMessage: '(banned by ' + getUserRole() + ')', device: id.device || null, ipHash: id.ip || '', fp: id.fp || '' });
+        showNotice(id.fp ? 'Device banned.' : 'Banned this browser only (no device info was saved for this user).', id.fp ? 'success' : 'info');
+    } catch (e) { showNotice('Could not ban. Check your database rules.', 'error'); }
 }
 
-// ================= MANDATORY NAME =================
+// ================= ADMIN: BAN LIST =================
+let offenderList = {};
+function initBanList() {
+    trackListener(rtdb.ref('offenders'), snap => { offenderList = snap.val() || {}; renderBanList(); });
+}
+function renderBanList() {
+    const el = document.getElementById('banList'); if (!el) return;
+    const rows = Object.keys(offenderList).map(k => ({ k, ...offenderList[k] })).sort((a, b) => (b.lastAt || 0) - (a.lastAt || 0));
+    if (!rows.length) { el.innerHTML = '<div class="lb-empty">Nobody has been banned or timed out.</div>'; return; }
+    el.innerHTML = rows.map(r => {
+        const left = (r.bannedUntil || 0) - Date.now();
+        const status = r.blocked ? '<span style="color:#ff5555;font-weight:600;">Banned</span>' : left > 0 ? '<span style="color:#ffb86c;font-weight:600;">Timed out ' + Math.ceil(left / 60000) + 'm</span>' : '<span style="color:#727280;">Expired</span>';
+        const active = r.blocked || left > 0;
+        const id = escapeHtml(r.k);
+        return `<div class="lb-row" style="align-items:flex-start;gap:1rem;"><div style="flex:1;min-width:0;"><div style="color:#fff;font-weight:600;">${escapeHtml(r.name || '(none)')} ${status}</div><div style="font-size:.75rem;color:#727280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.count ? r.count + ' offense(s) · ' : ''}${escapeHtml(r.lastMessage || '')}</div></div><div style="display:flex;gap:.4rem;">${active ? `<button class="play-btn" style="padding:.35rem .8rem;font-size:.75rem;background:#50fa7b;" onclick="unbanUser('${id}')">Unban</button>` : ''}${r.blocked ? '' : `<button class="play-btn red" style="padding:.35rem .8rem;font-size:.75rem;" onclick="banFromList('${id}')">Ban</button>`}</div></div>`;
+    }).join('');
+}
+async function unbanUser(vid) {
+    if (!isAdmin()) return;
+    const me = offenderList[vid]; if (!me) return;
+    // also clear other records from the same device so they aren't still locked out
+    const keys = Object.keys(offenderList).filter(k => k === vid || (me.fp && offenderList[k].fp === me.fp && (!me.ipHash || !offenderList[k].ipHash || offenderList[k].ipHash === me.ipHash)));
+    try {
+        await Promise.all(keys.map(k => rtdb.ref('offenders/' + k).update({ blocked: false, bannedUntil: 0 })));
+        showNotice('Unbanned ' + (me.name || 'user') + '.', 'success');
+    } catch (e) { showNotice('Could not unban. Check your database rules.', 'error'); }
+}
+async function banFromList(vid) {
+    if (!isAdmin()) return;
+    try { await rtdb.ref('offenders/' + vid).update({ blocked: true }); showNotice('Banned.', 'success'); }
+    catch (e) { showNotice('Could not ban. Check your database rules.', 'error'); }
+}
+
+// ================= ADMIN: REQUESTS LIST =================
+function initRequestList() {
+    trackListener(rtdb.ref('requests').limitToLast(100), snap => {
+        const el = document.getElementById('reqList'); if (!el) return;
+        const val = snap.val();
+        if (!val) { el.innerHTML = '<div class="lb-empty">No requests yet.</div>'; return; }
+        const rows = Object.keys(val).map(k => ({ k, ...val[k] })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        el.innerHTML = rows.map(r => {
+            const when = new Date(r.timestamp || Date.now()).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const link = r.link ? (/^https?:\/\//i.test(r.link) ? `<a href="${escapeHtml(r.link)}" target="_blank" rel="noopener noreferrer" style="color:#64b5f6;word-break:break-all;">${escapeHtml(r.link)}</a>` : escapeHtml(r.link)) : '';
+            const body = r.mode === 'template'
+                ? `<div style="color:#fff;font-weight:600;">${escapeHtml(r.name || '')}</div>${link ? `<div style="font-size:.8rem;">${link}</div>` : ''}${r.notes ? `<div style="font-size:.82rem;color:#b0b0bc;">${escapeHtml(r.notes)}</div>` : ''}`
+                : `<div style="color:#fff;white-space:pre-wrap;word-break:break-word;">${escapeHtml(r.text || '')}</div>`;
+            return `<div class="lb-row" style="align-items:flex-start;gap:1rem;"><div style="flex:1;min-width:0;">${body}<div style="font-size:.72rem;color:#727280;margin-top:.25rem;">${escapeHtml(r.user || 'Anonymous')} · ${escapeHtml(r.siteType || '')} (${escapeHtml(r.reliability || '')}) · ${when}</div></div><button class="play-btn red" style="padding:.35rem .8rem;font-size:.75rem;" onclick="deleteRequest('${escapeHtml(r.k)}')">Delete</button></div>`;
+        }).join('');
+    });
+}
+function deleteRequest(key) { if (isAdmin()) rtdb.ref('requests/' + key).remove().catch(() => showNotice('Could not delete. Check your database rules.', 'error')); }
+
+// ================= NAME =================
 function validateName(name) {
     const n = (name || '').trim();
     if (n.length < 2) return 'Name must be at least 2 characters.';
     if (n.length > 15) return 'Name must be 15 characters or less.';
     if (n.toLowerCase() === 'player') return 'Please choose your own name.';
-    if (!isOwner() && containsBadWord(n)) return 'That name is not allowed. Pick something else.';
+    if (!isOwner() && containsBadWord(n)) return 'That name is not allowed.';
     return null;
 }
 function hasValidName() { return validateName(currentUser) === null; }
-
-function updateUsername(newName) {
+function updateUsername(v) {
     const input = document.getElementById('settingsNameInput');
-    const problem = validateName(newName);
-    if (problem) {
-        if (input) input.style.borderColor = newName.trim() ? '#ff5555' : '';
-        return;
-    }
+    if (validateName(v)) { if (input) input.style.borderColor = v.trim() ? '#ff6b6b' : ''; return; }
     if (input) input.style.borderColor = '';
-    currentUser = newName.trim();
+    currentUser = v.trim();
     saveSetting('skyline_username', currentUser);
 }
 
@@ -401,49 +469,38 @@ window.addEventListener('DOMContentLoaded', () => {
     if (currentUser) document.getElementById('settingsNameInput').value = currentUser;
     if (ownerKeyInputVal) document.getElementById('ownerKeyInput').value = ownerKeyInputVal;
     checkDeveloperMode();
+    cleanupOldBoards();
     initPresence();
+    initIdentity();
     watchOffenderState();
     initAnnouncementListener();
     initCountdownListener();
     if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
 });
-
 function checkDeveloperMode() {
-    const devBtn = document.getElementById('devNavBtn');
-    if (devBtn) devBtn.style.display = isAdmin() ? 'flex' : 'none';
+    const d = document.getElementById('devNavBtn'), r = document.getElementById('navRequests');
+    if (d) d.style.display = isAdmin() ? 'flex' : 'none';
+    if (r) r.style.display = isAdmin() ? 'flex' : 'none';
 }
-function navigateToDev() {
-    if (!isAdmin()) return;
-    window.history.pushState({}, '', '?page=developer');
-    renderPage();
-}
+function navigateToDev() { if (!isAdmin()) return; history.pushState({}, '', '?page=developer'); renderPage(); }
 function submitCodeButton() {
-    const input = document.getElementById('ownerKeyInput');
-    if (!input) return;
+    const input = document.getElementById('ownerKeyInput'); if (!input) return;
     ownerKeyInputVal = input.value.trim();
     saveSetting('skyline_owner_key', ownerKeyInputVal);
     checkDeveloperMode();
     const role = getUserRole();
-    if (role === 'owner') {
-        showNotice('Owner access granted.', 'success');
-        document.getElementById('settingsModal').classList.remove('open');
-        renderPage();
-    } else if (role === 'admin') {
-        showNotice('Admin access granted.', 'success');
-        document.getElementById('settingsModal').classList.remove('open');
-        renderPage();
-    } else {
-        removeSetting('skyline_owner_key');
-        showNotice('Invalid code.', 'error');
-    }
+    if (role === 'none') { removeSetting('skyline_owner_key'); showNotice('Invalid code.', 'error'); return; }
+    showNotice((role === 'owner' ? 'Owner' : 'Admin') + ' access granted.', 'success');
+    document.getElementById('settingsModal').classList.remove('open');
+    renderPage();
 }
 function logoutRole() {
     ownerKeyInputVal = '';
     removeSetting('skyline_owner_key');
     document.getElementById('ownerKeyInput').value = '';
     checkDeveloperMode();
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('page') === 'developer') window.history.pushState({}, '', '?page=home');
+    const p = new URLSearchParams(location.search).get('page');
+    if (p === 'developer' || p === 'requests') history.pushState({}, '', '?page=home');
     renderPage();
 }
 
@@ -451,63 +508,32 @@ function logoutRole() {
 const modal = document.getElementById('settingsModal');
 document.getElementById('settingsToggle').addEventListener('click', () => modal.classList.add('open'));
 document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
-modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
-
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
 let config = {
     starCount: parseInt(loadSetting('skyline_stars', '800')) || 800,
     rarityMs: parseInt(loadSetting('skyline_meteor', '800')) || 800,
     colorful: loadSetting('skyline_colorful', 'false') === 'true'
 };
-const starCountRange = document.getElementById('starCountRange');
-const starCountVal = document.getElementById('starCountVal');
-const rarityRange = document.getElementById('rarityRange');
-const rarityVal = document.getElementById('rarityVal');
-const colorfulToggle = document.getElementById('colorfulToggle');
-
-starCountRange.value = config.starCount;
-starCountVal.textContent = config.starCount;
-rarityRange.value = config.rarityMs;
-rarityVal.textContent = config.rarityMs + 'ms';
-colorfulToggle.checked = config.colorful;
-
-starCountRange.addEventListener('input', (e) => {
-    config.starCount = parseInt(e.target.value);
-    starCountVal.textContent = config.starCount;
-    saveSetting('skyline_stars', config.starCount);
-    initStars();
-});
-rarityRange.addEventListener('input', (e) => {
-    config.rarityMs = parseInt(e.target.value);
-    rarityVal.textContent = config.rarityMs + 'ms';
-    saveSetting('skyline_meteor', config.rarityMs);
-});
-function updateColorfulStars(isColorful) {
-    config.colorful = isColorful;
-    saveSetting('skyline_colorful', isColorful);
-    initStars();
-}
+const starCountRange = document.getElementById('starCountRange'), starCountVal = document.getElementById('starCountVal');
+const rarityRange = document.getElementById('rarityRange'), rarityVal = document.getElementById('rarityVal');
+starCountRange.value = config.starCount; starCountVal.textContent = config.starCount;
+rarityRange.value = config.rarityMs; rarityVal.textContent = config.rarityMs + 'ms';
+document.getElementById('colorfulToggle').checked = config.colorful;
+starCountRange.addEventListener('input', e => { config.starCount = parseInt(e.target.value); starCountVal.textContent = config.starCount; saveSetting('skyline_stars', config.starCount); initStars(); });
+rarityRange.addEventListener('input', e => { config.rarityMs = parseInt(e.target.value); rarityVal.textContent = config.rarityMs + 'ms'; saveSetting('skyline_meteor', config.rarityMs); });
+function updateColorfulStars(c) { config.colorful = c; saveSetting('skyline_colorful', c); initStars(); }
 
 // ================= ANNOUNCEMENTS =================
-let announcementTimer = null;
-let currentAnnouncementText = '';
-
+let announcementTimer = null, currentAnnouncementText = '';
 function initAnnouncementListener() {
-    const bar = document.getElementById('announcementBar');
-    const textEl = document.getElementById('announcementText');
-    if (!bar || !textEl) return;
-    rtdb.ref('announcement').on('value', (snapshot) => {
-        const val = snapshot.val();
+    const bar = document.getElementById('announcementBar'), textEl = document.getElementById('announcementText');
+    rtdb.ref('announcement').on('value', snap => {
+        const val = snap.val();
         if (val && val.text) {
-            currentAnnouncementText = val.text;
-            textEl.textContent = val.text;
-            bar.classList.add('visible');
-            if (announcementTimer) clearTimeout(announcementTimer);
+            currentAnnouncementText = val.text; textEl.textContent = val.text; bar.classList.add('visible');
+            clearTimeout(announcementTimer);
             announcementTimer = setTimeout(() => bar.classList.remove('visible'), 5000);
-        } else {
-            currentAnnouncementText = '';
-            textEl.textContent = '';
-            bar.classList.remove('visible');
-        }
+        } else { currentAnnouncementText = ''; textEl.textContent = ''; bar.classList.remove('visible'); }
     });
 }
 function broadcastAnnouncement() {
@@ -516,251 +542,121 @@ function broadcastAnnouncement() {
     if (!input || !input.value.trim()) return;
     const text = input.value.trim();
     if (text === currentAnnouncementText) { showNotice('That announcement is already active.', 'error'); return; }
-    rtdb.ref('announcement').set({ text: text, timestamp: Date.now() });
+    rtdb.ref('announcement').set({ text, timestamp: Date.now() });
     input.value = '';
     showNotice('Announcement broadcasted.', 'success');
 }
-function clearAnnouncement() {
-    if (!isAdmin()) return;
-    rtdb.ref('announcement').remove();
-}
+function clearAnnouncement() { if (isAdmin()) rtdb.ref('announcement').remove(); }
 
 // ================= COUNTDOWN =================
 let activeCountdownData = null;
-
-function initCountdownListener() {
-    rtdb.ref('countdown').on('value', (snapshot) => {
-        activeCountdownData = snapshot.val();
-        renderEventStack();
-    });
-}
+function initCountdownListener() { rtdb.ref('countdown').on('value', s => { activeCountdownData = s.val(); renderCountdown(); }); }
 function startGlobalCountdown() {
     if (!isAdmin()) return;
-    const titleInput = document.getElementById('countdownTitleInput');
-    const minsInput = document.getElementById('countdownMinsInput');
-    if (!titleInput || !minsInput) return;
-    const title = titleInput.value.trim() || 'Admin Abuse Event';
-    const minutes = parseFloat(minsInput.value) || 5;
-    rtdb.ref('countdown').set({ title: title, endTime: Date.now() + minutes * 60 * 1000 });
-    titleInput.value = '';
-    minsInput.value = '';
+    const t = document.getElementById('countdownTitleInput'), m = document.getElementById('countdownMinsInput');
+    if (!t || !m) return;
+    rtdb.ref('countdown').set({ title: t.value.trim() || 'Countdown', endTime: Date.now() + (parseFloat(m.value) || 5) * 60000 });
+    t.value = ''; m.value = '';
     showNotice('Countdown started.', 'success');
 }
-function clearGlobalCountdown() {
-    if (!isAdmin()) return;
-    rtdb.ref('countdown').remove();
+function clearGlobalCountdown() { if (isAdmin()) rtdb.ref('countdown').remove(); }
+function renderCountdown() {
+    const box = document.getElementById('countdownBox');
+    if (!activeCountdownData || !activeCountdownData.endTime) { box.style.display = 'none'; return; }
+    const left = Math.max(0, activeCountdownData.endTime - Date.now());
+    const s = Math.floor(left / 1000), mm = String(Math.floor(s / 60)).padStart(2, '0'), ss = String(s % 60).padStart(2, '0');
+    box.style.display = 'block';
+    box.innerHTML = `<div class="t"><span>⏳ ${escapeHtml(activeCountdownData.title)}</span>${isAdmin() ? '<button onclick="clearGlobalCountdown()" style="background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:1rem;">&times;</button>' : ''}</div><div class="n">${mm}:${ss}</div>`;
 }
+setInterval(renderCountdown, 1000);
 
-// ================= SPECIAL EVENTS =================
-const specialEventsList = [
-    { id: 'matrix_rain', name: 'Matrix Rain', desc: 'Digital data cascade' },
-    { id: 'star_storm', name: 'Star Storm', desc: 'Intense cosmic meteor shower' },
-    { id: 'supernova', name: 'Supernova Burst', desc: 'Stellar core explosion simulation' },
-    { id: 'quantum_glitch', name: 'Quantum Glitch', desc: 'Space-time coordinate anomaly' },
-    { id: 'cyber_pulse', name: 'Cyber Pulse', desc: 'Neural network frequency pulse' },
-    { id: 'nebula_shift', name: 'Nebula Shift', desc: 'Dust cloud gravitational ripple' },
-    { id: 'warp_speed', name: 'Warp Speed', desc: 'Faster-than-light hyper-drive' },
-    { id: 'zero_gravity', name: 'Zero Gravity', desc: 'Inertial dampener failure' },
-    { id: 'hyper_drive', name: 'Hyper Drive', desc: 'Subspace corridor traversal' },
-    { id: 'solar_flare', name: 'Solar Flare', desc: 'Electromagnetic plasma eruption' },
-    { id: 'void_echo', name: 'Void Echo', desc: 'Deep space frequency resonance' },
-    { id: 'plasma_surge', name: 'Plasma Surge', desc: 'Core reactor power spike' },
-    { id: 'temporal_rift', name: 'Temporal Rift', desc: 'Chronometric timeline distortion' },
-    { id: 'neon_horizon', name: 'Neon Horizon', desc: 'Cyber grid frequency lock' },
-    { id: 'gravity_well', name: 'Gravity Well', desc: 'Singularity event horizon' },
-    { id: 'echo_chamber', name: 'Echo Chamber', desc: 'Acoustic waveform reflection' },
-    { id: 'astral_flux', name: 'Astral Flux', desc: 'Etheric dimensional current' },
-    { id: 'cosmic_harmony', name: 'Cosmic Harmony', desc: 'Orrery alignment frequency' },
-    { id: 'phantom_echo', name: 'Phantom Echo', desc: 'Sub-harmonic signal trace' },
-    { id: 'eclipse_protocol', name: 'Eclipse Protocol', desc: 'Stellar occultation event' }
-];
-
-let activeEvents = {};
-let eventCounters = {};
-
-function triggerSpecialEvent(eventId, eventName) {
-    eventCounters[eventId] = 0;
-    activeEvents[eventId] = { name: eventName, amount: '0 units' };
-    renderEventStack();
-    if (window['eventInterval_' + eventId]) clearInterval(window['eventInterval_' + eventId]);
-    window['eventInterval_' + eventId] = setInterval(() => {
-        eventCounters[eventId] = (eventCounters[eventId] || 0) + Math.floor(Math.random() * 7) + 1;
-        if (activeEvents[eventId]) {
-            activeEvents[eventId].amount = eventCounters[eventId] + ' units';
-            renderEventStack();
-        }
-    }, 600);
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('page') === 'developer') renderPage();
-}
-function removeSpecialEvent(eventId) {
-    if (window['eventInterval_' + eventId]) clearInterval(window['eventInterval_' + eventId]);
-    delete activeEvents[eventId];
-    renderEventStack();
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('page') === 'developer') renderPage();
-}
-function renderEventStack() {
-    const stack = document.getElementById('eventStack');
-    if (!stack) return;
-    stack.innerHTML = '';
-
-    if (activeCountdownData && activeCountdownData.endTime) {
-        const timeLeft = Math.max(0, activeCountdownData.endTime - Date.now());
-        const mins = Math.floor(timeLeft / 60000);
-        const secs = Math.floor((timeLeft % 60000) / 1000);
-        const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        const card = document.createElement('div');
-        card.className = 'event-card';
-        card.style.borderColor = '#ff79c6';
-        card.style.borderLeftColor = '#ff79c6';
-        card.innerHTML = `
-            <div class="title" style="color:#ff79c6;">
-                <span>⏳ ${escapeHtml(activeCountdownData.title)}</span>
-                ${isAdmin() ? `<button onclick="clearGlobalCountdown()" style="background:none;border:none;color:#ff5555;cursor:pointer;font-weight:bold;font-size:.9rem;" title="Clear Countdown">&times;</button>` : ''}
-            </div>
-            <div style="font-size:1.1rem;color:#fff;font-family:monospace;font-weight:700;margin-top:2px;">${timeStr} remaining</div>`;
-        stack.appendChild(card);
-    }
-
-    Object.keys(activeEvents).forEach(id => {
-        const ev = activeEvents[id];
-        const card = document.createElement('div');
-        card.className = 'event-card';
-        card.innerHTML = `
-            <div class="title">
-                <span>${escapeHtml(ev.name)}</span>
-                ${isAdmin() ? `<button onclick="removeSpecialEvent('${id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-weight:bold;font-size:.9rem;" title="Remove Event">&times;</button>` : ''}
-            </div>
-            <div style="font-size:.8rem;color:#9494a0;font-family:monospace;margin-top:2px;">Status: Active (${escapeHtml(ev.amount)})</div>`;
-        stack.appendChild(card);
-    });
+// ================= LISTENERS =================
+let pageListeners = [], starfieldPaused = false, gamesPromise = null, lbCurrent = null;
+function trackListener(q, cb) { q.on('value', cb); pageListeners.push({ q, cb }); }
+function detachPageListeners() {
+    pageListeners.forEach(l => l.q.off('value', l.cb)); pageListeners = [];
+    if (lbCurrent) { lbCurrent.q.off('value', lbCurrent.cb); lbCurrent = null; }
 }
 
 // ================= GAMES =================
-let allGames = [];
-
-async function fetchGames() {
-    if (allGames.length) { renderGamesList(allGames); return; }
-    const grid = document.getElementById('gamesGrid');
-    try {
-        allGames = await getGames();
-        renderGamesList(allGames);
-    } catch (err) {
-        if (grid) grid.innerHTML = `<p style="color:#ff5555;grid-column:1/-1;text-align:center;font-size:.9rem;">Failed to load games list: ${escapeHtml(err.message)}</p>`;
-    }
-}
-
-function renderGamesList(games) {
-    const grid = document.getElementById('gamesGrid');
-    if (!grid) return;
-    if (!games || games.length === 0) {
-        grid.innerHTML = '<p style="color:#9494a0;grid-column:1/-1;text-align:center;font-size:.9rem;">No games found.</p>';
-        return;
-    }
-    grid.innerHTML = games.map(game => {
-        const title = game.title || 'Untitled';
-        const picture = game.picture || '';
-        const source = game.source || '#';
-        return `
-            <div class="game-card" onclick="launchGame('${encodeURIComponent(source)}', '${encodeURIComponent(title)}')">
-                <div class="game-img-container">
-                    ${picture ? `<img src="${picture}" alt="${title}" loading="lazy" decoding="async">` : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#64b5f6;"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`}
-                </div>
-                <div class="game-info"><h4 class="game-name">${title}</h4></div>
-            </div>`;
-    }).join('');
-}
-
-function launchGame(sourceUrl, title) {
-    const decodedTitle = decodeURIComponent(title);
-    const safeKey = decodedTitle.replace(/[.#$\/\[\]]/g, '_');
-    rtdb.ref('games/' + safeKey).transaction(current => {
-        if (!current) return { title: decodedTitle, plays: 1 };
-        current.plays = (current.plays || 0) + 1;
-        return current;
-    });
-    window.history.pushState({}, '', `?page=play&src=${sourceUrl}&title=${title}`);
-    renderPage();
-}
-
 const GAMES_JSON_URL = 'https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games.json';
-
-let pageListeners = [];
-let starfieldPaused = false;
-let gamesPromise = null;
-
-function trackListener(query, cb) {
-    query.on('value', cb);
-    pageListeners.push({ query, cb });
-}
-function detachPageListeners() {
-    pageListeners.forEach(l => l.query.off('value', l.cb));
-    pageListeners = [];
-}
-
-// Sort: symbols first, then numbers, then letters
-function sortRank(title) {
-    const c = title.trim().charAt(0);
-    if (/\p{L}/u.test(c)) return 2;
-    if (/\d/.test(c)) return 1;
-    return 0;
-}
-function sortGames(list) {
-    return list.sort((a, b) => {
-        const ra = sortRank(a.title), rb = sortRank(b.title);
-        if (ra !== rb) return ra - rb;
-        return a.title.trim().localeCompare(b.title.trim(), undefined, { numeric: true, sensitivity: 'base' });
-    });
+const SOUNDS_JSON_URL = 'https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Sounds.json';
+let allGames = [];
+function sortRank(t) { const c = t.trim().charAt(0); return /\p{L}/u.test(c) ? 2 : /\d/.test(c) ? 1 : 0; }
+function sortGames(l) {
+    return l.sort((a, b) => { const ra = sortRank(a.title), rb = sortRank(b.title); if (ra !== rb) return ra - rb; return a.title.trim().localeCompare(b.title.trim(), undefined, { numeric: true, sensitivity: 'base' }); });
 }
 function getGames() {
     if (!gamesPromise) {
         gamesPromise = fetch(GAMES_JSON_URL + '?t=' + Date.now())
-            .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-            .then(data => sortGames((data.games || []).filter(g => g && g.title && g.source)))
-            .catch(err => { gamesPromise = null; throw err; });
+            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(d => sortGames((d.games || []).filter(g => g && g.title && g.source)))
+            .catch(e => { gamesPromise = null; throw e; });
     }
     return gamesPromise;
+}
+async function fetchGames() {
+    const grid = document.getElementById('gamesGrid');
+    try { allGames = await getGames(); renderGamesList(allGames); }
+    catch (err) { if (grid) grid.innerHTML = `<p class="lb-empty" style="grid-column:1/-1;color:#ff6b6b;">Failed to load games: ${escapeHtml(err.message)}</p>`; }
+}
+function renderGamesList(games) {
+    const grid = document.getElementById('gamesGrid'); if (!grid) return;
+    if (!games.length) { grid.innerHTML = '<p class="lb-empty" style="grid-column:1/-1;">No games found.</p>'; return; }
+    grid.innerHTML = games.map(g => {
+        const i = allGames.indexOf(g);
+        return `<div class="game-card" onclick="launchGame(${i})"><div class="game-img-container">${g.picture ? `<img src="${escapeHtml(g.picture)}" alt="${escapeHtml(g.title)}" loading="lazy" decoding="async">` : '<span style="font-size:1.6rem;">🎮</span>'}</div><div class="game-info"><h4 class="game-name">${escapeHtml(g.title)}</h4></div></div>`;
+    }).join('');
+}
+function handleSearch(q) { q = q.toLowerCase(); renderGamesList(allGames.filter(g => (g.title || '').toLowerCase().includes(q))); }
+
+// ---- play tracking: all-time + day / week / month ----
+function periodKeys() {
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    const day = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+    const m = new Date(d); m.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // Monday
+    const week = m.getFullYear() + '-' + p(m.getMonth() + 1) + '-' + p(m.getDate());
+    return { day, week, month: day.slice(0, 7) };
+}
+function recordPlay(title) {
+    const key = title.replace(/[.#$\/\[\]]/g, '_');
+    const bump = ref => ref.transaction(c => { if (!c) return { title, plays: 1 }; c.plays = (c.plays || 0) + 1; return c; });
+    bump(rtdb.ref('games/' + key));
+    const k = periodKeys();
+    ['day', 'week', 'month'].forEach(p => bump(rtdb.ref('lb/' + p + '/' + k[p] + '/' + key)));
+}
+function launchGame(i) {
+    const g = allGames[i]; if (!g) return;
+    recordPlay(g.title);
+    history.pushState({}, '', '?page=play&src=' + encodeURIComponent(g.source) + '&title=' + encodeURIComponent(g.title));
+    renderPage();
 }
 
 function normalizeGithubUrl(u) {
     const m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/raw\/(.+)$/i);
     return m ? `https://raw.githubusercontent.com/${m[1]}/${m[2]}/${m[3]}` : u;
 }
-
-// jsDelivr serves repo files with correct MIME types so relative scripts/css/wasm load
 function getBaseHref(source) {
     const dir = source.slice(0, source.lastIndexOf('/') + 1);
     const m = dir.match(/^https:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/(?:refs\/heads\/)?([^\/]+)\/(.*)$/);
     return m ? `https://cdn.jsdelivr.net/gh/${m[1]}/${m[2]}@${m[3]}/${m[4]}` : dir;
 }
-
 function buildGameDocument(rawText, baseHref) {
-    const text = rawText.replace(/^\uFEFF/, '');
-    const head = text.slice(0, 3000);
-    const CLOSE = '</' + 'script>';
+    const text = rawText.replace(/^\uFEFF/, ''), head = text.slice(0, 3000), CLOSE = '</' + 'script>';
     const errScript = "window.addEventListener('error',function(e){var d=document.createElement('div');d.style.cssText='position:fixed;left:10px;right:10px;bottom:10px;color:#ff5555;font:12px monospace;background:#111;padding:10px;border-radius:8px;z-index:99999';d.textContent='Runtime Error: '+e.message;document.body.appendChild(d);});";
     const wasmShim = '<script>(function(){if(!window.WebAssembly)return;var i=WebAssembly.instantiateStreaming,c=WebAssembly.compileStreaming;if(i)WebAssembly.instantiateStreaming=function(r,m){return Promise.resolve(r).then(function(x){return x.arrayBuffer()}).then(function(b){return WebAssembly.instantiate(b,m)})};if(c)WebAssembly.compileStreaming=function(r){return Promise.resolve(r).then(function(x){return x.arrayBuffer()}).then(function(b){return WebAssembly.compile(b)})};})();' + CLOSE;
     let doc;
-
-    if (/<!doctype\s+html|<html[\s>]/i.test(head)) {
-        doc = text;
-    } else if (/^\s*</.test(text)) {
-        doc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;background:#000}</style></head><body>' + text + '</body></html>';
-    } else {
-        doc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden;display:flex;justify-content:center;align-items:center}canvas{display:block;max-width:100%;max-height:100%}</style></head><body><script>' + errScript + CLOSE + '<script>' + text.replace(/<\/script/gi, '<\\/script') + '\n' + CLOSE + '</body></html>';
-    }
-
+    if (/<!doctype\s+html|<html[\s>]/i.test(head)) doc = text;
+    else if (/^\s*</.test(text)) doc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;background:#000}</style></head><body>' + text + '</body></html>';
+    else doc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden;display:flex;justify-content:center;align-items:center}canvas{display:block;max-width:100%;max-height:100%}</style></head><body><script>' + errScript + CLOSE + '<script>' + text.replace(/<\/script/gi, '<\\/script') + '\n' + CLOSE + '</body></html>';
     const tag = (baseHref && !/<base\s/i.test(doc) ? '<base href="' + baseHref.replace(/"/g, '%22') + '">' : '') + wasmShim;
-    if (/<head[^>]*>/i.test(doc)) doc = doc.replace(/<head[^>]*>/i, (m) => m + tag);
-    else if (/<html[^>]*>/i.test(doc)) doc = doc.replace(/<html[^>]*>/i, (m) => m + '<head>' + tag + '</head>');
-    else doc = doc.replace(/<!doctype[^>]*>/i, (m) => m + tag);
+    if (/<head[^>]*>/i.test(doc)) doc = doc.replace(/<head[^>]*>/i, m => m + tag);
+    else if (/<html[^>]*>/i.test(doc)) doc = doc.replace(/<html[^>]*>/i, m => m + '<head>' + tag + '</head>');
+    else doc = doc.replace(/<!doctype[^>]*>/i, m => m + tag);
     return doc;
 }
-
 async function loadAndEmulateGame(source) {
-    const iframe = document.getElementById('gameIframe');
-    const loader = document.getElementById('loaderOverlay');
+    const iframe = document.getElementById('gameIframe'), loader = document.getElementById('loaderOverlay');
     try {
         source = normalizeGithubUrl(source);
         const games = await getGames();
@@ -771,418 +667,294 @@ async function loadAndEmulateGame(source) {
         iframe.addEventListener('load', () => { if (loader) loader.style.display = 'none'; }, { once: true });
         iframe.srcdoc = buildGameDocument(html, getBaseHref(source));
     } catch (err) {
-        if (loader) loader.innerHTML = `<p style="color:#ff5555;text-align:center;padding:20px;">Error Loading Game<br><small style="color:#9494a0;">${escapeHtml(err.message)}</small></p>`;
+        if (loader) loader.innerHTML = `<p style="color:#ff6b6b;text-align:center;padding:20px;">Error Loading Game<br><small style="color:#8e8ea3;">${escapeHtml(err.message)}</small></p>`;
     }
 }
-
 function toggleGameFullscreen() {
-    const wrap = document.querySelector('.game-iframe-wrapper');
-    if (!wrap) return;
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-    } else if (wrap.classList.contains('pseudo-fs')) {
-        wrap.classList.remove('pseudo-fs');
-        nudgeGameResize();
-    } else {
-        const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
-        if (req) req.call(wrap);
-        else { wrap.classList.add('pseudo-fs'); nudgeGameResize(); }
-    }
+    const wrap = document.querySelector('.game-iframe-wrapper'); if (!wrap) return;
+    if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else if (wrap.classList.contains('pseudo-fs')) { wrap.classList.remove('pseudo-fs'); nudgeGameResize(); }
+    else { const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen; if (req) req.call(wrap); else { wrap.classList.add('pseudo-fs'); nudgeGameResize(); } }
 }
 function nudgeGameResize() {
-    const f = document.getElementById('gameIframe');
-    if (!f) return;
+    const f = document.getElementById('gameIframe'); if (!f) return;
     setTimeout(() => { try { f.contentWindow.dispatchEvent(new Event('resize')); } catch (e) {} }, 100);
 }
 document.addEventListener('fullscreenchange', nudgeGameResize);
 document.addEventListener('webkitfullscreenchange', nudgeGameResize);
 
-// ================= LEADERBOARD =================
+// ================= SOUNDBOARD =================
+const SOUND_COLORS = ['#ff6b6b', '#ffb86c', '#f1fa8c', '#5ef2a0', '#8be9fd', '#7cc4ff', '#b58cff', '#ff79c6'];
+let allSounds = [], soundsPromise = null;
+let soundVolume = parseFloat(loadSetting('skyline_sound_vol', '0.8')); if (isNaN(soundVolume)) soundVolume = 0.8;
+const activeSounds = new Map();
+function normalizeSounds(data) {
+    let list = Array.isArray(data) ? data : (data && (data.sounds || data.Sounds)) || (data && typeof data === 'object' ? Object.values(data) : []);
+    if (!Array.isArray(list)) list = [];
+    const nameOf = u => decodeURIComponent(String(u).split('/').pop().split('?')[0]).replace(/\.[a-z0-9]+$/i, '');
+    return list.map(s => {
+        if (typeof s === 'string') return { title: nameOf(s) || 'Sound', source: s };
+        if (!s || typeof s !== 'object') return null;
+        const source = s.source || s.src || s.url || s.file || s.link;
+        return source ? { title: String(s.title || s.name || s.label || nameOf(source) || 'Sound'), source: String(source) } : null;
+    }).filter(Boolean);
+}
+function getSounds() {
+    if (!soundsPromise) {
+        soundsPromise = fetch(SOUNDS_JSON_URL + '?t=' + Date.now())
+            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+            .then(t => t.trim() ? normalizeSounds(JSON.parse(t)) : [])
+            .catch(e => { soundsPromise = null; throw e; });
+    }
+    return soundsPromise;
+}
+function soundAudioUrl(source) {
+    source = normalizeGithubUrl(source);
+    const m = source.match(/^https:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/(?:refs\/heads\/)?([^\/]+)\/(.*)$/);
+    return m ? `https://cdn.jsdelivr.net/gh/${m[1]}/${m[2]}@${m[3]}/${m[4]}` : source;
+}
+async function fetchSounds() {
+    const grid = document.getElementById('soundGrid');
+    try { allSounds = await getSounds(); renderSoundList(allSounds); }
+    catch (err) { if (grid) grid.innerHTML = `<p class="lb-empty" style="grid-column:1/-1;color:#ff6b6b;">Failed to load sounds: ${escapeHtml(err.message)}</p>`; }
+}
+function renderSoundList(list) {
+    const grid = document.getElementById('soundGrid'); if (!grid) return;
+    if (!allSounds.length) { grid.innerHTML = '<p class="lb-empty" style="grid-column:1/-1;">No sounds yet. Add some to Sounds.json!</p>'; return; }
+    if (!list.length) { grid.innerHTML = '<p class="lb-empty" style="grid-column:1/-1;">No sounds found.</p>'; return; }
+    grid.innerHTML = list.map(s => {
+        const idx = allSounds.indexOf(s);
+        return `<button class="sound-btn${activeSounds.has(idx) ? ' playing' : ''}" data-idx="${idx}" style="--c:${SOUND_COLORS[idx % SOUND_COLORS.length]}" onclick="playSound(${idx})">${escapeHtml(s.title)}</button>`;
+    }).join('');
+}
+function setSoundBtnState(idx, on) { const b = document.querySelector('.sound-btn[data-idx="' + idx + '"]'); if (b) b.classList.toggle('playing', on); }
+function playSound(idx) {
+    const s = allSounds[idx]; if (!s) return;
+    const old = activeSounds.get(idx); if (old) { old.pause(); activeSounds.delete(idx); }
+    const audio = new Audio(soundAudioUrl(s.source));
+    audio.volume = soundVolume;
+    activeSounds.set(idx, audio); setSoundBtnState(idx, true);
+    const done = () => { if (activeSounds.get(idx) === audio) { activeSounds.delete(idx); setSoundBtnState(idx, false); } };
+    audio.addEventListener('ended', done);
+    audio.addEventListener('error', () => { done(); showNotice('Could not play "' + s.title + '".', 'error'); });
+    audio.play().catch(() => {});
+}
+function stopAllSounds() { activeSounds.forEach((a, i) => { a.pause(); setSoundBtnState(i, false); }); activeSounds.clear(); }
+function setSoundVolume(v) { soundVolume = Math.max(0, Math.min(1, parseFloat(v) || 0)); saveSetting('skyline_sound_vol', soundVolume); activeSounds.forEach(a => a.volume = soundVolume); }
+function handleSoundSearch(q) { q = q.toLowerCase(); renderSoundList(allSounds.filter(s => s.title.toLowerCase().includes(q))); }
+
+// ================= REQUESTS (admin / owner only) =================
+let reqMode = null, reqSite = 'google', lastReqTime = 0;
+const SITE_INFO = { google: { note: 'Mostly works', color: '#5ef2a0' }, normal: { note: 'Sometimes works', color: '#f1fa8c' } };
+function setReqSite(type) {
+    reqSite = type;
+    const g = document.getElementById('siteOptGoogle'), n = document.getElementById('siteOptNormal');
+    if (g) g.classList.toggle('selected', type === 'google');
+    if (n) n.classList.toggle('selected', type === 'normal');
+    const note = document.getElementById('siteNote');
+    if (note) { note.style.color = SITE_INFO[type].color; note.textContent = SITE_INFO[type].note; }
+}
+function setReqMode(m) { reqMode = m; renderRequestsView(); }
+function renderRequestsView() {
+    const vp = document.getElementById('viewport'); if (!vp) return;
+    if (!reqMode) {
+        vp.innerHTML = `<div class="page-container animate-fade-in"><h2 class="page-title">Requests</h2><p class="page-desc">Request a game or site to be added. How do you want to start?</p><div class="choice-grid"><button class="choice-card" onclick="setReqMode('blank')"><h4>Blank</h4><p>Start from an empty box and describe your request however you like.</p></button><button class="choice-card" onclick="setReqMode('template')"><h4>Template</h4><p>Fill in a few fields: game name, link, and notes.</p></button></div></div>`;
+        return;
+    }
+    const fields = reqMode === 'template'
+        ? `<input type="text" class="search-input" id="reqName" maxlength="60" placeholder="Game / site name" style="margin-bottom:.75rem;padding-left:1rem;"><input type="text" class="search-input" id="reqLink" maxlength="300" placeholder="Link (optional)" style="margin-bottom:.75rem;padding-left:1rem;"><textarea class="search-input req-textarea" id="reqNotes" maxlength="500" placeholder="Anything else we should know?"></textarea>`
+        : `<textarea class="search-input req-textarea" id="reqText" maxlength="800" placeholder="Describe your request..."></textarea>`;
+    vp.innerHTML = `<div class="page-container animate-fade-in" style="overflow-y:auto;"><div class="player-header"><button class="back-btn" onclick="setReqMode(null)">← Back</button><h2 style="font-size:1.1rem;font-weight:600;">${reqMode === 'template' ? 'Template Request' : 'Blank Request'}</h2><span style="width:70px;"></span></div>${fields}<div class="setting-label" style="margin-top:1rem;">Site type</div><div style="display:flex;gap:.75rem;flex-wrap:wrap;"><button type="button" class="site-opt" id="siteOptGoogle" onclick="setReqSite('google')">Google Sites</button><button type="button" class="site-opt" id="siteOptNormal" onclick="setReqSite('normal')">Normal Sites</button></div><div id="siteNote" style="margin:.6rem 0 1rem;font-size:.85rem;font-family:monospace;"></div><button class="play-btn" onclick="submitRequest()" style="width:100%;">Submit Request</button></div>`;
+    setReqSite(reqSite);
+}
+function submitRequest() {
+    if (!isAdmin()) return;
+    if (Date.now() - lastReqTime < 30000) { showNotice('Please wait a bit before sending another request.', 'error'); return; }
+    const val = id => (document.getElementById(id)?.value || '').trim();
+    let data;
+    if (reqMode === 'template') { data = { name: val('reqName'), link: val('reqLink'), notes: val('reqNotes') }; if (!data.name) { showNotice('Please enter a name.', 'error'); return; } }
+    else { data = { text: val('reqText') }; if (!data.text) { showNotice('Please describe your request.', 'error'); return; } }
+    if (!isOwner() && containsBadWord(Object.values(data).join(' '))) { showNotice('Inappropriate language is not allowed in requests.', 'error'); return; }
+    rtdb.ref('requests').push({ mode: reqMode, ...data, siteType: reqSite === 'google' ? 'Google Sites' : 'Normal Sites', reliability: SITE_INFO[reqSite].note, user: hasValidName() ? currentUser : 'Anonymous', vid: visitorId, timestamp: Date.now() })
+        .then(() => { lastReqTime = Date.now(); showNotice('Request sent!', 'success'); setReqMode(null); })
+        .catch(() => showNotice('Could not send request. Try again later.', 'error'));
+}
+
+// ================= LEADERBOARD (day / week / month reset automatically, all-time never) =================
+function cleanupOldBoards() {
+    const k = periodKeys();
+    ['day', 'week', 'month'].forEach(p => rtdb.ref('lb/' + p).once('value').then(s => {
+        s.forEach(c => { if (c.key !== k[p]) rtdb.ref('lb/' + p + '/' + c.key).remove().catch(() => {}); });
+    }).catch(() => {}));
+    rtdb.ref('lb/year').remove().catch(() => {});
+}
+let lastDayKey = periodKeys().day;
+setInterval(() => {
+    const d = periodKeys().day;
+    if (d !== lastDayKey) { lastDayKey = d; cleanupOldBoards(); if (document.getElementById('leaderboardList')) initLeaderboard(); }
+}, 60000);
+const LB_TABS = [['day', 'Today'], ['week', 'This Week'], ['month', 'This Month'], ['all', 'All Time']];
+let lbPeriod = loadSetting('skyline_lb', 'all');
+function lbHtml() {
+    return `<div class="tabs">${LB_TABS.map(t => `<button class="tab${t[0] === lbPeriod ? ' on' : ''}" onclick="setLbPeriod('${t[0]}')">${t[1]}</button>`).join('')}</div><div id="leaderboardList"><div class="lb-empty">Loading leaderboard...</div></div><div class="reset-note">Today resets every day at midnight, This Week every Monday, This Month on the 1st.</div>`;
+}
+function setLbPeriod(p) {
+    lbPeriod = p; saveSetting('skyline_lb', p);
+    document.querySelectorAll('.tab').forEach((b, i) => b.classList.toggle('on', LB_TABS[i][0] === p));
+    initLeaderboard();
+}
 function initLeaderboard() {
-    const listEl = document.getElementById('leaderboardList');
-    if (!listEl) return;
-    trackListener(rtdb.ref('games').orderByChild('plays').limitToLast(100), (snapshot) => {
-        listEl.innerHTML = '';
-        const val = snapshot.val();
-        if (!val) {
-            listEl.innerHTML = '<div style="color:#727280;font-size:.85rem;padding:.25rem 0;">No plays recorded yet. Launch a game!</div>';
-            return;
-        }
+    const listEl = document.getElementById('leaderboardList'); if (!listEl) return;
+    if (lbCurrent) { lbCurrent.q.off('value', lbCurrent.cb); lbCurrent = null; }
+    const k = periodKeys();
+    const base = lbPeriod === 'all' ? rtdb.ref('games') : rtdb.ref('lb/' + lbPeriod + '/' + k[lbPeriod]);
+    const q = base.orderByChild('plays').limitToLast(100);
+    const cb = snap => {
+        const val = snap.val();
+        if (!val) { listEl.innerHTML = '<div class="lb-empty">No plays yet for this period. Launch a game!</div>'; return; }
         const sorted = Object.values(val).sort((a, b) => (b.plays || 0) - (a.plays || 0));
-        sorted.forEach((game, index) => {
-            const item = document.createElement('div');
-            item.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.03);';
-            item.innerHTML = `<span style="color:#fff;font-weight:500;">${index + 1}. ${escapeHtml(game.title || '')}</span><span style="color:#9494a0;font-family:monospace;font-size:.8rem;">${game.plays} plays</span>`;
-            listEl.appendChild(item);
-        });
-    });
+        listEl.innerHTML = sorted.map((g, i) => `<div class="lb-row"><span class="lb-rank">${i + 1}.</span><span class="lb-name">${escapeHtml(g.title || '')}</span><span class="lb-plays">${g.plays} plays</span></div>`).join('');
+    };
+    q.on('value', cb);
+    lbCurrent = { q, cb };
 }
 
 // ================= CHAT =================
 function initChatListener() {
-    const container = document.getElementById('chatMessages');
-    if (!container) return;
-
-    trackListener(rtdb.ref('chat').limitToLast(50), (snapshot) => {
+    const container = document.getElementById('chatMessages'); if (!container) return;
+    trackListener(rtdb.ref('chat').limitToLast(50), snap => {
         container.innerHTML = '';
-        const val = snapshot.val();
-        if (!val) {
-            container.innerHTML = '<div style="color:#727280;text-align:center;font-size:.85rem;margin:auto;">No messages yet. Say hello!</div>';
-            return;
-        }
-        Object.keys(val).forEach(msgKey => {
-            const msg = val[msgKey];
-            const msgDiv = document.createElement('div');
-            msgDiv.style.cssText = 'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:.6rem .8rem;border-radius:8px;font-size:.9rem;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;';
-
+        const val = snap.val();
+        if (!val) { container.innerHTML = '<div class="lb-empty" style="margin:auto;">No messages yet. Say hello!</div>'; return; }
+        Object.keys(val).forEach(key => {
+            const msg = val[key], d = document.createElement('div');
+            d.style.cssText = 'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);padding:.6rem .8rem;border-radius:8px;font-size:.9rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;';
             const fromOwner = msg.role === 'owner';
-            const safeText = (!fromOwner && containsBadWord(msg.text)) ? '<em style="color:#727280;">[message removed]</em>' : escapeHtml(msg.text || '');
-            const safeUser = (!fromOwner && containsBadWord(msg.user)) ? 'User' : escapeHtml(msg.user || 'Anonymous');
-            const nameClass = msg.role === 'owner' ? 'name-owner' : (msg.role === 'admin' ? 'name-admin' : '');
-            const badgeHtml = roleBadgeHtml(msg.role);
-            const timeStr = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const deleteBtnHtml = isAdmin() ? `<button onclick="deleteChatMessage('${msgKey}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:.8rem;margin-left:8px;" title="Delete Message">Delete</button>` : '';
-
-            msgDiv.innerHTML = `<div><strong class="${nameClass}" style="color:#64b5f6;font-size:.8rem;display:block;margin-bottom:.2rem;">${safeUser}${badgeHtml}</strong>${safeText}</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:.7rem;color:#555;white-space:nowrap;">${timeStr}</span>${deleteBtnHtml}</div>`;
-            container.appendChild(msgDiv);
+            const text = (!fromOwner && containsBadWord(msg.text)) ? '<em style="color:#727280;">[message removed]</em>' : escapeHtml(msg.text || '');
+            const user = (!fromOwner && containsBadWord(msg.user)) ? 'User' : escapeHtml(msg.user || 'Anonymous');
+            const nc = msg.role === 'owner' ? 'name-owner' : (msg.role === 'admin' ? 'name-admin' : '');
+            const time = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const canBan = isAdmin() && msg.vid && msg.vid !== visitorId && msg.role !== 'owner' && (msg.role !== 'admin' || isOwner());
+            const del = (isAdmin() ? `<button onclick="deleteChatMessage('${key}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:.8rem;">Delete</button>` : '') + (canBan ? `<button onclick="banUser('${escapeHtml(String(msg.vid))}')" style="background:none;border:none;color:#ffb86c;cursor:pointer;font-size:.8rem;">Ban</button>` : '');
+            d.innerHTML = `<div><strong class="${nc}" style="color:#64b5f6;font-size:.8rem;display:block;margin-bottom:.2rem;">${user}${roleBadgeHtml(msg.role)}</strong>${text}</div><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:.7rem;color:#666;white-space:nowrap;">${time}</span>${del}</div>`;
+            container.appendChild(d);
         });
         container.scrollTop = container.scrollHeight;
     });
 }
-
-function deleteChatMessage(msgKey) {
-    if (!isAdmin()) return;
-    rtdb.ref('chat/' + msgKey).remove();
-}
-
+function deleteChatMessage(key) { if (isAdmin()) rtdb.ref('chat/' + key).remove(); }
 function sendChatMessage() {
     const input = document.getElementById('chatInput');
     if (!input || !input.value.trim()) return;
     if (isChatBanned()) { renderPage(); return; }
-
     const text = input.value.trim();
-    if (!isOwner() && containsBadWord(text)) {
-        input.value = '';
-        kickFromChat(text);
-        return;
-    }
-
-    rtdb.ref('chat').push({
-        user: hasValidName() ? currentUser : 'Player',
-        text: text,
-        role: getUserRole(),
-        vid: visitorId,
-        timestamp: Date.now()
-    });
+    if (!isOwner() && containsBadWord(text)) { input.value = ''; kickFromChat(text); return; }
+    rtdb.ref('chat').push({ user: hasValidName() ? currentUser : 'Player', text, role: getUserRole(), vid: visitorId, timestamp: Date.now() });
     input.value = '';
-}
-
-function escapeHtml(str) {
-    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 // ================= ROUTER =================
 const pages = {
-    home: { title: "Welcome Back", desc: "Explore the game hub and check out the live activity.", animation: "animate-fade-in", isHome: true },
-    games: { title: "Game Hub", animation: "animate-slide-up", isGames: true },
-    chat: { title: "Global Chat", desc: "Connect and chat with other players across the network.", animation: "animate-fade-in", isChat: true },
-    developer: { title: "Admin Console", desc: "System diagnostics, event libraries, and live countdowns.", animation: "animate-fade-in", isDev: true },
-    play: { animation: "animate-slide-up", isPlay: true }
+    home: { title: 'Welcome Back', desc: 'Explore the game hub and check out the live activity.', animation: 'animate-fade-in', isHome: true },
+    games: { animation: 'animate-slide-up', isGames: true },
+    soundboard: { desc: 'Tap a button to play a sound.', animation: 'animate-fade-in', isSoundboard: true },
+    chat: { title: 'Global Chat', desc: 'Connect and chat with other players across the network.', animation: 'animate-fade-in', isChat: true },
+    requests: { animation: 'animate-fade-in', isRequests: true },
+    developer: { title: 'Admin Console', desc: 'Moderation, live countdowns and announcements.', animation: 'animate-fade-in', isDev: true },
+    play: { animation: 'animate-slide-up', isPlay: true }
 };
 
 function renderPage() {
+    if (isBlocked() && !isAdmin()) { location.href = BAN_URL; return; }
     detachPageListeners();
-    const params = new URLSearchParams(window.location.search);
+    stopAllSounds();
+    const params = new URLSearchParams(location.search);
     let pageKey = params.get('page') || 'home';
+    if ((pageKey === 'developer' || pageKey === 'requests') && !isAdmin()) { pageKey = 'home'; history.replaceState({}, '', '?page=home'); }
 
-    if (pageKey === 'developer' && !isAdmin()) {
-        pageKey = 'home';
-        window.history.replaceState({}, '', '?page=home');
-    }
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-        const itemPage = new URL(item.href, window.location.origin).searchParams.get('page');
-        item.classList.toggle('active', itemPage === pageKey);
-    });
-
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.page === pageKey));
     const devBtn = document.getElementById('devNavBtn');
     if (devBtn) devBtn.classList.toggle('active', pageKey === 'developer');
 
     const current = pages[pageKey] || pages.home;
     updatePresence();
     starfieldPaused = !!current.isPlay;
-    const viewport = document.getElementById('viewport');
+    const vp = document.getElementById('viewport');
 
     if (current.isPlay) {
-        const src = params.get('src');
-        const title = decodeURIComponent(params.get('title') || 'Game Player');
-        viewport.innerHTML = `
-            <div class="page-container ${current.animation}" style="max-width:1000px;height:85vh;">
-                <div class="player-header">
-                    <button class="back-btn" onclick="window.history.pushState({}, '', '?page=games'); renderPage();">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                        Back to Hub
-                    </button>
-                    <h2 style="font-size:1.1rem;font-weight:600;color:#fff;">${escapeHtml(title)}</h2>
-                    <button class="back-btn" onclick="toggleGameFullscreen()" title="Fullscreen">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
-                        Fullscreen
-                    </button>
-                </div>
-                <div class="game-iframe-wrapper">
-                    <div class="loader-overlay" id="loaderOverlay">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
-                        <span>Loading and Emulating Code...</span>
-                    </div>
-                    <iframe class="game-iframe" id="gameIframe" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-modals allow-popups allow-downloads" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>
-                </div>
-            </div>`;
+        const src = params.get('src'), title = params.get('title') || 'Game Player';
+        vp.innerHTML = `<div class="page-container ${current.animation}" style="max-width:1000px;height:85vh;"><div class="player-header"><button class="back-btn" onclick="history.pushState({}, '', '?page=games'); renderPage();">← Back to Hub</button><h2 style="font-size:1.1rem;font-weight:600;">${escapeHtml(title)}</h2><button class="back-btn" onclick="toggleGameFullscreen()">⛶ Fullscreen</button></div><div class="game-iframe-wrapper"><div class="loader-overlay" id="loaderOverlay"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg><span>Loading game...</span></div><iframe class="game-iframe" id="gameIframe" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-modals allow-popups allow-downloads" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe></div></div>`;
         if (src) loadAndEmulateGame(src);
 
     } else if (current.isGames) {
-        viewport.innerHTML = `
-            <div class="page-container ${current.animation}">
-                <h2 class="page-title">Game Hub</h2>
-                <div class="search-container">
-                    <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" class="search-input" id="gameSearchInput" placeholder="Search games..." oninput="handleSearch(this.value)">
-                </div>
-                <div class="games-grid" id="gamesGrid">
-                    <p style="color:#9494a0;grid-column:1/-1;text-align:center;font-size:.9rem;">Loading games...</p>
-                </div>
-            </div>`;
+        vp.innerHTML = `<div class="page-container ${current.animation}"><h2 class="page-title">Game Hub</h2><div class="search-container"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="Search games..." oninput="handleSearch(this.value)"></div><div class="games-grid" id="gamesGrid"><p class="lb-empty" style="grid-column:1/-1;">Loading games...</p></div></div>`;
         fetchGames();
 
+    } else if (current.isSoundboard) {
+        vp.innerHTML = `<div class="page-container ${current.animation}"><h2 class="page-title">Soundboard</h2><p class="page-desc" style="margin-bottom:1rem;">${current.desc}</p><div class="sound-toolbar"><div class="search-container"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="Search sounds..." oninput="handleSoundSearch(this.value)"></div><div class="sound-vol">Vol <input type="range" class="setting-slider" min="0" max="1" step="0.05" value="${soundVolume}" oninput="setSoundVolume(this.value)"></div><button class="play-btn red" onclick="stopAllSounds()">Stop All</button></div><div class="sound-grid" id="soundGrid"><p class="lb-empty" style="grid-column:1/-1;">Loading sounds...</p></div></div>`;
+        fetchSounds();
+
     } else if (current.isHome) {
-        viewport.innerHTML = `
-            <div class="page-container ${current.animation}">
-                <h2 class="page-title">${current.title}</h2>
-                <p class="page-desc">${current.desc}</p>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;">
-                    <div class="quick-card" style="text-align:center;padding:1rem;"><div id="statOnline" style="font-size:1.6rem;font-weight:700;color:#50fa7b;font-family:monospace;">0</div><div style="font-size:.75rem;color:#9494a0;margin-top:.2rem;">Online Now</div></div>
-                    <div class="quick-card" style="text-align:center;padding:1rem;"><div id="statPlaying" style="font-size:1.6rem;font-weight:700;color:#64b5f6;font-family:monospace;">0</div><div style="font-size:.75rem;color:#9494a0;margin-top:.2rem;">Playing Now</div></div>
-                    <div class="quick-card" style="text-align:center;padding:1rem;"><div id="statVisitors" style="font-size:1.6rem;font-weight:700;color:#ff79c6;font-family:monospace;">0</div><div style="font-size:.75rem;color:#9494a0;margin-top:.2rem;">Unique Visitors</div></div>
-                </div>
-                <div class="hero-banner">
-                    <div class="hero-info">
-                        <h3>Games</h3>
-                        <p>Browse and launch games instantly from the hub.</p>
-                    </div>
-                    <button class="play-btn" onclick="window.history.pushState({}, '', '?page=games'); renderPage();">Browse Games</button>
-                </div>
-                <div class="quick-grid">
-                    <div class="quick-card">
-                        <h4>Most Played</h4>
-                        <div id="leaderboardList" style="margin-top:.5rem;font-size:.85rem;color:#9494a0;max-height:40vh;overflow-y:auto;padding-right:6px;">Loading leaderboard...</div>
-                    </div>
-                </div>
-            </div>`;
+        vp.innerHTML = `<div class="page-container ${current.animation}"><h2 class="page-title">${current.title}</h2><p class="page-desc">${current.desc}</p><div class="home-scroll"><div class="stats"><div class="stat"><b id="statOnline" style="color:var(--good)">0</b><span>Online Now</span></div><div class="stat"><b id="statPlaying" style="color:var(--a)">0</b><span>Playing Now</span></div><div class="stat"><b id="statVisitors" style="color:#ff79c6">0</b><span>Unique Visitors</span></div></div><div class="hero-banner"><div><h3>Games</h3><p>Browse and launch games instantly from the hub.</p></div><button class="play-btn" onclick="history.pushState({}, '', '?page=games'); renderPage();">Browse Games</button></div><div class="card"><h4>Leaderboard</h4>${lbHtml()}</div></div></div>`;
         initLeaderboard();
         initHomeStats();
 
     } else if (current.isDev) {
-        const eventsHtml = specialEventsList.map(ev => {
-            const isActive = !!activeEvents[ev.id];
-            return `
-                <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:.75rem 1rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
-                    <div>
-                        <div style="font-weight:600;color:#fff;font-size:.9rem;">${escapeHtml(ev.name)}</div>
-                        <div style="font-size:.75rem;color:#9494a0;">${escapeHtml(ev.desc)}</div>
-                    </div>
-                    <div>
-                        ${isActive
-                            ? `<button class="play-btn" onclick="removeSpecialEvent('${ev.id}')" style="background:#ff5555;color:#fff;padding:.4rem .8rem;font-size:.75rem;">Stop</button>`
-                            : `<button class="play-btn" onclick="triggerSpecialEvent('${ev.id}', '${escapeHtml(ev.name)}')" style="background:#50fa7b;color:#050508;padding:.4rem .8rem;font-size:.75rem;">Trigger</button>`}
-                    </div>
-                </div>`;
-        }).join('');
+        vp.innerHTML = `<div class="page-container ${current.animation}"><h2 class="page-title">${current.title}${roleBadgeHtml(getUserRole())}</h2><p class="page-desc">${current.desc}</p><div class="home-scroll" style="display:grid;gap:1rem;align-content:start;"><div class="card"><h4>Requests</h4><p class="page-desc" style="margin-bottom:.5rem;">Game and site requests, newest first.</p><div id="reqList" style="max-height:34vh;overflow-y:auto;padding-right:6px;"><div class="lb-empty">Loading...</div></div></div><div class="card"><h4>Banned &amp; Timed Out</h4><p class="page-desc" style="margin-bottom:.5rem;">Unban clears the ban for that person and any other record from the same device.</p><div id="banList" style="max-height:34vh;overflow-y:auto;padding-right:6px;"><div class="lb-empty">Loading...</div></div></div><div class="card"><h4>Countdown Timer</h4><p class="page-desc" style="margin-bottom:.75rem;">Show a live countdown in the corner for everyone online.</p><div style="display:flex;gap:.75rem;flex-wrap:wrap;"><input type="text" class="search-input" id="countdownTitleInput" placeholder="Title" style="flex:2;min-width:140px;padding-left:1rem;margin:0;"><input type="number" class="search-input" id="countdownMinsInput" placeholder="Minutes" style="flex:1;min-width:90px;padding-left:1rem;margin:0;" min="0.1" step="0.5"><button class="play-btn" onclick="startGlobalCountdown()">Start</button><button class="play-btn red" onclick="clearGlobalCountdown()">Clear</button></div></div><div class="card"><h4>Announcement</h4><p class="page-desc" style="margin-bottom:.75rem;">Show text in the top bar for all users (hides after 5 seconds).</p><div style="display:flex;gap:.75rem;"><input type="text" class="search-input" id="announcementInput" placeholder="Announcement text..." style="padding-left:1rem;margin:0;" onkeydown="if(event.key==='Enter') broadcastAnnouncement()"><button class="play-btn" onclick="broadcastAnnouncement()">Publish</button><button class="play-btn red" onclick="clearAnnouncement()">Clear</button></div></div></div></div>`;
+        initBanList();
+        initRequestList();
 
-        viewport.innerHTML = `
-            <div class="page-container ${current.animation}">
-                <h2 class="page-title">${current.title}${roleBadgeHtml(getUserRole())}</h2>
-                <p class="page-desc">${current.desc}</p>
-                <div class="quick-grid">
-                    <div class="quick-card">
-                        <h4>Moderation</h4>
-                        <p style="color:#9494a0;font-size:.85rem;margin-bottom:.75rem;">See everyone who got timed out for language and block their device.</p>
-                        <a class="play-btn" href="moderation.html" target="_blank" style="display:inline-block;text-decoration:none;">Open Moderation Page</a>
-                    </div>
-                    <div class="quick-card">
-                        <h4>Countdown Timer (Admin Abuse / Event)</h4>
-                        <p style="color:#9494a0;font-size:.85rem;margin-bottom:.75rem;">Set a live synchronized countdown timer visible in the corner for all connected users.</p>
-                        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-                            <input type="text" class="search-input" id="countdownTitleInput" placeholder="Event Name (e.g. Admin Abuse)" style="flex:2;margin-bottom:0;padding-left:1rem;">
-                            <input type="number" class="search-input" id="countdownMinsInput" placeholder="Minutes" style="flex:1;margin-bottom:0;padding-left:1rem;" min="0.1" step="0.5">
-                            <button class="play-btn" onclick="startGlobalCountdown()" style="white-space:nowrap;background:#ff79c6;color:#050508;">Start Countdown</button>
-                            <button class="play-btn" onclick="clearGlobalCountdown()" style="white-space:nowrap;background:#ff5555;color:#fff;">Clear</button>
-                        </div>
-                    </div>
-                    <div class="quick-card">
-                        <h4>Broadcast Announcement</h4>
-                        <p style="color:#9494a0;font-size:.85rem;margin-bottom:.75rem;">Type an announcement to display text across the top bar menu for all users (auto-dismisses in 5s).</p>
-                        <div style="display:flex;gap:.75rem;">
-                            <input type="text" class="search-input" id="announcementInput" placeholder="Enter announcement text..." style="margin-bottom:0;padding-left:1rem;" onkeydown="if(event.key==='Enter') broadcastAnnouncement()">
-                            <button class="play-btn" onclick="broadcastAnnouncement()" style="white-space:nowrap;">Publish</button>
-                            <button class="play-btn" onclick="clearAnnouncement()" style="white-space:nowrap;background:#ff5555;color:#fff;">Clear</button>
-                        </div>
-                    </div>
-                    <div class="quick-card">
-                        <h4>20 Special Event Triggers</h4>
-                        <p style="color:#9494a0;font-size:.85rem;margin-bottom:.75rem;">Launch or stop any of the 20 special event routines into the live event stack.</p>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem;max-height:280px;overflow-y:auto;padding-right:4px;">${eventsHtml}</div>
-                    </div>
-                </div>
-            </div>`;
+    } else if (current.isRequests) {
+        reqMode = null; reqSite = 'google';
+        renderRequestsView();
 
     } else if (current.isChat) {
-        if (isChatBanned()) {
-            const left = Math.max(1, Math.ceil((getBanUntil() - Date.now()) / 60000));
-            viewport.innerHTML = `
-                <div class="page-container ${current.animation}" style="height:auto;text-align:center;">
-                    <h2 class="page-title">Chat Locked</h2>
-                    <p class="page-desc">${isBlocked()
-                        ? 'You have been blocked from chat.'
-                        : 'You were removed for inappropriate language. You can chat again in about ' + fmtMins(left) + '.'}</p>
-                </div>`;
-            return;
-        }
-        viewport.innerHTML = `
-            <div class="page-container ${current.animation}" style="height:75vh;">
-                <h2 class="page-title">${current.title}</h2>
-                <p class="page-desc">${current.desc}</p>
-                <div class="chat-messages" id="chatMessages">
-                    <div style="color:#727280;text-align:center;font-size:.85rem;margin:auto;">Connecting to chat network...</div>
-                </div>
-                <div style="display:flex;gap:.75rem;">
-                    <input type="text" class="search-input" id="chatInput" placeholder="Type a message..." style="margin-bottom:0;padding-left:1rem;" onkeydown="if(event.key==='Enter') sendChatMessage()">
-                    <button class="play-btn" onclick="sendChatMessage()" style="white-space:nowrap;">Send</button>
-                </div>
-            </div>`;
+        if (isChatBanned()) { location.href = BAN_URL; return; }
+        vp.innerHTML = `<div class="page-container ${current.animation}" style="height:75vh;"><h2 class="page-title">${current.title}</h2><p class="page-desc">${current.desc}</p><div class="chat-messages" id="chatMessages"><div class="lb-empty" style="margin:auto;">Connecting to chat...</div></div><div style="display:flex;gap:.75rem;"><input type="text" class="search-input" id="chatInput" placeholder="Type a message..." style="margin:0;padding-left:1rem;" onkeydown="if(event.key==='Enter') sendChatMessage()"><button class="play-btn" onclick="sendChatMessage()">Send</button></div></div>`;
         initChatListener();
     }
 }
 
-function handleSearch(query) {
-    const q = query.toLowerCase();
-    renderGamesList(allGames.filter(g => (g.title || '').toLowerCase().includes(q)));
-}
-
-document.querySelectorAll('.nav-item').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.history.pushState({}, '', link.getAttribute('href'));
-        renderPage();
-    });
-});
+document.querySelectorAll('.nav-item').forEach(link => link.addEventListener('click', e => { e.preventDefault(); history.pushState({}, '', link.getAttribute('href')); renderPage(); }));
 window.addEventListener('popstate', renderPage);
 renderPage();
 
 // ================= STARFIELD =================
-const canvas = document.getElementById('starfield');
-const ctx = canvas.getContext('2d');
-let stars = [];
-let shootingStars = [];
-let lastShootingStarTime = 0;
-
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    initStars();
-}
+const canvas = document.getElementById('starfield'), ctx = canvas.getContext('2d');
+let stars = [], shootingStars = [], lastShoot = 0;
+function resizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; initStars(); }
 function initStars() {
     stars = [];
-    const palette = ['#ffffff', '#8be9fd', '#ff79c6', '#50fa7b', '#f1fa8c', '#ffb86c'];
-    for (let i = 0; i < config.starCount; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 1.5 + 0.5,
-            alpha: Math.random(),
-            twinkleSpeed: Math.random() * 0.02 + 0.005,
-            color: config.colorful ? palette[Math.floor(Math.random() * palette.length)] : '#FFFFFF'
-        });
-    }
+    const pal = ['#ffffff', '#8be9fd', '#ff79c6', '#5ef2a0', '#f1fa8c', '#ffb86c'];
+    for (let i = 0; i < config.starCount; i++) stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 1.5 + .5, alpha: Math.random(), tw: Math.random() * .02 + .005, color: config.colorful ? pal[Math.floor(Math.random() * pal.length)] : '#FFFFFF' });
 }
 function spawnShootingStar() {
-    const angle = Math.PI / 4;
-    const speed = Math.random() * 10 + 12;
-    const dx = Math.cos(angle) * speed;
-    const dy = Math.sin(angle) * speed;
-    const hypot = Math.hypot(dx, dy);
-    shootingStars.push({
-        x: Math.random() * canvas.width * 1.2 - canvas.width * 0.1,
-        y: Math.random() * (canvas.height * 0.5),
-        dx, dy, ux: dx / hypot, uy: dy / hypot,
-        length: Math.random() * 120 + 80,
-        life: 1.0,
-        decay: Math.random() * 0.015 + 0.015
-    });
+    const a = Math.PI / 4, sp = Math.random() * 10 + 12, dx = Math.cos(a) * sp, dy = Math.sin(a) * sp, h = Math.hypot(dx, dy);
+    shootingStars.push({ x: Math.random() * canvas.width * 1.2 - canvas.width * .1, y: Math.random() * canvas.height * .5, dx, dy, ux: dx / h, uy: dy / h, length: Math.random() * 120 + 80, life: 1, decay: Math.random() * .015 + .015 });
 }
-function animate(timestamp) {
+function animate(ts) {
     if (starfieldPaused) { requestAnimationFrame(animate); return; }
-    ctx.fillStyle = '#050508';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     for (const s of stars) {
-        s.alpha += s.twinkleSpeed;
-        if (s.alpha > 1 || s.alpha < 0.2) s.twinkleSpeed = -s.twinkleSpeed;
-        ctx.fillStyle = s.color;
-        ctx.globalAlpha = Math.max(0, Math.min(1, s.alpha));
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fill();
+        s.alpha += s.tw; if (s.alpha > 1 || s.alpha < .2) s.tw = -s.tw;
+        ctx.fillStyle = s.color; ctx.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
     }
-
-    if (timestamp - lastShootingStarTime > config.rarityMs) {
-        spawnShootingStar();
-        lastShootingStarTime = timestamp;
-    }
-
+    if (ts - lastShoot > config.rarityMs) { spawnShootingStar(); lastShoot = ts; }
     for (let i = shootingStars.length - 1; i >= 0; i--) {
-        const ss = shootingStars[i];
-        const tailX = ss.x - ss.ux * ss.length;
-        const tailY = ss.y - ss.uy * ss.length;
-        const gradient = ctx.createLinearGradient(ss.x, ss.y, tailX, tailY);
-        gradient.addColorStop(0, '#FFFFFF');
-        gradient.addColorStop(1, 'rgba(255,255,255,0)');
-
-        ctx.beginPath();
-        ctx.moveTo(ss.x, ss.y);
-        ctx.lineTo(tailX, tailY);
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 1.8;
-        ctx.globalAlpha = ss.life;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(ss.x, ss.y, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fill();
-
-        ss.x += ss.dx;
-        ss.y += ss.dy;
-        ss.life -= ss.decay;
+        const ss = shootingStars[i], tx = ss.x - ss.ux * ss.length, ty = ss.y - ss.uy * ss.length;
+        const g = ctx.createLinearGradient(ss.x, ss.y, tx, ty);
+        g.addColorStop(0, '#FFFFFF'); g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.beginPath(); ctx.moveTo(ss.x, ss.y); ctx.lineTo(tx, ty); ctx.strokeStyle = g; ctx.lineWidth = 1.8; ctx.globalAlpha = ss.life; ctx.stroke();
+        ss.x += ss.dx; ss.y += ss.dy; ss.life -= ss.decay;
         if (ss.life <= 0 || ss.x > canvas.width + 200 || ss.y > canvas.height + 200) shootingStars.splice(i, 1);
     }
-
-    ctx.globalAlpha = 1.0;
+    ctx.globalAlpha = 1;
     requestAnimationFrame(animate);
 }
-
-setInterval(() => {
-    if (activeCountdownData && activeCountdownData.endTime) {
-        renderEventStack();
-        document.querySelectorAll('#eventStack .event-card').forEach(c => c.style.animation = 'none');
-    }
-}, 1000);
-
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(resizeCanvas, 100);
-});
-
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resizeCanvas, 100); });
 resizeCanvas();
 requestAnimationFrame(animate);
 </script>
-</body></html>
+
+<div id="cpw-palette-core--x2v5" style="position: fixed; bottom: 16px; right: 16px; z-index: 999998; display: none; pointer-events: none;"></div><iframe style="display: none;"></iframe><iframe src="https://s-gke-usc1-nssi4-29.firebaseio.com/.lp?dframe=t&amp;id=79773&amp;pw=mNaHKHHVKj&amp;ns=skyline-7330c-default-rtdb" style="display: none;"></iframe></body></html>
