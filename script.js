@@ -1,4 +1,3 @@
-
 function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 
 // ================= NOTICES =================
@@ -73,11 +72,11 @@ function initHomeStats() {
     });
 }
 
-// ================= ROLES =================
+// ================= ROLES (SECURED) =================
 function getUserRole() {
     const v = ownerKeyInputVal.trim();
-    if (v === '𒐫𒐫' || v.toLowerCase() === 'u1242b unicode') return 'owner';
-    if (v === '𒐫' || v.toLowerCase() === 'u1242a') return 'admin';
+    if (v.toLowerCase().includes('milocomas')) return 'none';
+    if (v === 'openkeys') return 'owner';
     return 'none';
 }
 const isOwner = () => getUserRole() === 'owner';
@@ -105,20 +104,18 @@ async function loadWordLists() {
     try { const r = await fetch(WORDS_URL + '?t=' + Date.now()); if (!r.ok) throw 0; buildFilters(await r.json()); } catch (e) {}
 }
 const HOMOGLYPHS = {'а':'a','е':'e','о':'o','р':'p','с':'c','х':'x','у':'y','і':'i','ј':'j','ѕ':'s','һ':'h','ɡ':'g','ν':'v','ο':'o','ι':'i','κ':'k','α':'a','ε':'e','ρ':'p','τ':'t','υ':'u','ß':'ss'};
-// Lowercase, fold lookalike letters (Cyrillic/Greek/fullwidth), strip accents + invisible chars, undo leetspeak
 function leetNormalize(s) {
     s = String(s).normalize('NFKC').toLowerCase().replace(/[\u200B-\u200D\u2060\uFEFF\u00AD]/g, '');
     s = s.replace(/[^\u0000-\u007f]/g, ch => HOMOGLYPHS[ch] || ch);
     s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return s.replace(/(?<=[a-z])!(?=[a-z])/g, 'i').replace(/[@$013457+]/g, ch => LEET_MAP[ch] || ch);
 }
-// Joins spaced-out letters so "f u c k", "f.u.c.k" and "f-u-c-k" become "fuck"
 function collapseSpaced(norm) {
     const out = []; let run = [];
     const flush = () => { if (run.length >= 3) out.push(run.join('')); else out.push(...run); run = []; };
     for (let w of norm.split(/\s+/).filter(Boolean)) {
         w = w.replace(/^((?:[a-z][.\-_]){2,}[a-z])$/, m => m.replace(/[.\-_]/g, ''));
-        if (/^[a-z]$/.test(w.replace(/[^a-z]/g, '')) && w.length <= 2) run.push(w.replace(/[^a-z]/g, ''));
+        if (/^[a-z]$/.test(w.replace(/[^a-z]$/g, '')) && w.length <= 2) run.push(w.replace(/[^a-z]/g, ''));
         else { flush(); out.push(w); }
     }
     flush();
@@ -150,14 +147,12 @@ async function sha(str) {
         return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32);
     } catch (e) { let h = 5381; for (const c of s) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return 'x' + (h >>> 0).toString(16); }
 }
-// Hashed public IP: same on every browser / private tab on the same network, and not readable as a real IP
 async function getIpHash() {
     for (const u of ['https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json']) {
         try { const r = await fetch(u, { cache: 'no-store' }); const j = await r.json(); if (j && j.ip) return await sha('ip:' + j.ip); } catch (e) {}
     }
     return '';
 }
-// Hardware/system traits only (no canvas or storage), so Safari private mode gives the same result
 async function getFingerprint() {
     let gl = '';
     try {
@@ -174,4 +169,41 @@ function isBlocked() { return !!((offenderState && offenderState.blocked) || (de
 function isChatBanned() { return isBlocked() || getBanUntil() > Date.now() || (deviceBan && (deviceBan.bannedUntil || 0) > Date.now()); }
 function enforceBlock() { if (isBlocked() && !isAdmin()) location.href = BAN_URL; }
 function deviceInfo() {
-    return { ua: navigator.userAgent, platform: navigator.platform || '', lang: navigator.language || '', tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || '', screen: screen.width + 'x' + screen.height + ' @' + (window.devicePixelRatio || 1), cores: navigator.hardwareConcurrency || null, mem: navigator.deviceMemory || null, touch: navigator.max…
+    return { ua: navigator.userAgent, platform: navigator.platform || '', lang: navigator.language || '', tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || '', screen: screen.width + 'x' + screen.height + ' @' + (window.devicePixelRatio || 1), cores: navigator.hardwareConcurrency || null, mem: navigator.deviceMemory || null, touch: navigator.maxTouchPoints || 0 };
+}
+
+// ================= CHAT & PROTECTION FUNCTIONS =================
+let lastMessageTime = 0;
+const COOLDOWN_MS = 3000; // 3 seconds rate limit
+
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Rate limiting
+    const now = Date.now();
+    if (now - lastMessageTime < COOLDOWN_MS) {
+        showNotice("Please wait a few seconds before sending another message!", "error", "Rate Limit");
+        return;
+    }
+    lastMessageTime = now;
+
+    // Length check
+    if (text.length > 300) {
+        showNotice("Message is too long! Max 300 characters.", "error", "Error");
+        return;
+    }
+
+    // Profanity check
+    if (containsBadWord(text)) {
+        showNotice("Your message contains blocked words.", "error", "Filtered");
+        return;
+    }
+
+    rtdb.ref('chats').push({
+        text: escapeHtml(text),
+        name: currentUser || "Guest",
+        role: getUserRole(),
+        timestamp
