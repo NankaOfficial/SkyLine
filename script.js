@@ -1,19 +1,33 @@
-function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function escapeHtml(s) {
+    return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
 
 // ================= NOTICES =================
 function showNotice(message, type, title) {
-    const stack = document.getElementById('toastStack'); if (!stack) return;
+    const stack = document.getElementById('toastStack'); 
+    if (!stack) return;
     type = type || 'info';
     const labels = { info: 'Notice', error: 'Error', success: 'Success' };
     const t = document.createElement('div');
     t.className = 'toast ' + type;
     t.innerHTML = '<div class="t-title">' + escapeHtml(title || labels[type]) + '</div><div>' + escapeHtml(message) + '</div>';
     stack.appendChild(t);
-    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, type === 'error' ? 6000 : 3500);
+    setTimeout(() => { 
+        t.classList.add('out'); 
+        setTimeout(() => t.remove(), 320); 
+    }, type === 'error' ? 6000 : 3500);
 }
 
 // ================= FIREBASE =================
-firebase.initializeApp({ databaseURL: "https://skyline-7330c-default-rtdb.firebaseio.com", projectId: "skyline-7330c" });
+const firebaseConfig = {
+    databaseURL: "https://skyline-7330c-default-rtdb.firebaseio.com", 
+    projectId: "skyline-7330c"
+};
+firebase.initializeApp(firebaseConfig);
 const rtdb = firebase.database();
 
 // ================= LISTENER TRACKER =================
