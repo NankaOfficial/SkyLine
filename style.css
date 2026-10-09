@@ -1,4 +1,3 @@
-
 :root{--bg:#050508;--panel:rgba(12,12,18,.85);--line:rgba(255,255,255,.08);--text:#f1f1f3;--mute:#9494a0;--a:#64b5f6;--good:#50fa7b;--bad:#ff5555;--grad:#fff}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:hidden;background:#050508;color:var(--text);height:100vh;width:100vw;position:relative;user-select:none;-webkit-user-select:none}
