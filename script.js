@@ -1,41 +1,20 @@
-function escapeHtml(s) {
-    return String(s)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-}
+function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 
 // ================= NOTICES =================
 function showNotice(message, type, title) {
-    const stack = document.getElementById('toastStack'); 
-    if (!stack) return;
+    const stack = document.getElementById('toastStack'); if (!stack) return;
     type = type || 'info';
     const labels = { info: 'Notice', error: 'Error', success: 'Success' };
     const t = document.createElement('div');
     t.className = 'toast ' + type;
     t.innerHTML = '<div class="t-title">' + escapeHtml(title || labels[type]) + '</div><div>' + escapeHtml(message) + '</div>';
     stack.appendChild(t);
-    setTimeout(() => { 
-        t.classList.add('out'); 
-        setTimeout(() => t.remove(), 320); 
-    }, type === 'error' ? 6000 : 3500);
+    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, type === 'error' ? 6000 : 3500);
 }
 
 // ================= FIREBASE =================
-const firebaseConfig = {
-    databaseURL: "https://skyline-7330c-default-rtdb.firebaseio.com", 
-    projectId: "skyline-7330c"
-};
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp({ databaseURL: "https://skyline-7330c-default-rtdb.firebaseio.com", projectId: "skyline-7330c" });
 const rtdb = firebase.database();
-
-// ================= LISTENER TRACKER =================
-const activeListeners = [];
-function trackListener(ref, cb) {
-    ref.on('value', cb);
-    activeListeners.push({ ref, cb });
-}
 
 // ================= SAVING =================
 function setCookie(n, v, days) {
@@ -93,11 +72,11 @@ function initHomeStats() {
     });
 }
 
-// ================= ROLES (SECURED) =================
+// ================= ROLES =================
 function getUserRole() {
     const v = ownerKeyInputVal.trim();
-    if (v.toLowerCase().includes('milocomas')) return 'none';
-    if (v === 'openkeys') return 'owner';
+    if (v === '𒐫𒐫' || v.toLowerCase() === 'u1242b unicode') return 'owner';
+    if (v === '𒐫' || v.toLowerCase() === 'u1242a') return 'admin';
     return 'none';
 }
 const isOwner = () => getUserRole() === 'owner';
@@ -108,7 +87,7 @@ function roleBadgeHtml(r) {
     return '';
 }
 
-// ================= PROFANITY FILTER =================
+// ================= PROFANITY FILTER (words.json) =================
 const WORDS_URL = 'https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/words.json';
 const FALLBACK_WORDS = { severe: ['fuck', 'fuk', 'fck', 'nigga', 'nigger', 'cunt', 'bitch'], whole: ['shit', 'ass'], emoji: ['🖕'] };
 const LEET_MAP = { '@': 'a', '$': 's', '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '+': 't' };
@@ -125,18 +104,20 @@ async function loadWordLists() {
     try { const r = await fetch(WORDS_URL + '?t=' + Date.now()); if (!r.ok) throw 0; buildFilters(await r.json()); } catch (e) {}
 }
 const HOMOGLYPHS = {'а':'a','е':'e','о':'o','р':'p','с':'c','х':'x','у':'y','і':'i','ј':'j','ѕ':'s','һ':'h','ɡ':'g','ν':'v','ο':'o','ι':'i','κ':'k','α':'a','ε':'e','ρ':'p','τ':'t','υ':'u','ß':'ss'};
+// Lowercase, fold lookalike letters (Cyrillic/Greek/fullwidth), strip accents + invisible chars, undo leetspeak
 function leetNormalize(s) {
     s = String(s).normalize('NFKC').toLowerCase().replace(/[\u200B-\u200D\u2060\uFEFF\u00AD]/g, '');
     s = s.replace(/[^\u0000-\u007f]/g, ch => HOMOGLYPHS[ch] || ch);
     s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return s.replace(/(?<=[a-z])!(?=[a-z])/g, 'i').replace(/[@$013457+]/g, ch => LEET_MAP[ch] || ch);
 }
+// Joins spaced-out letters so "f u c k", "f.u.c.k" and "f-u-c-k" become "fuck"
 function collapseSpaced(norm) {
     const out = []; let run = [];
     const flush = () => { if (run.length >= 3) out.push(run.join('')); else out.push(...run); run = []; };
     for (let w of norm.split(/\s+/).filter(Boolean)) {
         w = w.replace(/^((?:[a-z][.\-_]){2,}[a-z])$/, m => m.replace(/[.\-_]/g, ''));
-        if (/^[a-z]$/.test(w.replace(/[^a-z]$/g, '')) && w.length <= 2) run.push(w.replace(/[^a-z]/g, ''));
+        if (/^[a-z]$/.test(w.replace(/[^a-z]/g, '')) && w.length <= 2) run.push(w.replace(/[^a-z]/g, ''));
         else { flush(); out.push(w); }
     }
     flush();
@@ -155,126 +136,41 @@ function containsBadWord(str) {
 buildFilters(FALLBACK_WORDS);
 loadWordLists();
 
-// ================= CHAT & MESSAGES =================
-let lastMessageTime = 0;
-const COOLDOWN_MS = 3000; // 3 seconds rate limit
+// ================= DEVICE IDENTITY + BANS =================
+const BAN_URL = 'https://game.fyi.jp/ban';
+const LADDER_MIN = [1, 2, 3, 5, 10, 30, 50, 100, 120, 1440];
+let offenderState = null, deviceBan = null, identReady = null;
+const myIdent = { ip: '', fp: '' };
 
-function initChat() {
-    const chatContainer = document.getElementById('chatMessages');
-    if (!chatContainer) return;
-
-    rtdb.ref('chats').limitToLast(50).on('value', snapshot => {
-        chatContainer.innerHTML = '';
-        if (!snapshot.exists()) {
-            chatContainer.innerHTML = '<div style="color: #666; text-align: center; padding: 1rem;">No messages yet. Say hello!</div>';
-            return;
-        }
-
-        snapshot.forEach(childSnap => {
-            const msgId = childSnap.key;
-            const data = childSnap.val();
-            if (!data) return;
-
-            const timeStr = data.timestamp ? new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-            const roleBadge = data.role === 'owner' ? '<span class="badge owner-badge">Owner</span>' : (data.role === 'admin' ? '<span class="badge admin-badge">Admin</span>' : '');
-
-            const msgDiv = document.createElement('div');
-            msgDiv.style.cssText = "background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.5rem;";
-            
-            msgDiv.innerHTML = `
-                <div>
-                    <strong class="name-owner" style="color:#64b5f6;font-size:.8rem;display:block;margin-bottom:.2rem;">${escapeHtml(data.name || 'Guest')} ${roleBadge}</strong>
-                    ${escapeHtml(data.text || '')}
-                </div>
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="font-size:.7rem;color:#666;white-space:nowrap;">${timeStr}</span>
-                    ${isAdmin() ? `<button onclick="deleteChatMessage('${msgId}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:.8rem;">Delete</button>` : ''}
-                </div>
-            `;
-            chatContainer.appendChild(msgDiv);
-        });
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    });
+async function sha(str) {
+    const s = 'skyline-v1|' + str;
+    try {
+        const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+        return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32);
+    } catch (e) { let h = 5381; for (const c of s) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return 'x' + (h >>> 0).toString(16); }
 }
-
-function sendChatMessage() {
-    const input = document.getElementById('chatInput');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-
-    // Rate limiting
-    const now = Date.now();
-    if (now - lastMessageTime < COOLDOWN_MS) {
-        showNotice("Please wait a few seconds before sending another message!", "error", "Rate Limit");
-        return;
+// Hashed public IP: same on every browser / private tab on the same network, and not readable as a real IP
+async function getIpHash() {
+    for (const u of ['https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json']) {
+        try { const r = await fetch(u, { cache: 'no-store' }); const j = await r.json(); if (j && j.ip) return await sha('ip:' + j.ip); } catch (e) {}
     }
-    lastMessageTime = now;
-
-    // Length check
-    if (text.length > 300) {
-        showNotice("Message is too long! Max 300 characters.", "error", "Error");
-        return;
-    }
-
-    // Profanity check
-    if (containsBadWord(text)) {
-        showNotice("Your message contains blocked words.", "error", "Filtered");
-        return;
-    }
-
-    rtdb.ref('chats').push({
-        text: text,
-        name: currentUser || "Guest",
-        role: getUserRole(),
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-    });
-
-    input.value = "";
+    return '';
+}
+// Hardware/system traits only (no canvas or storage), so Safari private mode gives the same result
+async function getFingerprint() {
+    let gl = '';
+    try {
+        const c = document.createElement('canvas'), g = c.getContext('webgl') || c.getContext('experimental-webgl');
+        const e = g && g.getExtension('WEBGL_debug_renderer_info');
+        if (e) gl = g.getParameter(e.UNMASKED_RENDERER_WEBGL) + '|' + g.getParameter(e.UNMASKED_VENDOR_WEBGL);
+    } catch (e) {}
+    const parts = [Math.max(screen.width, screen.height), Math.min(screen.width, screen.height), screen.colorDepth, window.devicePixelRatio || 1, navigator.hardwareConcurrency || 0, navigator.deviceMemory || 0, navigator.platform || '', (Intl.DateTimeFormat().resolvedOptions().timeZone) || '', (navigator.languages || [navigator.language]).join(','), navigator.maxTouchPoints || 0, gl];
+    return sha('fp:' + parts.join('|'));
 }
 
-function deleteChatMessage(messageId) {
-    if (!isAdmin()) {
-        showNotice("You must be logged in as owner/admin to delete messages.", "error", "Unauthorized");
-        return;
-    }
-    rtdb.ref('chats/' + messageId).remove().catch(() => {
-        showNotice("Failed to delete message.", "error", "Error");
-    });
-}
-
-function updateUsername(newName) {
-    currentUser = newName.trim().slice(0, 15);
-    saveSetting('skyline_username', currentUser);
-}
-
-function submitCodeButton() {
-    const inputEl = document.getElementById('ownerKeyInput');
-    if (!inputEl) return;
-    ownerKeyInputVal = inputEl.value;
-    saveSetting('skyline_owner_key', ownerKeyInputVal);
-
-    if (isOwner() || isAdmin()) {
-        showNotice("Owner code accepted!", "success", "Success");
-        inputEl.value = "";
-        initChat(); // Refresh chat to show admin/owner badges
-    } else {
-        showNotice("Invalid code.", "error", "Access Denied");
-    }
-}
-
-function logoutRole() {
-    ownerKeyInputVal = "";
-    removeSetting('skyline_owner_key');
-    showNotice("Code removed.", "info", "Logged Out");
-    initChat();
-}
-
-// Initialize on load
-window.addEventListener('DOMContentLoaded', () => {
-    initPresence();
-    initHomeStats();
-    initChat();
-    const nameInput = document.getElementById('settingsNameInput');
-    if (nameInput && currentUser) nameInput.value = currentUser;
-});
+function getBanUntil() { return parseInt(loadSetting('skyline_chat_ban', '0')) || 0; }
+function isBlocked() { return !!((offenderState && offenderState.blocked) || (deviceBan && deviceBan.blocked) || loadSetting('skyline_blocked', '0') === '1'); }
+function isChatBanned() { return isBlocked() || getBanUntil() > Date.now() || (deviceBan && (deviceBan.bannedUntil || 0) > Date.now()); }
+function enforceBlock() { if (isBlocked() && !isAdmin()) location.href = BAN_URL; }
+function deviceInfo() {
+    return { ua: navigator.userAgent, platform: navigator.platform || '', lang: navigator.language || '', tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || '', screen: screen.width + 'x' + screen.height + ' @' + (window.devicePixelRatio || 1), cores: navigator.hardwareConcurrency || null, mem: navigator.deviceMemory || null, touch: navigator.max…
