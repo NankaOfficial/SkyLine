@@ -373,7 +373,7 @@
   {
    "title": "Zrist",
    "source": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/refs/heads/master/offline/zrist.html",
-   "picture": ""
+   "picture": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbS3KNXs29x9FF5MwiXd4d3r9He7Q-GDPuEwQdRQaW6w&s=10"
   },
   {
    "title": "Zen Word",
@@ -383,17 +383,17 @@
   {
    "title": "1v1.lol",
    "source": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/refs/heads/master/offline/1v1.lol.html",
-   "picture": ""
+   "picture": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0TMDwCVixfR0QfGp2xS0l3yUZ_quzwc2u-5zNTh1k7g&s"
   },
   {
    "title": "3D Flight Simulator",
    "source": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/refs/heads/master/offline/3D-flight-simulator.html",
-   "picture": ""
+   "picture": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLU5MssWmKafQD7pOzVJLnrE_otx0xah2QncmzRsBZ3Q&s=10"
   },
   {
    "title": "8 Ball Classic",
    "source": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/refs/heads/master/offline/8-ball-classic.html",
-   "picture": ""
+   "picture": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEk_x4-jcNO-lnP6lI0OnG57N8oHFHTK3jKVSZvud2ew&s=10"
   },
   {
    "title": "Age Of War",
@@ -403,17 +403,17 @@
   {
    "title": "Ages Of Conflict",
    "source": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/refs/heads/master/offline/ages-of-conflict.html",
-   "picture": ""
+   "picture": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStNbC_wcpInUQkDXVpO5Vu8x7KthZx_DFO41-oy1m68A&s"
   },
   {
    "title": "Age Of War 2",
    "source": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/refs/heads/master/offline/age-of-war-2.html",
-   "picture": ""
+   "picture": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPr9FCJ1GrcmPmd1fcJSYQGxN_30fBoS-pZCbbxrLQ7w&s=10"
   },
   {
    "title": "Angry Birds Showdown",
    "source": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/refs/heads/master/offline/angry-birds-showdown.html",
-   "picture": ""
+   "picture": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwG-de-3DvIaZT8LMxCFVmiRhJta1Vsb5XWmoIum57Ug&s"
   },
   {
    "title": "Angry Birds Space",
@@ -1879,6 +1879,11 @@
    "title": "Infinite Craft Modded",
    "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/Infcragt.html",
    "picture": ""
+  },
+  {
+   "title": "Minecraft 26.2",
+   "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/Infcragt.html",
+   "picture": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games/26.5.html"
   }
  ]
 }
