@@ -1,4 +1,3 @@
-
 const GAMES_URL = 'https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Games.json';
 const RANK = { none: 0, vip: 1, mod: 2, admin: 3, headadmin: 4, owner: 5 };
 
