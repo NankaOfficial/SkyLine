@@ -1,0 +1,20 @@
+{
+  "backgrounds": [
+    {
+      "name": "Bird City",
+      "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/cityange.gif"
+    },
+    {
+      "name": "Train",
+      "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/train.gif"
+    },
+    {
+      "name": "Trains 2",
+      "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/trains.gif"
+    },
+    {
+      "name": "Tip",
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIF5x9J3KTtaqEp6J3UWnigRJXXVI_9Js4HT2VXeUaJQ&s=10"
+    }
+  ]
+}
