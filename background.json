@@ -1,24 +1,46 @@
-{
-  "backgrounds": [
-    {
-      "name": "Bird City",
-      "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/cityange.gif"
-    },
-    {
-      "name": "Train",
-      "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/train.gif"
-    },
-    {
-      "name": "Trains 2",
-      "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/trains.gif"
-    },
-    {
-      "name": "Tip",
-      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIF5x9J3KTtaqEp6J3UWnigRJXXVI_9Js4HT2VXeUaJQ&s=10"
-    },
-    {
-  "name": "Space",
-  "src": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/bgs/tenor.gif"
-    }
-  ]
-}
+[
+  {
+    "name": "Bird City",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/cityange.gif"
+  },
+  {
+    "name": "Train",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/train.gif"
+  },
+  {
+    "name": "Trains 2",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/trains.gif"
+  },
+  {
+    "name": "Tip",
+    "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIF5x9J3KTtaqEp6J3UWnigRJXXVI_9Js4HT2VXeUaJQ&s=10"
+  },
+  {
+    "name": "Tenor",
+    "src": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/Pic/bgs/tenor.gif"
+  },
+  {
+    "name": "Beauty City",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/beautycity.gif"
+  },
+  {
+    "name": "City Haute",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/cityHaute.gif"
+  },
+  {
+    "name": "Corps",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/corps.gif"
+  },
+  {
+    "name": "Fireworks",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/feu.gif"
+  },
+  {
+    "name": "Maison",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/maison.gif"
+  },
+  {
+    "name": "Pizza",
+    "src": "https://raw.githubusercontent.com/elapse-d/foo-Wallpaper-Feh-Gif/refs/heads/master/gif/pixel.gif"
+  }
+]
