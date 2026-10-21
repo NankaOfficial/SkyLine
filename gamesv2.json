@@ -1,11 +1,11 @@
 [
   {
-    "title": "Clarch",
-    "source": "",
-    "picture": ""
+    "title": "Archimedes Client (Eaglar Craft)",
+    "source": "data:@file/html;base64,PCEtLSBzaHh5ZGVyIC0tPgo8IS0tIHVncyBmaWxlIC0tPgoKPCFET0NUWVBFIGh0bWw+CjxodG1sPgo8aGVhZD4KICA8bWV0YSBjaGFyc2V0PSJ1dGYtOCI+CiAgPHRpdGxlPmFyY2hpbWVkZXNjbGllbnQ8L3RpdGxlPgo8L2hlYWQ+Cjxib2R5PgogIDxzY3JpcHQ+CiAgICBhc3luYyBmdW5jdGlvbiBsb2FkQW5kUnVuKCkgewogICAgICBjb25zdCB1cmxzID0gWwogICAgICAgICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvZ2gvbGFycGluZ3VzZXIvZml4ZWQtZ2FtZXNAbWFpbi9lYWdsZXItY2xpZW50cy9hcmNoL2NsYXJjaGltZWRlc2NsaWVudC5odG1sLnBhcnQxIiwKICAgICAgICAiaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2xhcnBpbmd1c2VyL2ZpeGVkLWdhbWVzQG1haW4vZWFnbGVyLWNsaWVudHMvYXJjaC9jbGFyY2hpbWVkZXNjbGllbnQuaHRtbC5wYXJ0MiIsCiAgICAgICAgImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9naC9sYXJwaW5ndXNlci9maXhlZC1nYW1lc0BtYWluL2VhZ2xlci1jbGllbnRzL2FyY2gvY2xhcmNoaW1lZGVzY2xpZW50Lmh0bWwucGFydDMiCgogICAgICBdOwogICAgICBsZXQgZnVsbEh0bWwgPSAiIjsKICAgICAgZm9yIChjb25zdCB1IG9mIHVybHMpIHsKICAgICAgICBjb25zdCByZXMgPSBhd2FpdCBmZXRjaCh1KTsKICAgICAgICBmdWxsSHRtbCArPSBhd2FpdCByZXMudGV4dCgpOwogICAgICB9CgogICAgICBkb2N1bWVudC5vcGVuKCk7CiAgICAgIGRvY3VtZW50LndyaXRlKGZ1bGxIdG1sKTsKICAgICAgZG9jdW1lbnQuY2xvc2UoKTsKICAgIH0KCiAgICBsb2FkQW5kUnVuKCk7CiAgPC9zY3JpcHQ+CjwvYm9keT4KPC9odG1sPg==",
+    "picture": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnWZ23C-Q-F9GuR0Auz5IcxadKwhSE7NzvTl12UXE4Pw&s"
   },
   {
-    "title": "Clastrawasm",
+    "title": "Archimedes Client (Eaglar Craft [Wasm])",
     "source": "",
     "picture": ""
   },
