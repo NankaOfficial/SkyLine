@@ -1,5 +1,5 @@
 {
-  "sourceUpdates": [
+  "games": [
     {
       "title": "-3",
       "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl-3.html"
@@ -39,9 +39,7 @@
     {
       "title": "Null Kevin",
       "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/clnullkevin.html"
-    }
-  ],
-  "games": [
+    },
     {
       "title": "20 Small Mazes",
       "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl20smallmazes.html",
