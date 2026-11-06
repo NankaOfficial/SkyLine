@@ -2,43 +2,53 @@
   "games": [
     {
       "title": "-3",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl-3.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl-3.html",
+      "picture": ""
     },
     {
       "title": "-B",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl-b.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl-b.html",
+      "picture": ""
     },
     {
       "title": "1",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl1.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl1.html",
+      "picture": ""
     },
     {
       "title": "12 Mini Battles",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl12minibattles.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl12minibattles.html",
+      "picture": ""
     },
     {
       "title": "2048",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl2048.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl2048.html",
+      "picture": ""
     },
     {
       "title": "2048 Cupcakes",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl2048cupcakes.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl2048cupcakes.html",
+      "picture": ""
     },
     {
       "title": "8 Ball Classic",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl8ballclassic.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl8ballclassic.html",
+      "picture": ""
     },
     {
       "title": "9007199254740992",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl9007199254740992.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl9007199254740992.html",
+      "picture": ""
     },
     {
       "title": "99 Balls",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl99balls.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/cl99balls.html",
+      "picture": ""
     },
     {
       "title": "Null Kevin",
-      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/clnullkevin.html"
+      "source": "https://raw.githubusercontent.com/NankaOfficial/SkyLine/main/g/clnullkevin.html",
+      "picture": ""
     },
     {
       "title": "20 Small Mazes",
