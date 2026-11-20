@@ -1,1157 +1,950 @@
-
 (() => {
   "use strict";
 
-  const ID = "skyline-dump";
-  const DATA_URL = "https://raw.githubusercontent.com/NankaOfficial/SkyLine/refs/heads/main/bookmarklet.json";
+  if (window.__skylineRunning) {
+    document.getElementById("skyline-menu")?.remove();
+    document.getElementById("skyline-star")?.remove();
+    document.getElementById("skyline-styles")?.remove();
+    window.__skylineRunning = false;
+    return;
+  }
 
-  document.getElementById(ID + "-root")?.remove();
-  document.getElementById(ID + "-blur")?.remove();
-  document.getElementById(ID + "-style")?.remove();
+  window.__skylineRunning = true;
 
-  let data = { bookmarklets: [] };
-  let category = "All";
-  let search = "";
-  let minimized = false;
-  let zoom = 100;
-  let hiddenImages = [];
-  let rulerMove = null;
+  const DATA_URL =
+    "https://cdn.jsdelivr.net/gh/NankaOfficial/SkyLine@main/bookmarklet.json";
 
-  const style = document.createElement("style");
-  style.id = ID + "-style";
+  const $ = (tag, props = {}, parent = document.body) => {
+    const el = document.createElement(tag);
+    Object.assign(el, props);
+    parent.appendChild(el);
+    return el;
+  };
+
+  const style = $( "style", { id: "skyline-styles" });
   style.textContent = `
-  #${ID}-blur {
-    position:fixed;inset:0;z-index:2147483000;
-    background:rgba(0,0,0,.38);
-    backdrop-filter:blur(9px);
-    -webkit-backdrop-filter:blur(9px);
-    transition:opacity .25s;
-  }
-
-  #${ID}-root,#${ID}-root * {box-sizing:border-box}
-
-  #${ID}-root {
-    position:fixed;z-index:2147483001;
-    width:min(900px,94vw);
-    height:min(650px,88vh);
-    top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    display:flex;overflow:hidden;
-    background:#111;color:#f5f5f5;
-    border:1px solid #333;
-    border-radius:22px;
-    box-shadow:0 25px 100px #000b;
-    font:14px Arial,sans-serif;
-    animation:skyline-open .25s ease;
-  }
-
-  @keyframes skyline-open {
-    from {opacity:0;transform:translate(-50%,-48%) scale(.96)}
-    to {opacity:1;transform:translate(-50%,-50%) scale(1)}
-  }
-
-  #${ID}-root button,#${ID}-root input {font:inherit}
-
-  #${ID}-root .sidebar {
-    width:225px;flex-shrink:0;
-    background:#0a0a0a;
-    padding:20px 12px;
-    display:flex;flex-direction:column;
-  }
-
-  #${ID}-root .brand {
-    display:flex;align-items:center;gap:12px;
-    padding:5px 10px 25px;
-    cursor:move;user-select:none;
-    touch-action:none;
-  }
-
-  #${ID}-root .logo {
-    width:39px;height:39px;
-    border-radius:12px;
-    background:#f5f5f5;color:#111;
-    display:grid;place-items:center;
-    font-size:22px;font-weight:900;
-  }
-
-  #${ID}-root .brand strong {
-    font-size:19px;letter-spacing:2px;
-  }
-
-  #${ID}-root .brand small {
-    display:block;color:#888;
-    font-size:10px;margin-top:4px;
-  }
-
-  #${ID}-root .nav {
-    background:transparent;border:0;
-    color:#999;text-align:left;
-    padding:13px;border-radius:11px;
-    cursor:pointer;margin-bottom:5px;
-  }
-
-  #${ID}-root .nav:hover,
-  #${ID}-root .nav.active {
-    background:#252525;color:white;
-  }
-
-  #${ID}-root .footer {
-    margin-top:auto;padding:12px;
-    color:#666;font-size:10px;
-  }
-
-  #${ID}-root .main {
-    flex:1;min-width:0;
-    margin:12px;
-    display:flex;flex-direction:column;
-    background:#1b1b1b;
-    border-radius:16px;overflow:hidden;
-  }
-
-  #${ID}-root .top {
-    height:58px;flex-shrink:0;
-    display:flex;align-items:center;
-    justify-content:space-between;
-    padding:0 18px;
-    border-bottom:1px solid #303030;
-    cursor:move;touch-action:none;
-    user-select:none;
-  }
-
-  #${ID}-root .top strong {font-size:15px}
-
-  #${ID}-root .controls {display:flex;gap:5px}
-
-  #${ID}-root .controls button {
-    background:transparent;border:0;
-    color:#aaa;font-size:21px;
-    width:34px;height:34px;
-    cursor:pointer;border-radius:8px;
-  }
-
-  #${ID}-root .controls button:hover {
-    background:#333;color:white;
-  }
-
-  #${ID}-root .content {
-    padding:22px;overflow:auto;flex:1;
-  }
-
-  #${ID}-root h2 {
-    font-size:22px;margin:0 0 5px;
-  }
-
-  #${ID}-root .subtitle {
-    color:#999;margin-bottom:20px;
-  }
-
-  #${ID}-root .search {
-    width:100%;padding:13px;
-    background:#292929;
-    border:1px solid #393939;
-    border-radius:12px;color:white;
-    outline:none;margin-bottom:15px;
-  }
-
-  #${ID}-root .search:focus {border-color:#888}
-
-  #${ID}-root .chips {
-    display:flex;gap:7px;
-    flex-wrap:wrap;margin-bottom:18px;
-  }
-
-  #${ID}-root .chip {
-    padding:8px 13px;
-    border-radius:30px;
-    background:#292929;
-    border:1px solid #393939;
-    color:#aaa;cursor:pointer;
-    font-size:12px;
-  }
-
-  #${ID}-root .chip.active {
-    background:#eee;color:#111;
-  }
-
-  #${ID}-root .cards {
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:11px;
-  }
-
-  #${ID}-root .card {
-    background:#252525;
-    border:1px solid #353535;
-    border-radius:14px;
-    padding:14px;
-    min-width:0;
-  }
-
-  #${ID}-root .cardhead {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px;
-  }
-
-  #${ID}-root .card strong {font-size:13px}
-
-  #${ID}-root .tag {
-    background:#393939;
-    color:#aaa;padding:5px 8px;
-    border-radius:30px;font-size:10px;
-    white-space:nowrap;
-  }
-
-  #${ID}-root .description {
-    color:#999;font-size:12px;
-    min-height:32px;margin:10px 0;
-  }
-
-  #${ID}-root .run {
-    background:#eee;color:#111;
-    border:0;border-radius:9px;
-    padding:8px 14px;
-    font-weight:bold;cursor:pointer;
-  }
-
-  #${ID}-root .run:hover {background:#ccc}
-
-  #${ID}-root .secondary {
-    background:#303030;color:white;
-    border:1px solid #444;
-    border-radius:10px;
-    padding:10px 14px;cursor:pointer;
-  }
-
-  #${ID}-root .setting {
-    background:#252525;
-    border-radius:13px;
-    padding:16px;margin:12px 0;
-    display:flex;align-items:center;
-    justify-content:space-between;gap:12px;
-  }
-
-  #${ID}-root .empty {
-    color:#888;text-align:center;padding:35px;
-  }
-
-  #${ID}-root .muted {
-    color:#888;font-size:11px;
-    margin-top:5px;
-  }
-
-  #${ID}-star {
-    position:fixed;z-index:2147483002;
-    left:22px;bottom:22px;
-    width:59px;height:59px;
-    border-radius:50%;
-    background:#111;
-    color:white;
-    border:1px solid #555;
-    box-shadow:0 8px 35px #0009;
-    display:grid;place-items:center;
-    cursor:grab;touch-action:none;
-    user-select:none;
-    font-size:29px;
-    animation:skyline-star-in .3s ease;
-  }
-
-  #${ID}-star:hover {
-    background:#292929;
-    border-color:white;
-    transform:scale(1.07);
-  }
-
-  @keyframes skyline-star-in {
-    from {opacity:0;transform:scale(.3)}
-    to {opacity:1;transform:scale(1)}
-  }
-
-  @media(max-width:620px) {
-    #${ID}-root .sidebar {
-      width:65px;padding:12px 6px;
+    #skyline-menu, #skyline-star {
+      font-family: Arial, sans-serif;
+      color: white;
+      box-sizing: border-box;
     }
-    #${ID}-root .brand {
-      justify-content:center;padding:5px;
+
+    #skyline-menu *, #skyline-star * {
+      box-sizing: border-box;
     }
-    #${ID}-root .brand div:last-child,
-    #${ID}-root .nav span,
-    #${ID}-root .footer {display:none}
-    #${ID}-root .nav {text-align:center}
-    #${ID}-root .cards {grid-template-columns:1fr}
-    #${ID}-root .content {padding:14px}
-  }`;
 
-  document.head.appendChild(style);
+    #skyline-menu {
+      position: fixed;
+      z-index: 2147483646;
+      top: 50%;
+      left: 50%;
+      width: 390px;
+      max-width: calc(100vw - 24px);
+      max-height: min(620px, calc(100vh - 24px));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: rgba(8, 8, 8, .96);
+      border: 1px solid #383838;
+      border-radius: 16px;
+      box-shadow: 0 15px 70px #000b;
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      transform: translate(-50%, -50%) scale(.01);
+      opacity: 0;
+      clip-path: circle(0% at 50% 50%);
+      transition:
+        transform .55s cubic-bezier(.16,1,.3,1),
+        opacity .35s ease,
+        clip-path .55s cubic-bezier(.16,1,.3,1);
+    }
 
-  const blur = document.createElement("div");
-  blur.id = ID + "-blur";
-  document.documentElement.appendChild(blur);
+    #skyline-menu.skyline-open {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+      clip-path: circle(100% at 50% 50%);
+    }
 
-  const root = document.createElement("div");
-  root.id = ID + "-root";
+    #skyline-menu.skyline-close {
+      transform: translate(-50%, -50%) scale(.01);
+      opacity: 0;
+      clip-path: circle(0% at 50% 50%);
+      pointer-events: none;
+    }
 
-  const sidebar = document.createElement("div");
-  sidebar.className = "sidebar";
+    #skyline-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 17px;
+      border-bottom: 1px solid #292929;
+      cursor: grab;
+      user-select: none;
+    }
 
-  const brand = document.createElement("div");
-  brand.className = "brand";
-  brand.innerHTML = `
-    <div class="logo">✦</div>
-    <div>
-      <strong>SKYLINE</strong>
-      <small>BOOKMARKLET DUMP</small>
-    </div>
+    #skyline-header:active { cursor: grabbing; }
+
+    #skyline-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .skyline-controls {
+      display: flex;
+      gap: 7px;
+    }
+
+    .skyline-control {
+      width: 29px;
+      height: 29px;
+      border: 1px solid #444;
+      border-radius: 8px;
+      background: #171717;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .skyline-control:hover {
+      background: #333;
+    }
+
+    #skyline-search {
+      margin: 13px 14px 8px;
+      padding: 11px 12px;
+      border: 1px solid #383838;
+      border-radius: 9px;
+      outline: none;
+      background: #141414;
+      color: white;
+      font-size: 13px;
+    }
+
+    #skyline-search:focus {
+      border-color: #888;
+    }
+
+    #skyline-categories {
+      display: flex;
+      gap: 7px;
+      padding: 3px 14px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .skyline-category {
+      flex-shrink: 0;
+      padding: 7px 11px;
+      border: 1px solid #383838;
+      border-radius: 20px;
+      background: #151515;
+      color: #bbb;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .skyline-category.active {
+      background: white;
+      color: black;
+      border-color: white;
+    }
+
+    #skyline-items {
+      padding: 0 12px 14px;
+      overflow-y: auto;
+      min-height: 100px;
+    }
+
+    .skyline-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 7px;
+      text-align: left;
+      border: 1px solid #292929;
+      border-radius: 10px;
+      background: #111;
+      color: white;
+      cursor: pointer;
+    }
+
+    .skyline-item:hover {
+      background: #202020;
+      border-color: #666;
+    }
+
+    .skyline-item-name {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .skyline-item-description {
+      color: #999;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    #skyline-status {
+      padding: 9px 14px;
+      border-top: 1px solid #292929;
+      color: #888;
+      font-size: 10px;
+    }
+
+    #skyline-star {
+      position: fixed;
+      z-index: 2147483647;
+      left: 18px;
+      bottom: 18px;
+      width: 48px;
+      height: 48px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #555;
+      border-radius: 50%;
+      background: #080808;
+      box-shadow: 0 5px 25px #0009;
+      color: white;
+      font-size: 25px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #skyline-star:hover {
+      background: #292929;
+    }
+
+    #skyline-menu button:focus-visible,
+    #skyline-star:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 2px;
+    }
   `;
 
-  sidebar.appendChild(brand);
+  const menu = $("div", { id: "skyline-menu" });
+  const header = $("div", { id: "skyline-header" }, menu);
+  $("div", { id: "skyline-title", textContent: "Skyline" }, header);
 
-  const main = document.createElement("div");
-  main.className = "main";
+  const controls = $("div", { className: "skyline-controls" }, header);
 
-  const top = document.createElement("div");
-  top.className = "top";
+  const minimizeButton = $("button", {
+    className: "skyline-control",
+    textContent: "—",
+    title: "Minimize"
+  }, controls);
 
-  const heading = document.createElement("strong");
-  heading.textContent = "Main";
+  const closeButton = $("button", {
+    className: "skyline-control",
+    textContent: "×",
+    title: "Close"
+  }, controls);
 
-  const controls = document.createElement("div");
-  controls.className = "controls";
+  const search = $("input", {
+    id: "skyline-search",
+    placeholder: "Search actions...",
+    type: "text"
+  }, menu);
 
-  function make(tag, cls, text) {
-    const el = document.createElement(tag);
-    if (cls) el.className = cls;
-    if (text !== undefined) el.textContent = text;
-    return el;
-  }
+  const categories = $("div", {
+    id: "skyline-categories"
+  }, menu);
 
-  function button(text, cls, action) {
-    const b = make("button", cls, text);
-    b.onclick = action;
-    return b;
-  }
+  const items = $("div", {
+    id: "skyline-items"
+  }, menu);
 
-  const content = make("div", "content");
+  const status = $("div", {
+    id: "skyline-status",
+    textContent: "Loading actions..."
+  }, menu);
 
-  function close() {
-    root.remove();
-    blur.remove();
-    star?.remove();
-    style.remove();
-  }
-
-  let star = null;
-
-  function minimize() {
-    if (minimized) return;
-    minimized = true;
-
-    root.style.display = "none";
-    blur.style.display = "none";
-
-    star = make("button", "", "✦");
-    star.id = ID + "-star";
-    star.title = "Open Skyline";
-    document.documentElement.appendChild(star);
-
-    star.addEventListener("click", () => {
-      if (starDragging) return;
-      restore();
-    });
-
-    makeDraggableStar(star);
-  }
-
-  function restore() {
-    minimized = false;
-    root.style.display = "flex";
-    blur.style.display = "block";
-    star?.remove();
-    star = null;
-  }
-
-  function control(symbol, title, action) {
-    const b = button(symbol, "", action);
-    b.title = title;
-    controls.appendChild(b);
-  }
-
-  control("−", "Minimize", minimize);
-
-  control("□", "Center Window", () => {
-    root.style.left = "50%";
-    root.style.top = "50%";
-    root.style.transform = "translate(-50%,-50%)";
+  const star = $("button", {
+    id: "skyline-star",
+    textContent: "★",
+    title: "Open Skyline"
   });
 
-  control("×", "Close", close);
+  function closeMenu() {
+    menu.classList.remove("skyline-open");
+    menu.classList.add("skyline-close");
 
-  top.append(heading, controls);
-  main.append(top, content);
-  root.append(sidebar, main);
-  document.documentElement.appendChild(root);
-
-  const navs = {};
-
-  function addNav(name, symbol) {
-    const b = make("button", "nav", symbol + "   " + name);
-    b.dataset.name = name;
-    b.onclick = () => view(name);
-    navs[name] = b;
-    sidebar.appendChild(b);
-  }
-
-  addNav("Main", "⌂");
-  addNav("Library", "▦");
-  addNav("Settings", "⚙");
-
-  sidebar.appendChild(
-    make("div", "footer", "SKYLINE • V1.0.0")
-  );
-
-  function setStatus(text) {
-    heading.textContent = text;
     setTimeout(() => {
-      if (root.isConnected && !minimized) heading.textContent = "Main";
-    }, 1600);
+      menu.remove();
+      star.remove();
+      style.remove();
+      window.__skylineRunning = false;
+    }, 600);
   }
 
-  function renderMain() {
-    content.replaceChildren();
+  function minimizeMenu() {
+    menu.classList.remove("skyline-open");
+    menu.classList.add("skyline-close");
 
-    content.append(
-      make("h2", "", "Your browser toolkit"),
-      make("div", "subtitle", "Everything you need in one place.")
-    );
+    setTimeout(() => {
+      menu.style.display = "none";
+      star.style.display = "flex";
+    }, 550);
+  }
 
-    const input = make("input", "search");
-    input.placeholder = "Search bookmarklets...";
-    input.value = search;
+  function restoreMenu() {
+    star.style.display = "none";
+    menu.style.display = "flex";
+    menu.classList.remove("skyline-close");
 
-    input.oninput = () => {
-      search = input.value;
-      const position = input.selectionStart;
-      renderMain();
-      const next = content.querySelector(".search");
-      next.focus();
-      next.setSelectionRange(position, position);
-    };
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        menu.classList.add("skyline-open");
+      });
+    });
+  }
 
-    content.appendChild(input);
+  closeButton.addEventListener("click", closeMenu);
+  minimizeButton.addEventListener("click", minimizeMenu);
+  star.addEventListener("click", restoreMenu);
 
-    const chips = make("div", "chips");
-    const categories = [
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => menu.classList.add("skyline-open"));
+  });
+
+  // Dragging the menu
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
+  let menuX = 0;
+  let menuY = 0;
+
+  header.addEventListener("pointerdown", event => {
+    if (event.target.closest("button")) return;
+
+    dragging = true;
+    startX = event.clientX;
+    startY = event.clientY;
+
+    const rect = menu.getBoundingClientRect();
+    menuX = rect.left + rect.width / 2;
+    menuY = rect.top + rect.height / 2;
+
+    menu.style.transition = "none";
+    header.setPointerCapture(event.pointerId);
+  });
+
+  header.addEventListener("pointermove", event => {
+    if (!dragging) return;
+
+    const x = menuX + event.clientX - startX;
+    const y = menuY + event.clientY - startY;
+
+    menu.style.left = x + "px";
+    menu.style.top = y + "px";
+  });
+
+  header.addEventListener("pointerup", () => {
+    dragging = false;
+    menu.style.transition = "";
+  });
+
+  // Make the minimized star draggable
+  let starDragging = false;
+  let starStartX = 0;
+  let starStartY = 0;
+  let starLeft = 18;
+  let starBottom = 18;
+
+  star.addEventListener("pointerdown", event => {
+    starDragging = true;
+    starStartX = event.clientX;
+    starStartY = event.clientY;
+
+    const rect = star.getBoundingClientRect();
+    starLeft = rect.left;
+    starBottom = window.innerHeight - rect.bottom;
+
+    star.setPointerCapture(event.pointerId);
+  });
+
+  star.addEventListener("pointermove", event => {
+    if (!starDragging) return;
+
+    const dx = event.clientX - starStartX;
+    const dy = event.clientY - starStartY;
+
+    star.style.left = Math.max(
+      0,
+      Math.min(window.innerWidth - 48, starLeft + dx)
+    ) + "px";
+
+    star.style.bottom = Math.max(
+      0,
+      Math.min(window.innerHeight - 48, starBottom - dy)
+    ) + "px";
+  });
+
+  star.addEventListener("pointerup", event => {
+    if (!starDragging) return;
+    starDragging = false;
+
+    if (
+      Math.abs(event.clientX - starStartX) < 5 &&
+      Math.abs(event.clientY - starStartY) < 5
+    ) {
+      restoreMenu();
+    }
+  });
+
+  let allActions = [];
+  let activeCategory = "All";
+
+  function renderCategories() {
+    categories.innerHTML = "";
+
+    const names = [
       "All",
-      ...new Set(data.bookmarklets.map(x => x.category))
+      ...new Set(allActions.map(action => action.category || "Other"))
     ];
 
-    categories.forEach(cat => {
-      chips.appendChild(button(
-        cat,
-        "chip" + (category === cat ? " active" : ""),
-        () => {
-          category = cat;
-          renderMain();
+    names.forEach(name => {
+      const button = $("button", {
+        className:
+          "skyline-category" + (name === activeCategory ? " active" : ""),
+        textContent: name
+      }, categories);
+
+      button.addEventListener("click", () => {
+        activeCategory = name;
+        renderCategories();
+        renderItems();
+      });
+    });
+  }
+
+  function renderItems() {
+    items.innerHTML = "";
+
+    const query = search.value.toLowerCase();
+
+    const filtered = allActions.filter(action => {
+      const matchesCategory =
+        activeCategory === "All" ||
+        (action.category || "Other") === activeCategory;
+
+      const matchesSearch =
+        (action.name || "").toLowerCase().includes(query) ||
+        (action.description || "").toLowerCase().includes(query);
+
+      return matchesCategory && matchesSearch;
+    });
+
+    if (!filtered.length) {
+      $("div", {
+        textContent: "No actions found.",
+        style: "padding:20px;text-align:center;color:#888;font-size:12px"
+      }, items);
+      return;
+    }
+
+    filtered.forEach(action => {
+      const button = $("button", {
+        className: "skyline-item"
+      }, items);
+
+      $("div", {
+        className: "skyline-item-name",
+        textContent: action.name || "Unnamed action"
+      }, button);
+
+      $("div", {
+        className: "skyline-item-description",
+        textContent: action.description || action.category || ""
+      }, button);
+
+      button.addEventListener("click", () => {
+        try {
+          runAction(action);
+          status.textContent = "Selected: " + action.name;
+        } catch (error) {
+          console.error("[Skyline]", error);
+          status.textContent = "Action failed: " + error.message;
         }
-      ));
+      });
     });
-
-    content.appendChild(chips);
-
-    const cards = make("div", "cards");
-
-    const results = data.bookmarklets.filter(item =>
-      (category === "All" || item.category === category) &&
-      (item.name + " " + item.description + " " + item.category)
-        .toLowerCase().includes(search.toLowerCase())
-    );
-
-    results.forEach(item => {
-      const card = make("div", "card");
-      const head = make("div", "cardhead");
-
-      head.append(
-        make("strong", "", item.name),
-        make("span", "tag", item.category)
-      );
-
-      card.append(
-        head,
-        make("div", "description", item.description),
-        button("Run Tool", "run", () => run(item.action))
-      );
-
-      cards.appendChild(card);
-    });
-
-    if (!results.length) {
-      cards.appendChild(make("div", "empty", "No tools found."));
-    }
-
-    content.appendChild(cards);
   }
 
-  function view(name) {
-    heading.textContent = name;
+  search.addEventListener("input", renderItems);
 
-    Object.entries(navs).forEach(([key, el]) => {
-      el.classList.toggle("active", key === name);
-    });
+  // Action functions
+  function runAction(action) {
+    const id = action.action;
 
-    content.replaceChildren();
+    switch (id) {
+      case "edit-page":
+        document.designMode =
+          document.designMode === "on" ? "off" : "on";
+        break;
 
-    if (name === "Main") {
-      renderMain();
-      return;
-    }
+      case "word-count":
+        alert("Word count: " +
+          (document.body.innerText.trim().match(/\S+/g) || []).length);
+        break;
 
-    if (name === "Library") {
-      content.append(
-        make("h2", "", "Bookmarklet Library"),
-        make("div", "subtitle", data.bookmarklets.length + " tools loaded.")
-      );
+      case "sentence-count":
+        alert("Sentence count: " +
+          (document.body.innerText.match(/[.!?]+/g) || []).length);
+        break;
 
-      const counts = {};
+      case "uppercase":
+        transformSelection(text => text.toUpperCase());
+        break;
 
-      data.bookmarklets.forEach(item => {
-        counts[item.category] = (counts[item.category] || 0) + 1;
-      });
+      case "lowercase":
+        transformSelection(text => text.toLowerCase());
+        break;
 
-      Object.entries(counts).forEach(([name, count]) => {
-        const row = make("div", "setting");
-        row.append(
-          make("strong", "", name),
-          make("span", "", count + " tools")
+      case "titlecase":
+        transformSelection(text =>
+          text.replace(/\b\w/g, letter => letter.toUpperCase())
         );
-        content.appendChild(row);
-      });
+        break;
 
-      content.appendChild(button("Reload JSON", "secondary", load));
-      return;
+      case "find-highlight": {
+        const term = prompt("Text to find:");
+        if (!term) break;
+        const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(escaped, "gi");
+        document.body.innerHTML = document.body.innerHTML.replace(
+          regex,
+          match => `<mark style="background:yellow;color:black">${match}</mark>`
+        );
+        break;
+      }
+
+      case "replace-text": {
+        const oldText = prompt("Text to replace:");
+        if (oldText === null || !oldText) break;
+        const newText = prompt("Replace with:");
+        if (newText === null) break;
+        document.body.innerHTML = document.body.innerHTML.split(oldText).join(newText);
+        break;
+      }
+
+      case "remove-formatting":
+        document.querySelectorAll("*").forEach(el => {
+          el.removeAttribute("style");
+          el.removeAttribute("class");
+        });
+        break;
+
+      case "copy-page-text":
+        copyText(document.body.innerText);
+        break;
+
+      case "reading-mode":
+        document.body.style.cssText =
+          "max-width:850px;margin:40px auto;padding:25px;background:white;color:black;font:18px/1.8 Georgia,serif";
+        break;
+
+      case "focus-mode":
+        document.querySelectorAll("body > *").forEach(el => {
+          if (!el.matches("#skyline-menu,#skyline-star")) {
+            el.style.opacity = ".15";
+          }
+        });
+        break;
+
+      case "hide-images":
+        document.querySelectorAll("img,video,iframe").forEach(el => {
+          el.dataset.skylineHidden = "1";
+          el.style.display = "none";
+        });
+        break;
+
+      case "restore-images":
+        document.querySelectorAll('[data-skyline-hidden="1"]').forEach(el => {
+          el.style.display = "";
+          delete el.dataset.skylineHidden;
+        });
+        break;
+
+      case "highlight-links":
+        document.querySelectorAll("a").forEach(el => {
+          el.style.background = "yellow";
+          el.style.color = "black";
+        });
+        break;
+
+      case "new-tab-links":
+        document.querySelectorAll("a").forEach(el => {
+          el.target = "_blank";
+          el.rel = "noopener noreferrer";
+        });
+        break;
+
+      case "page-ruler":
+        toggleRuler();
+        break;
+
+      case "disable-animations":
+        document.getElementById("skyline-no-animations")?.remove();
+        $("style", {
+          id: "skyline-no-animations",
+          textContent: "*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}"
+        });
+        break;
+
+      case "page-outline":
+        alert(
+          [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")]
+            .map(el => el.tagName + ": " + el.innerText)
+            .join("\n") || "No headings found."
+        );
+        break;
+
+      case "heading-navigator": {
+        const headings = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")];
+        const choice = prompt(
+          headings.map((h, i) => `${i + 1}. ${h.innerText}`).join("\n") +
+          "\n\nEnter a heading number:"
+        );
+        const heading = headings[Number(choice) - 1];
+        heading?.scrollIntoView({ behavior: "smooth", block: "center" });
+        break;
+      }
+
+      case "page-info":
+        alert(
+          "Title: " + document.title +
+          "\nURL: " + location.href +
+          "\nSize: " + document.documentElement.scrollWidth +
+          " × " + document.documentElement.scrollHeight
+        );
+        break;
+
+      case "count-links":
+        alert("Links: " + document.querySelectorAll("a").length);
+        break;
+
+      case "count-images":
+        alert("Images: " + document.images.length);
+        break;
+
+      case "list-links":
+        alert([...document.querySelectorAll("a")]
+          .map(a => a.href).join("\n") || "No links found.");
+        break;
+
+      case "list-alt":
+        alert([...document.images]
+          .map(img => img.alt || "(No alt text): " + img.src)
+          .join("\n") || "No images found.");
+        break;
+
+      case "inspect-element":
+        document.body.style.cursor = "crosshair";
+        document.addEventListener("click", inspectClick, {
+          capture: true,
+          once: true
+        });
+        break;
+
+      case "highlight-element":
+        document.body.style.cursor = "crosshair";
+        document.addEventListener("click", highlightClick, {
+          capture: true,
+          once: true
+        });
+        break;
+
+      case "copy-element-html":
+        document.body.style.cursor = "crosshair";
+        document.addEventListener("click", copyElementClick, {
+          capture: true,
+          once: true
+        });
+        break;
+
+      case "meta-tags":
+        alert([...document.querySelectorAll("meta")]
+          .map(m => m.outerHTML).join("\n") || "No meta tags.");
+        break;
+
+      case "grayscale":
+        setPageFilter("grayscale(1)");
+        break;
+
+      case "invert":
+        setPageFilter("invert(1)");
+        break;
+
+      case "dim-page":
+        setPageFilter("brightness(.5)");
+        break;
+
+      case "reset-effects":
+        document.getElementById("skyline-page-effects")?.remove();
+        document.body.style.filter = "";
+        document.body.style.zoom = "";
+        document.querySelectorAll("*").forEach(el => {
+          if (el.dataset.skylineDimmed) {
+            el.style.opacity = "";
+            delete el.dataset.skylineDimmed;
+          }
+        });
+        break;
+
+      case "zoom-in":
+        changeZoom(.1);
+        break;
+
+      case "zoom-out":
+        changeZoom(-.1);
+        break;
+
+      case "zoom-reset":
+        document.body.style.zoom = "1";
+        break;
+
+      case "format-json": {
+        const value = prompt("Paste JSON to format:");
+        if (value === null) break;
+        try {
+          alert(JSON.stringify(JSON.parse(value), null, 2));
+        } catch {
+          alert("Invalid JSON.");
+        }
+        break;
+      }
+
+      case "url-encode": {
+        const value = prompt("Text to encode:");
+        if (value !== null) alert(encodeURIComponent(value));
+        break;
+      }
+
+      case "url-decode": {
+        const value = prompt("Text to decode:");
+        if (value !== null) {
+          try { alert(decodeURIComponent(value)); }
+          catch { alert("Invalid encoded text."); }
+        }
+        break;
+      }
+
+      case "base64-encode": {
+        const value = prompt("Text to encode:");
+        if (value !== null) alert(btoa(unescape(encodeURIComponent(value))));
+        break;
+      }
+
+      case "base64-decode": {
+        const value = prompt("Base64 to decode:");
+        if (value !== null) {
+          try {
+            alert(decodeURIComponent(escape(atob(value))));
+          } catch {
+            alert("Invalid Base64.");
+          }
+        }
+        break;
+      }
+
+      case "calculator": {
+        const value = prompt("Enter a calculation:");
+        if (value === null) break;
+        if (!/^[0-9+\-*/().% \t]+$/.test(value)) {
+          alert("Only basic math is supported.");
+          break;
+        }
+        try {
+          const result = Function('"use strict";return (' + value + ")")();
+          alert("Result: " + result);
+        } catch {
+          alert("Invalid calculation.");
+        }
+        break;
+      }
+
+      case "quick-notes": {
+        const note = prompt("Write a note:");
+        if (note !== null) copyText(note);
+        break;
+      }
+
+      case "pick-color":
+        pickColor();
+        break;
+
+      case "copy-url":
+        copyText(location.href);
+        break;
+
+      case "copy-title":
+        copyText(document.title);
+        break;
+
+      case "scroll-top":
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        break;
+
+      case "scroll-bottom":
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: "smooth"
+        });
+        break;
+
+      case "print-page":
+        window.print();
+        break;
+
+      case "select-all-text":
+        document.body.focus();
+        document.execCommand("selectAll");
+        break;
+
+      default:
+        alert("This action is not implemented yet: " + id);
     }
-
-    if (name === "Settings") {
-      content.append(
-        make("h2", "", "Settings"),
-        make("div", "subtitle", "Customize your Skyline interface.")
-      );
-
-      const row = make("div", "setting");
-      const label = make("strong", "", "Interface scale");
-      const slider = make("input");
-
-      slider.type = "range";
-      slider.min = "80";
-      slider.max = "120";
-      slider.value = "100";
-
-      slider.oninput = () => {
-        root.style.fontSize = slider.value + "%";
-      };
-
-      row.append(label, slider);
-      content.appendChild(row);
-
-      const reload = make("div", "setting");
-      reload.append(
-        make("strong", "", "JSON Database"),
-        button("Reload", "secondary", load)
-      );
-      content.appendChild(reload);
-
-      content.appendChild(
-        make("div", "setting", "Skyline Bookmarklet Dump • 1.0.0")
-      );
-    }
   }
 
-  function ask(text) {
-    return prompt(text);
-  }
-
-  function copy(text) {
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(String(text))
-        .then(() => setStatus("Copied!"))
-        .catch(() => prompt("Copy this:", text));
-    } else {
-      prompt("Copy this:", text);
-    }
-  }
-
-  function selectedText() {
-    return String(getSelection() || "");
-  }
-
-  function replaceSelection(value) {
-    const selection = getSelection();
-
-    if (!selection || !selection.rangeCount) {
+  function transformSelection(transform) {
+    const selection = window.getSelection();
+    if (!selection || !selection.toString()) {
       alert("Select some text first.");
       return;
     }
 
-    const range = selection.getRangeAt(0);
-    range.deleteContents();
-    range.insertNode(document.createTextNode(value));
+    const text = selection.toString();
+    copyText(transform(text));
   }
 
-  function run(action) {
-    const text = () => document.body.innerText || "";
-    const selected = selectedText();
-
-    try {
-      switch (action) {
-        case "edit-page":
-          document.body.contentEditable =
-            document.body.contentEditable === "true" ? "false" : "true";
-          setStatus("Editor toggled");
-          break;
-
-        case "word-count":
-          alert(
-            "Words: " + (text().match(/\S+/g) || []).length +
-            "\nCharacters: " + text().length
-          );
-          break;
-
-        case "sentence-count":
-          alert("Sentences: " + (text().match(/[.!?]+/g) || []).length);
-          break;
-
-        case "uppercase":
-          if (selected) replaceSelection(selected.toUpperCase());
-          else alert("Select text first.");
-          break;
-
-        case "lowercase":
-          if (selected) replaceSelection(selected.toLowerCase());
-          else alert("Select text first.");
-          break;
-
-        case "titlecase":
-          if (selected) replaceSelection(
-            selected.toLowerCase().replace(/\b\w/g, x => x.toUpperCase())
-          );
-          else alert("Select text first.");
-          break;
-
-        case "find-highlight": {
-          const q = ask("Find text:");
-          if (!q) break;
-
-          const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-          let node, count = 0;
-
-          while (node = walker.nextNode()) {
-            if (node.parentElement.closest("script,style,input,textarea,#" + ID + "-root")) continue;
-
-            if (node.nodeValue.toLowerCase().includes(q.toLowerCase())) {
-              const mark = document.createElement("mark");
-              mark.style.background = "#ffe66d";
-              mark.style.color = "#111";
-              mark.textContent = node.nodeValue;
-              node.parentNode.replaceChild(mark, node);
-              count++;
-            }
-          }
-
-          alert("Highlighted " + count + " sections.");
-          break;
-        }
-
-        case "replace-text": {
-          const find = ask("Find text:");
-          if (!find) break;
-          const replacement = ask("Replace with:") ?? "";
-
-          const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-          let node;
-
-          while (node = walker.nextNode()) {
-            if (!node.parentElement.closest("script,style,input,textarea,#" + ID + "-root")) {
-              node.nodeValue = node.nodeValue.split(find).join(replacement);
-            }
-          }
-          break;
-        }
-
-        case "remove-formatting":
-          if (selected) replaceSelection(selected);
-          else alert("Select text first.");
-          break;
-
-        case "copy-page-text":
-          copy(text());
-          break;
-
-        case "reading-mode": {
-          const w = window.open("", "_blank");
-          if (!w) break;
-
-          const pre = w.document.createElement("pre");
-          pre.style.cssText = "white-space:pre-wrap;font:18px/1.7 Georgia;max-width:760px;margin:50px auto;padding:20px";
-          pre.textContent = text();
-          w.document.body.appendChild(pre);
-          break;
-        }
-
-        case "focus-mode":
-          document.body.classList.toggle("__skyline_focus");
-
-          if (!document.getElementById("__skyline_focus_css")) {
-            const s = document.createElement("style");
-            s.id = "__skyline_focus_css";
-            s.textContent = "body.__skyline_focus>*{opacity:.18!important}body.__skyline_focus main,body.__skyline_focus article,body.__skyline_focus [role=main]{opacity:1!important}";
-            document.head.appendChild(s);
-          }
-          break;
-
-        case "hide-images":
-          hiddenImages = [...document.querySelectorAll("img")].map(img => ({
-            img,
-            visibility: img.style.visibility
-          }));
-
-          hiddenImages.forEach(x => x.img.style.visibility = "hidden");
-          break;
-
-        case "restore-images":
-          hiddenImages.forEach(x => {
-            if (x.img.isConnected) x.img.style.visibility = x.visibility;
-          });
-          hiddenImages = [];
-          break;
-
-        case "highlight-links":
-          document.querySelectorAll("a").forEach(x => {
-            x.style.outline = "2px solid #168df0";
-          });
-          break;
-
-        case "new-tab-links":
-          document.querySelectorAll("a[href]").forEach(x => {
-            x.target = "_blank";
-            x.rel = "noopener noreferrer";
-          });
-          break;
-
-        case "grayscale":
-          document.documentElement.style.filter =
-            document.documentElement.style.filter === "grayscale(1)"
-              ? "" : "grayscale(1)";
-          break;
-
-        case "invert":
-          document.documentElement.style.filter =
-            document.documentElement.style.filter.includes("invert")
-              ? "" : "invert(1) hue-rotate(180deg)";
-          break;
-
-        case "dim-page": {
-          let d = document.getElementById("__skyline_dim");
-          if (d) d.remove();
-          else {
-            d = make("div", "");
-            d.id = "__skyline_dim";
-            d.style.cssText = "position:fixed;inset:0;background:#0006;z-index:2147483000;pointer-events:none";
-            document.body.appendChild(d);
-          }
-          break;
-        }
-
-        case "reset-effects":
-          document.documentElement.style.filter = "";
-          document.documentElement.style.zoom = "";
-          document.body.classList.remove("__skyline_focus");
-          document.getElementById("__skyline_dim")?.remove();
-          document.getElementById("__skyline_noanim")?.remove();
-          document.getElementById("__skyline_ruler")?.remove();
-
-          document.querySelectorAll("a").forEach(x => x.style.outline = "");
-          document.querySelectorAll("img").forEach(x => x.style.visibility = "");
-          break;
-
-        case "zoom-in":
-          zoom = Math.min(150, zoom + 10);
-          document.documentElement.style.zoom = zoom + "%";
-          break;
-
-        case "zoom-out":
-          zoom = Math.max(50, zoom - 10);
-          document.documentElement.style.zoom = zoom + "%";
-          break;
-
-        case "zoom-reset":
-          zoom = 100;
-          document.documentElement.style.zoom = "";
-          break;
-
-        case "page-ruler": {
-          let r = document.getElementById("__skyline_ruler");
-
-          if (r) {
-            r.remove();
-            if (rulerMove) document.removeEventListener("mousemove", rulerMove);
-            rulerMove = null;
-          } else {
-            r = make("div", "");
-            r.id = "__skyline_ruler";
-            r.style.cssText = "position:fixed;top:50%;left:0;width:100%;height:34px;background:#ffe66d55;border-block:1px solid #e6b800;z-index:2147483000;pointer-events:none";
-            document.body.appendChild(r);
-
-            rulerMove = e => {
-              r.style.top = e.clientY - 17 + "px";
-            };
-
-            document.addEventListener("mousemove", rulerMove);
-          }
-          break;
-        }
-
-        case "disable-animations": {
-          let s = document.getElementById("__skyline_noanim");
-
-          if (s) s.remove();
-          else {
-            s = make("style", "");
-            s.id = "__skyline_noanim";
-            s.textContent = "*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}";
-            document.head.appendChild(s);
-          }
-          break;
-        }
-
-        case "page-outline":
-        case "heading-navigator": {
-          const headings = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")];
-
-          const value = ask(
-            headings.map((h,i) => (i+1) + ". " + h.innerText.trim()).join("\n") +
-            "\n\nEnter heading number:"
-          );
-
-          if (value && headings[+value-1]) {
-            headings[+value-1].scrollIntoView({behavior:"smooth"});
-          }
-          break;
-        }
-
-        case "page-info":
-          alert(
-            "Title: " + document.title +
-            "\nURL: " + location.href +
-            "\nSize: " + innerWidth + " × " + innerHeight
-          );
-          break;
-
-        case "count-links":
-          alert("Links: " + document.links.length);
-          break;
-
-        case "count-images":
-          alert("Images: " + document.images.length);
-          break;
-
-        case "list-links":
-          copy([...document.links].map(x => x.href).join("\n"));
-          break;
-
-        case "list-alt":
-          alert([...document.images].map(x => x.alt || "[Missing alt text]").join("\n"));
-          break;
-
-        case "inspect-element": {
-          alert("Click an element on the webpage to inspect it.");
-
-          const handler = e => {
-            if (root.contains(e.target)) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-            document.removeEventListener("click", handler, true);
-
-            alert(
-              "Tag: " + e.target.tagName +
-              "\nID: " + e.target.id +
-              "\nClasses: " + e.target.className
-            );
-          };
-
-          document.addEventListener("click", handler, true);
-          break;
-        }
-
-        case "highlight-element": {
-          const q = ask("CSS selector:");
-          if (!q) break;
-
-          try {
-            document.querySelectorAll(q).forEach(x => {
-              x.style.outline = "3px solid #168df0";
-            });
-          } catch {
-            alert("Invalid CSS selector.");
-          }
-          break;
-        }
-
-        case "copy-element-html": {
-          const q = ask("CSS selector:");
-          const el = document.querySelector(q);
-          if (el) copy(el.outerHTML);
-          else alert("Element not found.");
-          break;
-        }
-
-        case "meta-tags":
-          alert([...document.querySelectorAll("meta")].map(m =>
-            (m.name || m.property || "meta") + ": " + m.content
-          ).join("\n").slice(0,5000));
-          break;
-
-        case "format-json": {
-          const v = ask("Paste JSON:");
-          if (v !== null) {
-            try {
-              prompt("Formatted JSON:", JSON.stringify(JSON.parse(v), null, 2));
-            } catch {
-              alert("Invalid JSON.");
-            }
-          }
-          break;
-        }
-
-        case "url-encode":
-          prompt("Encoded:", encodeURIComponent(selected || ask("Text:") || ""));
-          break;
-
-        case "url-decode":
-          try {
-            prompt("Decoded:", decodeURIComponent(ask("Encoded text:") || ""));
-          } catch {
-            alert("Invalid URL encoding.");
-          }
-          break;
-
-        case "base64-encode":
-          prompt("Base64:", btoa(unescape(encodeURIComponent(ask("Text:") || ""))));
-          break;
-
-        case "base64-decode":
-          try {
-            prompt("Decoded:", decodeURIComponent(escape(atob(ask("Base64:") || ""))));
-          } catch {
-            alert("Invalid Base64.");
-          }
-          break;
-
-        case "calculator": {
-          const v = ask("Enter arithmetic:");
-          if (v === null) break;
-
-          if (!/^[0-9+\-*/().%\s]+$/.test(v)) {
-            alert("Only basic arithmetic is allowed.");
-            break;
-          }
-
-          try {
-            alert("Result: " + Function('"use strict";return (' + v + ')')());
-          } catch {
-            alert("Invalid expression.");
-          }
-          break;
-        }
-
-        case "quick-notes": {
-          const w = window.open("", "_blank");
-          if (!w) break;
-
-          const area = w.document.createElement("textarea");
-          area.style.cssText = "width:100%;height:95vh;font:16px Arial;padding:15px";
-          w.document.body.appendChild(area);
-          break;
-        }
-
-        case "pick-color": {
-          alert("Click an element to inspect its text color.");
-
-          const handler = e => {
-            if (root.contains(e.target)) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-            document.removeEventListener("click", handler, true);
-
-            copy(getComputedStyle(e.target).color);
-          };
-
-          document.addEventListener("click", handler, true);
-          break;
-        }
-
-        case "copy-url":
-          copy(location.href);
-          break;
-
-        case "copy-title":
-          copy(document.title);
-          break;
-
-        case "scroll-top":
-          scrollTo({top:0,behavior:"smooth"});
-          break;
-
-        case "scroll-bottom":
-          scrollTo({top:document.documentElement.scrollHeight,behavior:"smooth"});
-          break;
-
-        case "print-page":
-          print();
-          break;
-
-        case "select-all-text": {
-          const range = document.createRange();
-          range.selectNodeContents(document.body);
-          const selection = getSelection();
-          selection.removeAllRanges();
-          selection.addRange(range);
-          break;
-        }
-
-        default:
-          alert("This tool is not implemented yet.");
-      }
-    } catch (error) {
-      console.error("Skyline error:", error);
-      alert("Tool error: " + error.message);
-    }
-  }
-
-  // Draggable main window.
-  function makeDraggable(element, handle) {
-    let drag = null;
-
-    handle.addEventListener("pointerdown", e => {
-      if (e.target.closest("button")) return;
-
-      const rect = element.getBoundingClientRect();
-
-      drag = {
-        x:e.clientX,
-        y:e.clientY,
-        left:rect.left,
-        top:rect.top
-      };
-
-      element.style.transform = "none";
-      handle.setPointerCapture(e.pointerId);
-    });
-
-    handle.addEventListener("pointermove", e => {
-      if (!drag) return;
-
-      const width = element.offsetWidth;
-      const height = element.offsetHeight;
-
-      element.style.left = Math.max(
-        0, Math.min(innerWidth-width, drag.left+e.clientX-drag.x)
-      ) + "px";
-
-      element.style.top = Math.max(
-        0, Math.min(innerHeight-height, drag.top+e.clientY-drag.y)
-      ) + "px";
-    });
-
-    handle.addEventListener("pointerup", () => drag = null);
-    handle.addEventListener("pointercancel", () => drag = null);
-  }
-
-  // Draggable minimized star button.
-  let starDragging = false;
-
-  function makeDraggableStar(element) {
-    let drag = null;
-    let moved = false;
-
-    element.addEventListener("pointerdown", e => {
-      drag = {
-        x:e.clientX,
-        y:e.clientY,
-        left:element.offsetLeft,
-        top:element.offsetTop
-      };
-      moved = false;
-      starDragging = false;
-      element.setPointerCapture(e.pointerId);
-    });
-
-    element.addEventListener("pointermove", e => {
-      if (!drag) return;
-
-      const dx = e.clientX-drag.x;
-      const dy = e.clientY-drag.y;
-
-      if (Math.abs(dx)+Math.abs(dy)>5) {
-        moved = true;
-        starDragging = true;
-      }
-
-      if (!moved) return;
-
-      const left = Math.max(0,Math.min(innerWidth-element.offsetWidth,drag.left+dx));
-      const top = Math.max(0,Math.min(innerHeight-element.offsetHeight,drag.top+dy));
-
-      element.style.left = left+"px";
-      element.style.top = top+"px";
-      element.style.bottom = "auto";
-    });
-
-    element.addEventListener("pointerup", () => {
-      drag = null;
-      setTimeout(() => starDragging = false, 100);
-    });
-
-    element.addEventListener("pointercancel", () => {
-      drag = null;
-      starDragging = false;
-    });
-  }
-
-  makeDraggable(root, top);
-
-  async function load() {
-    content.replaceChildren(
-      make("h2", "", "Loading Skyline..."),
-      make("div", "subtitle", "Loading your bookmarklet collection.")
-    );
-
-    try {
-      const response = await fetch(DATA_URL, {
-        cache:"no-store"
-      });
-
-      if (!response.ok) throw new Error("HTTP " + response.status);
-
-      const json = await response.json();
-
-      if (!Array.isArray(json.bookmarklets)) {
-        throw new Error("Invalid bookmarklet JSON.");
-      }
-
-      data = json;
-      view("Main");
-    } catch (error) {
-      console.error("Skyline JSON error:", error);
-
-      content.replaceChildren(
-        make("h2", "", "Could not load JSON"),
-        make("div", "subtitle", error.message),
-        button("Try Again", "secondary", load)
+  function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => status.textContent = "Copied to clipboard.",
+        () => fallbackCopy(text)
       );
+    } else {
+      fallbackCopy(text);
     }
   }
 
-  load();
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+      document.execCommand("copy");
+      status.textContent = "Copied to clipboard.";
+    } catch {
+      status.textContent = "Could not copy.";
+    }
+
+    textarea.remove();
+  }
+
+  function setPageFilter(filter) {
+    let effects = document.getElementById("skyline-page-effects");
+
+    if (!effects) {
+      effects = $("style", { id: "skyline-page-effects" });
+    }
+
+    effects.textContent = `html{filter:${filter}!important}`;
+  }
+
+  function changeZoom(amount) {
+    const current = Number.parseFloat(document.body.style.zoom) || 1;
+    document.body.style.zoom = Math.max(.3, Math.min(2, current + amount));
+  }
+
+  function toggleRuler() {
+    const existing = document.getElementById("skyline-ruler");
+    if (existing) {
+      existing.remove();
+      return;
+    }
+
+    const ruler = $("div", { id: "skyline-ruler" });
+    ruler.style.cssText =
+      "position:fixed;left:0;right:0;top:50%;height:1px;background:red;z-index:2147483645;pointer-events:none";
+  }
+
+  function inspectClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    document.body.style.cursor = "";
+
+    const el = event.target;
+    alert(
+      "Element: " + el.tagName +
+      "\nID: " + el.id +
+      "\nClass: " + el.className +
+      "\nText: " + (el.innerText || "").slice(0, 300)
+    );
+  }
+
+  function highlightClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    document.body.style.cursor = "";
+    event.target.style.outline = "3px solid red";
+  }
+
+  function copyElementClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    document.body.style.cursor = "";
+    copyText(event.target.outerHTML);
+  }
+
+  function pickColor() {
+    const input = $("input", {
+      type: "color",
+      style: "position:fixed;left:-100px;top:-100px"
+    });
+
+    input.addEventListener("input", () => {
+      copyText(input.value);
+    });
+
+    input.click();
+    setTimeout(() => input.remove(), 60000);
+  }
+
+  // Load the action list
+  fetch(DATA_URL + "?v=" + Date.now(), {
+    cache: "no-store"
+  })
+    .then(response => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+    })
+    .then(data => {
+      allActions = Array.isArray(data) ? data : data.actions;
+
+      if (!Array.isArray(allActions)) {
+        throw new Error("The JSON must contain an actions array.");
+      }
+
+      renderCategories();
+      renderItems();
+      status.textContent = allActions.length + " actions loaded.";
+    })
+    .catch(error => {
+      console.error("[Skyline] Could not load bookmarklet.json:", error);
+      status.textContent = "Could not load bookmarklet.json.";
+      $("div", {
+        textContent: "Check that bookmarklet.json is valid JSON and available on jsDelivr.",
+        style: "padding:12px;color:#aaa;font-size:11px"
+      }, items);
+    });
+
+  console.log("[Skyline] Loaded.");
 })();
